@@ -1,10 +1,17 @@
 import type { Metadata } from 'next'
-import { Noto_Sans_Tamil } from 'next/font/google'
+import { Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
+import { cn } from '@/lib/utils'
 
-const notoSans = Noto_Sans_Tamil({
-  variable: '--font-noto',
-  subsets: ['tamil'],
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+})
+
+const inter = Inter({
+  style: 'normal',
+  weight: '400',
+  subsets: ['latin'],
 })
 
 export const metadata: Metadata = {
@@ -14,9 +21,20 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="en" className={`${notoSans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-zinc-900 text-zinc-300 text-3xl">
-        {children}
+    <html
+      lang="pt-br"
+      className={cn(
+        'h-full',
+        'antialiased',
+        inter.className,
+        'font-mono',
+        jetbrainsMono.variable
+      )}
+    >
+      <body className="bg-zinc-900 text-zinc-300 ">
+        <main className="grid items-center justify-center w-screen h-screen bg-linear-to-br from-indigo-950 to-mauve-700">
+          {children}
+        </main>
       </body>
     </html>
   )
