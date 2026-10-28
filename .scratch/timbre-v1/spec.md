@@ -274,6 +274,7 @@ Behind the page, a Catalog of about 10k well-known Songs is built only from open
 - Album artwork on cards.
 - Column-level encryption, encrypted database connections inside the Docker network, and custom backup tooling beyond provider snapshots.
 - Extended quota mode for the Spotify app.
+- A Song-language preference next to the search box (for example "qualquer idioma / músicas em inglês / músicas em português"). This could come later. For now, no language quota or filter is applied to Songs.
 
 ## Further Notes
 
