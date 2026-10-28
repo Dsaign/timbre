@@ -1,0 +1,8 @@
+# Install once per clone: `pre-commit install`. gitleaks-system uses the local gitleaks binary (see README).
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks-system
+        # Upstream's gitleaks-system hook omits this (its sibling hooks set it); gitleaks takes no file arguments.
+        pass_filenames: false

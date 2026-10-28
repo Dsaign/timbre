@@ -1,0 +1,111 @@
+# Compose reads back/.env for ${...} interpolation. Each service gets only the variables it needs.
+# `docker compose up -d --wait` starts db, migrates it, sets role passwords, then starts the API.
+# `docker compose run --rm tests` runs pytest inside the network.
+# Hardening for every service except db (the postgres entrypoint needs root capabilities).
+x-hardened: &hardened
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  read_only: true
+
+services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg18-trixie
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in back/.env}
+      POSTGRES_DB: timbre
+    volumes:
+      - db-data:/var/lib/postgresql
+    # No "ports": the database is reachable only inside the Compose network.
+    healthcheck:
+      # Over TCP: on a fresh volume, the image's temporary init server answers on the socket only.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d timbre"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  migrate:
+    <<: *hardened
+    image: ghcr.io/amacneil/dbmate:2.37.0
+    command: ["up"]
+    environment:
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/timbre?sslmode=disable
+      DBMATE_MIGRATIONS_DIR: /db/migrations
+      DBMATE_NO_DUMP_SCHEMA: "true"
+      DBMATE_STRICT: "true"
+    volumes:
+      - ./migrations:/db/migrations:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Role passwords are secrets, so they are set from back/.env on every start, not in a migration.
+  role-passwords:
+    <<: *hardened
+    image: pgvector/pgvector:0.8.7-pg18-trixie
+    user: postgres
+    environment:
+      PGHOST: db
+      PGUSER: postgres
+      PGDATABASE: timbre
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      ML_WORKER_PASSWORD: ${ML_WORKER_PASSWORD:?set in back/.env}
+      API_SEARCH_PASSWORD: ${API_SEARCH_PASSWORD:?set in back/.env}
+      API_PREVIEW_PASSWORD: ${API_PREVIEW_PASSWORD:?set in back/.env}
+    entrypoint:
+      - sh
+      - -c
+      - |
+        psql -v ON_ERROR_STOP=1 -q <<'SQL'
+        \getenv p ML_WORKER_PASSWORD
+        ALTER ROLE ml_worker PASSWORD :'p';
+        \getenv p API_SEARCH_PASSWORD
+        ALTER ROLE api_search PASSWORD :'p';
+        \getenv p API_PREVIEW_PASSWORD
+        ALTER ROLE api_preview PASSWORD :'p';
+        SQL
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  api:
+    <<: *hardened
+    build:
+      context: .
+      target: api
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      FRONT_TOKEN: ${FRONT_TOKEN:?set in back/.env}
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import os, urllib.request as u; u.urlopen(u.Request('http://localhost:8000/health', headers={'Authorization': 'Bearer ' + os.environ['FRONT_TOKEN']}))"
+      interval: 2s
+      timeout: 3s
+      retries: 15
+    depends_on:
+      role-passwords:
+        condition: service_completed_successfully
+
+  tests:
+    <<: *hardened
+    tmpfs: [/tmp] # pytest's output capture needs a writable temp dir
+    profiles: ["test"]
+    build:
+      context: .
+      target: tests
+    environment:
+      API_URL: http://api:8000
+      FRONT_TOKEN: ${FRONT_TOKEN}
+      ML_WORKER_PASSWORD: ${ML_WORKER_PASSWORD}
+      API_SEARCH_PASSWORD: ${API_SEARCH_PASSWORD}
+      API_PREVIEW_PASSWORD: ${API_PREVIEW_PASSWORD}
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  db-data:
