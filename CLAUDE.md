@@ -1,5 +1,6 @@
 ## Conventions
 
+- The Next.js app lives in `front/` with its own `package.json`. Run pnpm commands (`dev`, `lint`, `build`, `exec tsc --noEmit`) from `front/`. The repo root has no JS tooling.
 - UI primitives: Radix UI (through shadcn components). Icons: Lucide (`lucide-react`). Brand logos use the official SVGs. See `docs/adr/0003-radix-ui-and-lucide-icons.md`.
 
 ## Agent skills
