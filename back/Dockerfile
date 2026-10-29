@@ -1,5 +1,5 @@
 # Layout follows https://docs.astral.sh/uv/guides/integration/docker/
-FROM python:3.13.18-slim-trixie AS base
+FROM python:3.15.0-slim-trixie AS base
 COPY --from=ghcr.io/astral-sh/uv:0.13.6 /uv /bin/
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=0 PATH="/app/.venv/bin:$PATH"
 WORKDIR /app
