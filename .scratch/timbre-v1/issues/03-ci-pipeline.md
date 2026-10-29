@@ -4,7 +4,7 @@
 
 **Blocked by:** 02
 
-**Status:** ready-for-human
+**Status:** resolved
 
 - [x] A GitHub Actions workflow runs on pushes and pull requests:
   - front: lint, type check, Vitest;
@@ -13,7 +13,7 @@
   - the OpenAPI drift check;
   - gitleaks, `pnpm audit`, `pip-audit`, and Trivy on the built images.
 - [x] Dependabot opens weekly updates for npm, Python (uv/pip), Docker images and GitHub Actions.
-- [ ] The workflow is green on the main branch.
+- [x] The workflow is green on the main branch.
 - [x] Spotify credentials are NOT needed yet. Ticket 07 adds them as Actions secrets.
 
 ## Comments

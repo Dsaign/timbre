@@ -17,7 +17,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="pt-br" className={`h-full antialiased ${inter.className}`}>
       <body className="bg-zinc-900 text-zinc-300 ">
-        <main className="grid min-h-screen items-center justify-center bg-linear-to-br from-indigo-950 to-mauve-700">
+        <main className="grid min-h-screen place-items-center bg-linear-to-br from-indigo-950 to-mauve-700">
           {children}
         </main>
       </body>

@@ -1,6 +1,6 @@
 # timbre
 
-Describe a song you like and get music recommendations. Early stage: the search form exists, the recommendation logic does not yet.
+Describe the music you want and get Matches. Early stage: search runs on a 200-Song seed Catalog with the baseline model (multilingual-e5-small).
 
 - `front/`: the Next.js 16 app (pnpm).
 - `back/`: the FastAPI service, SQL migrations (dbmate) and the Docker Compose stack (Postgres with pgvector).
@@ -25,7 +25,7 @@ pre-commit run --all-files    # optional: run it now
 
 ```bash
 cd back
-docker compose up -d --wait   # db, migrations, role passwords, API on 127.0.0.1:8000
+docker compose up -d --wait   # db, migrations, role passwords, seed Catalog, worker, API on 127.0.0.1:8000
 cd ../front
 pnpm install
 pnpm dev                      # logs "[timbre] back /health → 200 ok" when back answers
@@ -52,6 +52,16 @@ pnpm format   # Prettier, rewrites files in place
 
 cd ..
 scripts/check-openapi-drift.sh   # fails if back/openapi.json or the TS types are stale
+```
+
+The first build downloads the e5 model (about 470 MB) into the image. After start, the worker needs a few seconds to build the Song vectors; until then searches find nothing.
+
+## Seed Catalog
+
+`back/src/timbre_back/seed.json` holds about 200 well-known Songs with CC0 fields only (MusicBrainz ID, title, artist, ISRC, AcousticBrainz high-level probabilities, instrument credits, ListenBrainz listen counts). It is loaded on every `compose up`. To fetch it again from the APIs (a few minutes, 1 request per second):
+
+```bash
+cd back && METABRAINZ_CONTACT=<your email or URL> uv run python scripts/fetch_seed.py
 ```
 
 ## Change the API
