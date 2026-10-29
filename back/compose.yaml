@@ -1,5 +1,6 @@
 # Compose reads back/.env for ${...} interpolation. Each service gets only the variables it needs.
-# `docker compose up -d --wait` starts db, migrates it, sets role passwords, then starts the API.
+# `docker compose up -d --wait` starts db, migrates it, sets role passwords, loads the seed
+# Catalog, then starts the API and the job worker (which builds the Song vectors).
 # `docker compose run --rm tests` runs pytest inside the network.
 # Hardening for every service except db (the postgres entrypoint needs root capabilities).
 x-hardened: &hardened
@@ -76,6 +77,7 @@ services:
     environment:
       APP_ENV: ${APP_ENV:-production}
       FRONT_TOKEN: ${FRONT_TOKEN:?set in back/.env}
+      API_SEARCH_PASSWORD: ${API_SEARCH_PASSWORD}
     ports:
       - "127.0.0.1:8000:8000"
     healthcheck:
@@ -87,8 +89,35 @@ services:
       interval: 2s
       timeout: 3s
       retries: 15
+      start_period: 30s # loads the e5 model before it answers
     depends_on:
       role-passwords:
+        condition: service_completed_successfully
+
+  # shortcut: loads the committed seed Catalog on every start; ticket 12's import replaces it
+  seed:
+    <<: *hardened
+    build:
+      context: .
+      target: api
+    command: ["python", "-m", "timbre_back.seed"]
+    environment:
+      ML_WORKER_PASSWORD: ${ML_WORKER_PASSWORD}
+    depends_on:
+      role-passwords:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *hardened
+    build:
+      context: .
+      target: api
+    command: ["python", "-m", "timbre_back.worker"]
+    restart: unless-stopped
+    environment:
+      ML_WORKER_PASSWORD: ${ML_WORKER_PASSWORD}
+    depends_on:
+      seed:
         condition: service_completed_successfully
 
   tests:
@@ -107,6 +136,8 @@ services:
     depends_on:
       api:
         condition: service_healthy
+      worker:
+        condition: service_started
 
 volumes:
   db-data:

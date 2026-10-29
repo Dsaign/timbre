@@ -35,6 +35,15 @@ INSERT_VOTE_H1: LiteralString = (
     "INSERT INTO feedback.votes (visitor_hash, description, song_id, vote)"
     " VALUES ('h1', 'calm piano', '00000000-0000-0000-0000-000000000001', 'up')"
 )
+# The seed Catalog is loaded too, so Song counts look only at the test IDs.
+SELECT_TEST_SONGS: LiteralString = (
+    "SELECT * FROM catalog.songs WHERE id::text LIKE '00000000-0000-0000-0000-%'"
+)
+INSERT_JOB: LiteralString = "INSERT INTO jobs.queue (kind) VALUES ('build-vectors')"
+INSERT_MODEL_VERSION: LiteralString = (
+    "INSERT INTO catalog.model_versions (id, name, cutoff, popularity_weight)"
+    " VALUES (99, 't', 0.5, 0)"
+)
 INSERT_CACHE: LiteralString = (
     "INSERT INTO preview.spotify_cache (song_id, expires_at)"
     " VALUES ('00000000-0000-0000-0000-000000000001', now() + interval '24 hours')"
@@ -42,9 +51,9 @@ INSERT_CACHE: LiteralString = (
 
 # (role, setup statements, statement under test, expected rowcount or DENIED)
 CASES: list[tuple[str, tuple[LiteralString, ...], LiteralString, int | str]] = [
-    # ml_worker: read and write catalog, read feedback, nothing in preview or jobs.
+    # ml_worker: read and write catalog and jobs, read feedback, nothing in preview.
     ("ml_worker", (), INSERT_SONG, 1),
-    ("ml_worker", (INSERT_SONG,), "SELECT * FROM catalog.songs", 2),  # seed + new
+    ("ml_worker", (INSERT_SONG,), SELECT_TEST_SONGS, 2),
     (
         "ml_worker",
         (INSERT_SONG,),
@@ -64,8 +73,21 @@ CASES: list[tuple[str, tuple[LiteralString, ...], LiteralString, int | str]] = [
     ("ml_worker", (), "DELETE FROM feedback.votes", DENIED),
     ("ml_worker", (), "SELECT * FROM preview.spotify_cache", DENIED),
     ("ml_worker", (), INSERT_CACHE, DENIED),
+    ("ml_worker", (), INSERT_JOB, 1),
+    (
+        "ml_worker",
+        (INSERT_JOB,),
+        "UPDATE jobs.queue SET status = 'done'"
+        " WHERE id = (SELECT max(id) FROM jobs.queue)",  # the job just inserted
+        1,
+    ),
+    ("ml_worker", (), INSERT_MODEL_VERSION, 1),
     # api_search: read catalog, read and write only its own votes, nothing in preview.
-    ("api_search", (), "SELECT * FROM catalog.songs", 1),  # the seeded Song
+    ("api_search", (), SELECT_TEST_SONGS, 1),  # seeded
+    ("api_search", (), "SELECT * FROM catalog.model_versions WHERE id = 1", 1),
+    ("api_search", (), INSERT_MODEL_VERSION, DENIED),
+    ("api_search", (), "SELECT * FROM jobs.queue", DENIED),
+    ("api_search", (), INSERT_JOB, DENIED),
     ("api_search", (AS_VISITOR_SEED,), "SELECT * FROM feedback.votes", 1),  # own vote
     ("api_search", (), "SELECT * FROM feedback.votes", 0),  # no visitor set: none own
     ("api_search", (), INSERT_SONG, DENIED),
@@ -103,8 +125,11 @@ CASES: list[tuple[str, tuple[LiteralString, ...], LiteralString, int | str]] = [
     ("api_preview", (), "SELECT * FROM feedback.votes", DENIED),
     ("api_preview", (), INSERT_SONG, DENIED),
     ("api_preview", (), "SELECT '[1,2,3]'::extensions.vector", DENIED),
-    # Nobody can create objects or touch the jobs schema yet.
+    ("api_preview", (), "SELECT * FROM jobs.queue", DENIED),
+    ("api_preview", (), "SELECT * FROM catalog.model_versions", DENIED),
+    # Nobody can create objects.
     ("ml_worker", (), "CREATE TABLE public.x (i int)", DENIED),
+    ("ml_worker", (), "CREATE TABLE jobs.x (i int)", DENIED),
     ("api_search", (), "CREATE TABLE jobs.x (i int)", DENIED),
     ("api_preview", (), "CREATE TABLE preview.x (i int)", DENIED),
 ]
