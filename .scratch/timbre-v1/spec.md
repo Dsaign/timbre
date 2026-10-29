@@ -269,7 +269,7 @@ Behind the page, a Catalog of about 10k well-known Songs is built only from open
 - Fine-tuning the e5 model itself, and GPU training.
 - Online (per-vote) model updates.
 - Using Preview clicks as a training signal.
-- Languages other than Portuguese and English for Descriptions. A UI in languages other than pt-BR.
+- Languages other than Portuguese and English for Descriptions. A UI in languages other than pt-BR (the e2e tests assert pt-BR labels and would need updating).
 - Embedding a player in every card. Preview via the deprecated 30-second preview URL.
 - Album artwork on cards.
 - Column-level encryption, encrypted database connections inside the Docker network, and custom backup tooling beyond provider snapshots.

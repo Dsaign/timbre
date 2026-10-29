@@ -47,3 +47,7 @@ __pycache__/
 /back/.mypy_cache
 /back/.ruff_cache
 /back/.pytest_cache
+
+# playwright
+/front/test-results/
+/front/playwright-report/
