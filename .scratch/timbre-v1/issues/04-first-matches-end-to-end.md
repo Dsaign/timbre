@@ -4,7 +4,7 @@
 
 **Blocked by:** 02
 
-**Status:** ready-for-human
+**Status:** resolved
 
 - [x] A one-off fetch script produces a committed JSON seed of about 200 well-known Songs. It contains **CC0 fields only**: MusicBrainz recording ID, title, artist, ISRC, AcousticBrainz high-level labels and probabilities, instrument credits, and ListenBrainz listen counts. No MusicBrainz tags or genres (ADR 0002, licence).
 - [x] A Postgres-backed job queue and a worker process exist. The build-vectors job writes each Song's profile text (AcousticBrainz labels above a probability threshold, written as words, plus instruments) and its `multilingual-e5-small` passage vector, for Songs that have none.

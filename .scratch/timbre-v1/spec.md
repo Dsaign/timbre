@@ -181,7 +181,7 @@ Behind the page, a Catalog of about 10k well-known Songs is built only from open
 
 ### Front end
 
-- The search form submits with GET to the home page. Before submitting, client code measures how many cards fit (columns × visible rows) and adds N to the URL. Without JavaScript, N is 24. Resizing never refetches: the layout only reflows.
+- The search form submits with GET to the home page. Before submitting, client code measures how many cards fit (columns × visible rows) and adds N to the URL. Without JavaScript, N is 24. JavaScript is required to see results (they stream in through Suspense), and "carregar mais", Preview and the background need it too. Resizing never refetches: the layout only reflows.
 - **Rendering:** a route-level loading state (skeleton grid), a Suspense boundary around the grid, and a separate Suspense boundary for each card's Preview controls, so the grid streams in before Spotify lookups finish.
 - **Before any search:** the search panel and clickable sample Descriptions. A no-Matches result shows the message and the same sample Descriptions. Clicking a sample fills the input and searches in one action.
 - **Feedback controls:** 👍/👎 per card, with the current vote highlighted. Pressing the other thumb switches the vote. Pressing the same thumb again withdraws it. Updates are optimistic and reverted on error.

@@ -1,11 +1,11 @@
 import { Suspense } from 'react'
-import { Button } from '@/components/ui/button'
+import { MatchGrid } from '@/components/match-grid'
+import { SearchForm } from '@/components/search-form'
 import { Card } from '@/components/ui/card'
-import { Field } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { back } from '@/lib/api/client'
-import { PAGE_SIZE, parseDescription } from '@/lib/search'
+import { GRID } from '@/lib/grid'
+import { parseDescription, parsePageSize } from '@/lib/search'
 
 // Cache Components: the shell (panel and an empty form) is prerendered; whatever reads
 // searchParams streams in inside a Suspense boundary.
@@ -48,52 +48,26 @@ async function FilledSearchForm({
   return <SearchForm defaultValue={parseDescription(q) ?? ''} />
 }
 
-function SearchForm({ defaultValue }: { defaultValue?: string }) {
-  return (
-    <form>
-      <Field>
-        <Input
-          name="q"
-          type="text"
-          aria-label="Descreva sua música favorita"
-          placeholder="Descreva sua música favorita..."
-          defaultValue={defaultValue}
-          required
-          maxLength={300}
-          className="
-                border-0 text-white
-                bg-linear-to-br from-indigo-950 to-mauve-700
-                focus:border placeholder:text-zinc-400"
-        />
-
-        <Button
-          type="submit"
-          variant="secondary"
-          className="w-full cursor-pointer bg-linear-to-br from-indigo-200 to-mauve-200 hover:from-indigo-300 transition-colors"
-        >
-          Pesquisar
-        </Button>
-      </Field>
-    </form>
-  )
-}
-
 async function Results({ searchParams }: { searchParams: SearchParams }) {
-  const { q } = await searchParams
+  const { q, n } = await searchParams
   if (q === undefined) return null
   const description = parseDescription(q)
   if (!description)
     return <p role="alert">Descreva a música com 1 a 300 caracteres.</p>
+  const pageSize = parsePageSize(n)
   return (
-    <Suspense key={description} fallback={<MatchesSkeleton />}>
-      <Matches description={description} />
+    <Suspense
+      key={`${pageSize}:${description}`}
+      fallback={<MatchesSkeleton n={pageSize} />}
+    >
+      <Matches description={description} n={pageSize} />
     </Suspense>
   )
 }
 
-async function Matches({ description }: { description: string }) {
+async function Matches({ description, n }: { description: string; n: number }) {
   const { data, response } = await back.GET('/search', {
-    params: { query: { q: description, n: PAGE_SIZE } },
+    params: { query: { q: description, n } },
   })
   // shortcut: any back failure goes to the error page; ticket 09 adds the friendly message
   if (!data) throw new Error(`search failed: HTTP ${response.status}`)
@@ -104,29 +78,23 @@ async function Matches({ description }: { description: string }) {
         {data.count}{' '}
         {data.count === 1 ? 'música encontrada' : 'músicas encontradas'}
       </p>
-      <ul aria-label="Músicas" className={GRID}>
-        {data.matches.map((match) => (
-          <li key={match.id}>
-            <Card className="h-full rounded-xl bg-black/40 p-4 text-white">
-              <p className="text-sm font-medium">{match.title}</p>
-              <p className="text-zinc-300">{match.artist}</p>
-            </Card>
-          </li>
-        ))}
-      </ul>
+      <MatchGrid
+        description={description}
+        n={n}
+        count={data.count}
+        firstPage={data.matches}
+      />
     </section>
   )
 }
 
-const GRID = 'grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-3'
-
-function MatchesSkeleton() {
+function MatchesSkeleton({ n }: { n: number }) {
   return (
     <div aria-busy="true" aria-label="Carregando resultados" className="w-full">
       <Skeleton className="mx-auto mb-4 h-5 w-48 rounded-md bg-white/10" />
       <div className={GRID}>
-        {Array.from({ length: PAGE_SIZE }, (_, i) => (
-          <Skeleton key={i} className="h-20 rounded-xl bg-white/10" />
+        {Array.from({ length: n }, (_, i) => (
+          <Skeleton key={i} className="h-24 rounded-xl bg-white/10" />
         ))}
       </div>
     </div>

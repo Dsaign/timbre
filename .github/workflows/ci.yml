@@ -94,7 +94,6 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm exec playwright install --with-deps chromium
-          pnpm build
           pnpm test:e2e
       - name: Compose logs
         if: failure()
