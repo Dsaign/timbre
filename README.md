@@ -47,7 +47,7 @@ pnpm exec tsc --noEmit   # needs the route types: run `pnpm build` or `pnpm dev`
 pnpm exec prettier --check .
 pnpm build
 pnpm test                # Vitest
-pnpm test:e2e            # Playwright against `pnpm start`; needs `pnpm build` and the back stack up
+pnpm test:e2e            # builds, then Playwright against `pnpm start`; needs the back stack up
 pnpm format   # Prettier, rewrites files in place
 
 cd ..

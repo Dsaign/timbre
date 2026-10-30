@@ -10,7 +10,7 @@
     "format": "prettier --write .",
     "api:types": "openapi-typescript ../back/openapi.json -o lib/api/schema.d.ts",
     "test": "vitest run --passWithNoTests --exclude 'e2e/**'",
-    "test:e2e": "playwright test"
+    "test:e2e": "next build && playwright test"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
