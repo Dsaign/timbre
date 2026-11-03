@@ -6,6 +6,15 @@ import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { pageSizeFor } from '@/lib/grid'
 
+/** The results URL for a Description, with N sized to the visitor's screen. */
+export function searchUrl(q: string) {
+  const n = pageSizeFor(
+    document.documentElement.clientWidth,
+    window.innerHeight
+  )
+  return `/?${new URLSearchParams({ q, n: String(n) })}`
+}
+
 // Without JavaScript the form submits natively with only q, and the page uses N = 24.
 export function SearchForm({ defaultValue }: { defaultValue?: string }) {
   const router = useRouter()
@@ -13,12 +22,9 @@ export function SearchForm({ defaultValue }: { defaultValue?: string }) {
     <form
       onSubmit={(event) => {
         event.preventDefault()
-        const q = String(new FormData(event.currentTarget).get('q'))
-        const n = pageSizeFor(
-          document.documentElement.clientWidth,
-          window.innerHeight
+        router.push(
+          searchUrl(String(new FormData(event.currentTarget).get('q')))
         )
-        router.push(`/?${new URLSearchParams({ q, n: String(n) })}`)
       }}
     >
       <Field>
@@ -31,7 +37,7 @@ export function SearchForm({ defaultValue }: { defaultValue?: string }) {
           required
           maxLength={300}
           className="
-                border-0 text-white
+                border-0 text-base text-white md:text-xs
                 bg-linear-to-br from-indigo-950 to-mauve-700
                 focus:border placeholder:text-zinc-400"
         />
