@@ -38,6 +38,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Feedback
+         * @description Vote on a Match. The latest vote per visitor, Description and Song wins.
+         */
+        post: operations["feedback_feedback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/preview": {
         parameters: {
             query?: never;
@@ -62,6 +82,22 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** FeedbackRequest */
+        FeedbackRequest: {
+            /** Description */
+            description: string;
+            /**
+             * Song Id
+             * Format: uuid
+             */
+            song_id: string;
+            /**
+             * Vote
+             * @description "none" withdraws the vote
+             * @enum {string}
+             */
+            vote: "up" | "down" | "none";
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -86,6 +122,11 @@ export interface components {
             title: string;
             /** Artist */
             artist: string;
+            /**
+             * Vote
+             * @description The visitor's current vote, if any
+             */
+            vote: ("up" | "down") | null;
         };
         /** Preview */
         Preview: {
@@ -168,7 +209,10 @@ export interface operations {
                 n?: number;
                 offset?: number;
             };
-            header?: never;
+            header: {
+                /** @description The visitor's IP address, forwarded by front */
+                "x-visitor-ip": string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -185,6 +229,54 @@ export interface operations {
             };
             /** @description Missing or wrong front token */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    feedback_feedback_post: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description The visitor's IP address, forwarded by front */
+                "x-visitor-ip": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeedbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or wrong front token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The Song is not in the Catalog */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

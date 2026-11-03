@@ -3,6 +3,7 @@
 import { LoaderCircle } from 'lucide-react'
 import { Suspense, useEffect, useRef, useState, useTransition } from 'react'
 import { loadMore, previewsFor } from '@/app/actions'
+import { FeedbackButtons } from '@/components/feedback-buttons'
 import { PreviewControls } from '@/components/preview-player'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -56,8 +57,18 @@ export function MatchGrid({
             className="rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
             <Card className="h-32 gap-0 rounded-xl bg-black/40 p-4 text-white">
-              <p className="truncate text-sm font-medium">{match.title}</p>
-              <p className="truncate text-zinc-300">{match.artist}</p>
+              <div className="flex items-start gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{match.title}</p>
+                  <p className="truncate text-zinc-300">{match.artist}</p>
+                </div>
+                <FeedbackButtons
+                  description={description}
+                  songId={match.id}
+                  title={match.title}
+                  initial={match.vote}
+                />
+              </div>
               <div className="mt-auto">
                 <Suspense
                   fallback={

@@ -8,6 +8,7 @@ import { back } from '@/lib/api/client'
 import { GRID } from '@/lib/grid'
 import { lookupPreviews } from '@/lib/preview'
 import { parseDescription, parsePageSize } from '@/lib/search'
+import { visitorHeaders } from '@/lib/visitor'
 
 // Cache Components: the shell (panel and an empty form) is prerendered; whatever reads
 // searchParams streams in inside a Suspense boundary.
@@ -30,6 +31,9 @@ export default function Home({ searchParams }: PageProps<'/'>) {
           <Suspense fallback={<SearchForm />}>
             <FilledSearchForm searchParams={searchParams} />
           </Suspense>
+          <p className="mt-4 text-xs text-zinc-300">
+            Descrições e votos são armazenados para melhorar o modelo.
+          </p>
         </div>
       </Card>
       <Suspense>
@@ -71,7 +75,7 @@ async function Results({ searchParams }: { searchParams: SearchParams }) {
 
 async function Matches({ description, n }: { description: string; n: number }) {
   const { data, response } = await back.GET('/search', {
-    params: { query: { q: description, n } },
+    params: { query: { q: description, n }, header: await visitorHeaders() },
   })
   // shortcut: any back failure goes to the error page; ticket 09 adds the friendly message
   if (!data) throw new Error(`search failed: HTTP ${response.status}`)
