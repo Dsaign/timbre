@@ -4,9 +4,9 @@ import { gridColumns, pageSizeFor } from './grid'
 describe('pageSizeFor', () => {
   it.each([
     // [width, height, columns, N]
-    [375, 667, 1, 6],
-    [768, 1024, 3, 27],
-    [1440, 900, 4, 32],
+    [375, 667, 1, 4],
+    [768, 1024, 3, 21],
+    [1440, 900, 4, 24],
   ])('%i×%i → %i columns, N = %i', (width, height, columns, n) => {
     expect(gridColumns(width)).toBe(columns)
     expect(pageSizeFor(width, height)).toBe(n)
@@ -17,7 +17,7 @@ describe('pageSizeFor', () => {
   })
 
   it('caps N at 60', () => {
-    expect(pageSizeFor(3840, 2160)).toBe(60)
+    expect(pageSizeFor(3840, 4000)).toBe(60)
   })
 
   it('is at least one card on tiny screens', () => {

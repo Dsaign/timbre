@@ -55,6 +55,7 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run mypy src tests
+      - run: uv run pyright
       - name: pip-audit
         run: |
           uv export --locked --format requirements.txt --no-emit-project -q -o "$RUNNER_TEMP/requirements.txt"
@@ -69,12 +70,18 @@ jobs:
           persist-credentials: false
       - name: Write throwaway back/.env
         working-directory: back
+        # Empty on Dependabot and fork PRs: Preview is then "not available" and its e2e test skips.
+        env:
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
         run: |
           for k in POSTGRES_PASSWORD ML_WORKER_PASSWORD API_SEARCH_PASSWORD API_PREVIEW_PASSWORD IP_HASH_SALT FRONT_TOKEN; do
             v="$(openssl rand -hex 32)"
             echo "::add-mask::$v"
             echo "$k=$v"
           done > .env
+          echo "SPOTIFY_CLIENT_ID=$SPOTIFY_CLIENT_ID" >> .env
+          echo "SPOTIFY_CLIENT_SECRET=$SPOTIFY_CLIENT_SECRET" >> .env
           echo "FRONT_TOKEN=$(grep '^FRONT_TOKEN=' .env | cut -d= -f2)" >> "$GITHUB_ENV"
       - name: pytest
         working-directory: back
@@ -91,6 +98,7 @@ jobs:
         working-directory: front
         env:
           BACK_URL: http://127.0.0.1:8000
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }} # e2e/preview.spec.ts skips without it
         run: |
           pnpm install --frozen-lockfile
           pnpm exec playwright install --with-deps chromium

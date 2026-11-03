@@ -38,6 +38,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview
+         * @description For each Song, its Spotify track or "not available" (errors included).
+         */
+        post: operations["preview_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -66,6 +86,24 @@ export interface components {
             title: string;
             /** Artist */
             artist: string;
+        };
+        /** Preview */
+        Preview: {
+            /**
+             * Song Id
+             * Format: uuid
+             */
+            song_id: string;
+            /**
+             * Spotify Track Id
+             * @description Spotify track ID, or null when the Song is not available
+             */
+            spotify_track_id: string | null;
+        };
+        /** PreviewRequest */
+        PreviewRequest: {
+            /** Song Ids */
+            song_ids: string[];
         };
         /** SearchResult */
         SearchResult: {
@@ -143,6 +181,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SearchResult"];
+                };
+            };
+            /** @description Missing or wrong front token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Preview"][];
                 };
             };
             /** @description Missing or wrong front token */

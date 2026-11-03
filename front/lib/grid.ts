@@ -1,9 +1,9 @@
 // Mirrors the layout in app/page.tsx: content is max-w-5xl with px-4, the grid is
-// repeat(auto-fill, minmax(12rem, 1fr)) with gap-3, and each card is h-24.
+// repeat(auto-fill, minmax(14rem, 1fr)) with gap-3, and each card is h-32.
 const MAX_CONTENT_WIDTH = 1024
 const SIDE_PADDING = 16
-const CARD_MIN_WIDTH = 192
-const CARD_HEIGHT = 96
+const CARD_MIN_WIDTH = 224 // room for Preview and the Spotify link side by side
+const CARD_HEIGHT = 128
 const GAP = 12
 export const MAX_PAGE_SIZE = 60
 
@@ -22,4 +22,4 @@ export function pageSizeFor(viewportWidth: number, viewportHeight: number) {
   return Math.min(MAX_PAGE_SIZE, gridColumns(viewportWidth) * rows)
 }
 
-export const GRID = 'grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-3'
+export const GRID = 'grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-3'

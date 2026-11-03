@@ -1,12 +1,15 @@
 'use client'
 
 import { LoaderCircle } from 'lucide-react'
-import { useEffect, useRef, useState, useTransition } from 'react'
-import { loadMore } from '@/app/actions'
+import { Suspense, useEffect, useRef, useState, useTransition } from 'react'
+import { loadMore, previewsFor } from '@/app/actions'
+import { PreviewControls } from '@/components/preview-player'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import type { components } from '@/lib/api/schema'
 import { GRID } from '@/lib/grid'
+import type { Previews } from '@/lib/preview'
 
 type Match = components['schemas']['Match']
 const MAX_OFFSET = 10_000 // the API's limit
@@ -17,13 +20,18 @@ export function MatchGrid({
   n,
   count,
   firstPage,
+  firstPreviews,
 }: {
   description: string
   n: number
   count: number
   firstPage: Match[]
+  firstPreviews: Promise<Previews>
 }) {
-  const [matches, setMatches] = useState(firstPage)
+  // Each Match carries its page's Preview lookup, which its card waits for alone.
+  const [matches, setMatches] = useState(() =>
+    firstPage.map((match) => ({ ...match, previews: firstPreviews }))
+  )
   const [done, setDone] = useState(firstPage.length < n)
   const [focusFrom, setFocusFrom] = useState<number | null>(null)
   const [pending, startTransition] = useTransition()
@@ -47,9 +55,22 @@ export function MatchGrid({
             tabIndex={i >= firstPage.length ? -1 : undefined}
             className="rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            <Card className="h-24 rounded-xl bg-black/40 p-4 text-white">
+            <Card className="h-32 gap-0 rounded-xl bg-black/40 p-4 text-white">
               <p className="truncate text-sm font-medium">{match.title}</p>
               <p className="truncate text-zinc-300">{match.artist}</p>
+              <div className="mt-auto">
+                <Suspense
+                  fallback={
+                    <Skeleton className="h-11 rounded-md bg-white/10" />
+                  }
+                >
+                  <PreviewControls
+                    previews={match.previews}
+                    songId={match.id}
+                    title={match.title}
+                  />
+                </Suspense>
+              </div>
             </Card>
           </li>
         ))}
@@ -63,7 +84,13 @@ export function MatchGrid({
             if (pending) return
             startTransition(async () => {
               const next = await loadMore(description, n, offset)
-              setMatches((current) => [...current, ...next])
+              const previews = previewsFor(next.map((m) => m.id)).catch(
+                () => ({})
+              )
+              setMatches((current) => [
+                ...current,
+                ...next.map((match) => ({ ...match, previews })),
+              ])
               setDone(next.length < n)
               setFocusFrom(offset)
             })

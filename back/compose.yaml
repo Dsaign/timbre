@@ -78,6 +78,10 @@ services:
       APP_ENV: ${APP_ENV:-production}
       FRONT_TOKEN: ${FRONT_TOKEN:?set in back/.env}
       API_SEARCH_PASSWORD: ${API_SEARCH_PASSWORD}
+      API_PREVIEW_PASSWORD: ${API_PREVIEW_PASSWORD}
+      # Optional: without them every Song is "not available" for Preview.
+      SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID:-}
+      SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET:-}
     ports:
       - "127.0.0.1:8000:8000"
     healthcheck:

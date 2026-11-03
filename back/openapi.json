@@ -103,6 +103,57 @@
           }
         }
       }
+    },
+    "/preview": {
+      "post": {
+        "summary": "Preview",
+        "description": "For each Song, its Spotify track or \"not available\" (errors included).",
+        "operationId": "preview_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Preview"
+                  },
+                  "type": "array",
+                  "title": "Response Preview Preview Post"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or wrong front token"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -157,6 +208,53 @@
           "artist"
         ],
         "title": "Match"
+      },
+      "Preview": {
+        "properties": {
+          "song_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Song Id"
+          },
+          "spotify_track_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spotify Track Id",
+            "description": "Spotify track ID, or null when the Song is not available"
+          }
+        },
+        "type": "object",
+        "required": [
+          "song_id",
+          "spotify_track_id"
+        ],
+        "title": "Preview"
+      },
+      "PreviewRequest": {
+        "properties": {
+          "song_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 60,
+            "minItems": 1,
+            "title": "Song Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "song_ids"
+        ],
+        "title": "PreviewRequest"
       },
       "SearchResult": {
         "properties": {
