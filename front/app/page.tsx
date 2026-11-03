@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { MatchGrid } from '@/components/match-grid'
+import { SampleDescriptions } from '@/components/sample-descriptions'
 import { SearchForm } from '@/components/search-form'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -45,12 +46,14 @@ async function FilledSearchForm({
   searchParams: SearchParams
 }) {
   const { q } = await searchParams
-  return <SearchForm defaultValue={parseDescription(q) ?? ''} />
+  const description = parseDescription(q) ?? ''
+  // key: remount so a sample chip replaces text the visitor already typed
+  return <SearchForm key={description} defaultValue={description} />
 }
 
 async function Results({ searchParams }: { searchParams: SearchParams }) {
   const { q, n } = await searchParams
-  if (q === undefined) return null
+  if (q === undefined) return <SampleDescriptions />
   const description = parseDescription(q)
   if (!description)
     return <p role="alert">Descreva a música com 1 a 300 caracteres.</p>
@@ -71,6 +74,19 @@ async function Matches({ description, n }: { description: string; n: number }) {
   })
   // shortcut: any back failure goes to the error page; ticket 09 adds the friendly message
   if (!data) throw new Error(`search failed: HTTP ${response.status}`)
+
+  if (data.count === 0)
+    return (
+      <section
+        aria-label="Resultados"
+        className="flex flex-col items-center gap-4"
+      >
+        <p role="status" className="text-white">
+          Nenhuma música encontrada
+        </p>
+        <SampleDescriptions />
+      </section>
+    )
 
   return (
     <section aria-label="Resultados" className="w-full">

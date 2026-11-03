@@ -34,3 +34,5 @@ Never cut: validation at trust boundaries, error handling that prevents data los
 ## Testing in timbre
 
 Every test runs against the latest changes. Before testing, stop leftover servers from earlier runs (for example an old `next-server` on port 3000) instead of working around them on another port. `pnpm test:e2e` builds first and never reuses a running server; rebuild Compose images (`--build`) when back code changed.
+
+Every visual front change is also seen, not only tested: run the app and look at it (screenshots) in desktop Chromium, desktop Firefox, mobile Chrome (Android emulation) and mobile Safari (iPhone emulation, WebKit). Compare with what the ticket or spec describes, fix what differs, and look again until it matches. Cover the bulk, not every resolution or browser.

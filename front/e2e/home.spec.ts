@@ -9,3 +9,16 @@ test('home page shows the search form', async ({ page }) => {
   ).toBeVisible()
   await expect(page.getByRole('button', { name: 'Pesquisar' })).toBeVisible()
 })
+
+test('home page offers six keyboard-reachable sample Descriptions', async ({
+  page,
+}) => {
+  await page.goto('/', { waitUntil: 'networkidle' })
+  const samples = page
+    .getByRole('list', { name: 'Exemplos de descrição' })
+    .getByRole('link')
+  await expect(samples).toHaveCount(6)
+  await page.getByRole('button', { name: 'Pesquisar' }).focus()
+  await page.keyboard.press('Tab')
+  await expect(samples.first()).toBeFocused()
+})

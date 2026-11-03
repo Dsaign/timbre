@@ -4,12 +4,13 @@ import { gridColumns, pageSizeFor } from '../lib/grid'
 // Needs the back stack with the seed Catalog and its vectors built (see playwright.config.ts).
 const DESCRIPTION = 'músicas alegres e dançantes para uma festa'
 
-async function search(page: Page) {
+const textbox = (page: Page) =>
+  page.getByRole('textbox', { name: 'Descreva sua música favorita' })
+
+async function search(page: Page, description = DESCRIPTION) {
   // networkidle: wait for hydration, or the form submits natively without n
   await page.goto('/', { waitUntil: 'networkidle' })
-  await page
-    .getByRole('textbox', { name: 'Descreva sua música favorita' })
-    .fill(DESCRIPTION)
+  await textbox(page).fill(description)
   await page.getByRole('button', { name: 'Pesquisar' }).click()
 }
 
@@ -70,6 +71,22 @@ for (const viewport of [
     })
   })
 }
+
+test('no Matches offers sample Descriptions; a sample searches in one click', async ({
+  page,
+}) => {
+  await search(page, 'qzxjvkwpfhgtbnmlrd')
+  await expect(page.getByRole('status')).toHaveText('Nenhuma música encontrada')
+
+  await page
+    .getByRole('link', { name: 'violão calmo para estudar', exact: true })
+    .click()
+  await expect(textbox(page)).toHaveValue('violão calmo para estudar')
+  await expect(page.getByRole('status')).toHaveText(
+    /^\d+ músicas? encontradas?$/
+  )
+  await expect(cardsOf(page).first()).toBeVisible()
+})
 
 test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false })
