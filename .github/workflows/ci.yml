@@ -37,7 +37,7 @@ jobs:
       - run: pnpm exec next typegen
       - run: pnpm exec tsc --noEmit
       - run: pnpm test
-      # The only current finding is a low-severity one in the shadcn CLI (dev only).
+      # Ignored advisories live in front/pnpm-workspace.yaml (auditConfig).
       - run: pnpm audit --audit-level moderate
       - run: ../scripts/check-openapi-drift.sh
 

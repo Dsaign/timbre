@@ -1,3 +1,9 @@
 allowBuilds:
   sharp: false
   unrs-resolver: false
+
+auditConfig:
+  ignoreGhsas:
+    # minimatch <11.0.1 ReDoS, dev tools only (eslint 9, redocly, shadcn) and no patched 3.x/5.x.
+    # Remove once eslint and redocly depend on minimatch >=11.0.1.
+    - GHSA-g3hv-75wg-m249
