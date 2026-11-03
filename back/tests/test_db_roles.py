@@ -113,14 +113,27 @@ CASES: list[tuple[str, tuple[LiteralString, ...], LiteralString, int | str]] = [
     ("api_search", (), INSERT_CACHE, DENIED),
     # api_preview: the preview cache only.
     ("api_preview", (), INSERT_CACHE, 1),
-    ("api_preview", (INSERT_CACHE,), "SELECT * FROM preview.spotify_cache", 1),
     (
         "api_preview",
         (INSERT_CACHE,),
-        "UPDATE preview.spotify_cache SET spotify_track_id = 'x'",
+        "SELECT * FROM preview.spotify_cache"
+        " WHERE song_id = '00000000-0000-0000-0000-000000000001'",
         1,
     ),
-    ("api_preview", (INSERT_CACHE,), "DELETE FROM preview.spotify_cache", 1),
+    (
+        "api_preview",
+        (INSERT_CACHE,),
+        "UPDATE preview.spotify_cache SET spotify_track_id = 'x'"
+        " WHERE song_id = '00000000-0000-0000-0000-000000000001'",
+        1,
+    ),
+    (
+        "api_preview",
+        (INSERT_CACHE,),
+        "DELETE FROM preview.spotify_cache"
+        " WHERE song_id = '00000000-0000-0000-0000-000000000001'",
+        1,
+    ),
     ("api_preview", (), "SELECT * FROM catalog.songs", DENIED),
     ("api_preview", (), "SELECT * FROM feedback.votes", DENIED),
     ("api_preview", (), INSERT_SONG, DENIED),

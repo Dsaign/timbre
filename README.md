@@ -39,6 +39,7 @@ Open http://localhost:3000. With `APP_ENV=development` in `back/.env`, the API d
 cd back
 uv run ruff check . && uv run ruff format --check .
 uv run mypy src tests
+uv run pyright
 docker compose run --rm --build tests   # pytest inside the Compose network (the db port is not published)
 
 cd ../front

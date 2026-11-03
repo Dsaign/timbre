@@ -1,0 +1,11 @@
+{
+ "tracks": {
+  "href": "https://api.spotify.com/v1/search?offset=0&limit=1&query=isrc%3AXX0000000000&type=track",
+  "limit": 1,
+  "next": null,
+  "offset": 0,
+  "previous": null,
+  "total": 0,
+  "items": []
+ }
+}

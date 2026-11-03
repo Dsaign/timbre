@@ -1,18 +1,22 @@
+import asyncio
 import os
 import secrets
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Annotated, Literal
 from uuid import UUID
 
+import httpx
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.concurrency import run_in_threadpool
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from psycopg import AsyncConnection
 from psycopg_pool import AsyncConnectionPool
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from timbre_back.db import conninfo, vector_literal
 from timbre_back.embed import embed_query
+from timbre_back.preview import Spotify, delete_expired_daily, lookup
 
 # An unset token matches nothing, so a misconfigured API refuses every caller.
 FRONT_TOKEN = os.environ.get("FRONT_TOKEN", "").encode()
@@ -84,6 +88,20 @@ SELECT
   ), '[]')
 """
 
+
+class PreviewRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    song_ids: Annotated[list[UUID], Field(min_length=1, max_length=60)]
+
+
+class Preview(BaseModel):
+    song_id: UUID
+    spotify_track_id: str | None = Field(
+        description="Spotify track ID, or null when the Song is not available"
+    )
+
+
 router = APIRouter()
 
 
@@ -107,14 +125,49 @@ async def search(
     return SearchResult(count=count, matches=matches)
 
 
+@router.post("/preview")
+async def preview(body: PreviewRequest, request: Request) -> list[Preview]:
+    """For each Song, its Spotify track or "not available" (errors included)."""
+    found = await lookup(
+        list(dict.fromkeys(body.song_ids)),
+        request.app.state.search_pool,
+        request.app.state.preview_pool,
+        request.app.state.spotify,
+    )
+    return [Preview(song_id=i, spotify_track_id=t) for i, t in found.items()]
+
+
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     await run_in_threadpool(embed_query, "warm up")  # load the model before traffic
-    async with AsyncConnectionPool(
-        conninfo("api_search"), min_size=1, max_size=4, open=False
-    ) as pool:
-        app.state.search_pool = pool
+    async with (
+        AsyncConnectionPool(
+            conninfo("api_search"),
+            min_size=1,
+            max_size=4,
+            open=False,
+            connection_class=AsyncConnection,
+        ) as search_pool,
+        # The Spotify cache has its own role and pool (ADR 0001).
+        AsyncConnectionPool(
+            conninfo("api_preview"),
+            min_size=1,
+            max_size=4,
+            open=False,
+            connection_class=AsyncConnection,
+        ) as preview_pool,
+        httpx.AsyncClient(timeout=5) as http,
+    ):
+        app.state.search_pool = search_pool
+        app.state.preview_pool = preview_pool
+        app.state.spotify = Spotify(
+            http,
+            os.environ.get("SPOTIFY_CLIENT_ID", ""),
+            os.environ.get("SPOTIFY_CLIENT_SECRET", ""),
+        )
+        cleanup = asyncio.create_task(delete_expired_daily(preview_pool))
         yield
+        cleanup.cancel()
 
 
 def create_app(app_env: str | None) -> FastAPI:

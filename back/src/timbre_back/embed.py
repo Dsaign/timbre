@@ -7,8 +7,10 @@ image at MODEL_DIR (see the Dockerfile). e5 needs "query: " / "passage: " prefix
 import os
 from functools import cache
 from pathlib import Path
+from typing import cast
 
 import numpy as np
+import numpy.typing as npt
 import onnxruntime as ort
 from tokenizers import Tokenizer
 
@@ -40,7 +42,8 @@ def _embed(texts: list[str]) -> list[list[float]]:
             "token_type_ids": np.zeros_like(ids),
         },
     )
-    summed = (hidden * mask[..., None]).sum(axis=1)
+    # onnxruntime types run() loosely; this model's output is a float32 tensor.
+    summed = (cast(npt.NDArray[np.float32], hidden) * mask[..., None]).sum(axis=1)
     mean = summed / mask.sum(axis=1, keepdims=True)
     unit = mean / np.linalg.norm(mean, axis=1, keepdims=True)
     return [[float(x) for x in row] for row in unit]

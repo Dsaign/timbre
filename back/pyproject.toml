@@ -8,6 +8,7 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.162.0",
+    "httpx>=0.28.1",
     "onnxruntime>=1.31.1",
     "psycopg[binary,pool]>=3.3.6",
     "tokenizers>=0.23.3",
@@ -20,8 +21,8 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
-    "httpx>=0.28.1",
     "mypy>=2.4.1",
+    "pyright>=1.1.414",
     "pytest>=9.2.0",
     "ruff>=0.17.3",
 ]
@@ -46,3 +47,11 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["--strict-markers"]
+
+[tool.pyright]
+# Same checker as Pylance in the editor; CI runs it next to mypy.
+include = ["src", "tests", "scripts"]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.13"
+reportDeprecated = "error"

@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { back } from '@/lib/api/client'
 import { GRID } from '@/lib/grid'
+import { lookupPreviews } from '@/lib/preview'
 import { parseDescription, parsePageSize } from '@/lib/search'
 
 // Cache Components: the shell (panel and an empty form) is prerendered; whatever reads
@@ -99,6 +100,8 @@ async function Matches({ description, n }: { description: string; n: number }) {
         n={n}
         count={data.count}
         firstPage={data.matches}
+        // Not awaited: the grid shows now, each card's Preview controls stream in.
+        firstPreviews={lookupPreviews(data.matches.map((m) => m.id))}
       />
     </section>
   )
@@ -110,7 +113,7 @@ function MatchesSkeleton({ n }: { n: number }) {
       <Skeleton className="mx-auto mb-4 h-5 w-48 rounded-md bg-white/10" />
       <div className={GRID}>
         {Array.from({ length: n }, (_, i) => (
-          <Skeleton key={i} className="h-24 rounded-xl bg-white/10" />
+          <Skeleton key={i} className="h-32 rounded-xl bg-white/10" />
         ))}
       </div>
     </div>
