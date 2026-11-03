@@ -9,7 +9,7 @@ Describe the music you want and get Matches. Early stage: search runs on a 200-S
 
 Secrets live only in `back/.env` and `front/.env.local`, both git-ignored. Copy the names from each `.env.example` and fill in values (`openssl rand -hex 32` for passwords, the salt and the token; `FRONT_TOKEN` must be the same in both files).
 
-A gitleaks pre-commit hook blocks commits that contain secrets. Install both tools user-locally:
+The pre-commit hooks block commits that contain secrets (gitleaks) or fail the fast checks CI runs (ruff on `back/`, ESLint and Prettier on `front/`). Install pre-commit and gitleaks user-locally:
 
 ```bash
 uv tool install pre-commit
@@ -54,6 +54,13 @@ pnpm format   # Prettier, rewrites files in place
 cd ..
 scripts/check-openapi-drift.sh   # fails if back/openapi.json or the TS types are stale
 ```
+
+Playwright runs in Chromium, Firefox, WebKit and an iPhone 15 viewport (`--project=<name>` picks one). Install the browsers once with `pnpm exec playwright install chromium firefox webkit`; WebKit also needs `sudo pnpm exec playwright install-deps webkit`.
+
+## Workflow
+
+- Every change reaches `main` through a pull request. The `main` ruleset requires a PR (no approval, since the repo has one maintainer) and green `front`, `back`, `stack` and `secrets` checks, and blocks force-pushes and deletion.
+- Agents: Bob (`docs/agents/bob.md`) builds a ticket, and Carl (`docs/agents/carl.md`) reviews it before it's committed. The PR template asks for the ticket, the tests and Carl's review.
 
 The first build downloads the e5 model (about 470 MB) into the image. After start, the worker needs a few seconds to build the Song vectors; until then searches find nothing.
 

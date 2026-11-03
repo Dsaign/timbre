@@ -6,3 +6,18 @@ repos:
       - id: gitleaks-system
         # Upstream's gitleaks-system hook omits this (its sibling hooks set it); gitleaks takes no file arguments.
         pass_filenames: false
+  # The same fast checks CI runs, with the project's locked tool versions. Each runs only when its side changed.
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff check + format check (back)
+        entry: bash -c 'cd back && uv run ruff check . && uv run ruff format --check .'
+        language: system
+        files: ^back/.*\.py$
+        pass_filenames: false
+      - id: eslint-prettier
+        name: eslint + prettier check (front)
+        entry: bash -c 'cd front && pnpm lint && pnpm exec prettier --check .'
+        language: system
+        files: ^front/
+        pass_filenames: false

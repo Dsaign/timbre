@@ -6,6 +6,11 @@
 - After changing API models, regenerate `back/openapi.json` and `front/lib/api/schema.d.ts` (see README). `scripts/check-openapi-drift.sh` fails if either is stale.
 - UI primitives: Radix UI (through shadcn components). Icons: Lucide (`lucide-react`). Brand logos use the official SVGs. See `docs/adr/0003-radix-ui-and-lucide-icons.md`.
 
+## Agents
+
+- **Bob** writes the code for each ticket: `docs/agents/bob.md`.
+- **Carl** reviews every ticket Bob finishes, before the user commits, with the `code-review` skill: `docs/agents/carl.md`.
+
 ## Agent skills
 
 ### Issue tracker
