@@ -67,7 +67,9 @@ CASES: list[tuple[str, tuple[LiteralString, ...], LiteralString, int | str]] = [
         "DELETE FROM catalog.songs WHERE id = '00000000-0000-0000-0000-000000000001'",
         1,
     ),
-    ("ml_worker", (), "SELECT * FROM feedback.votes", 1),  # the seeded vote
+    # Only the seeded vote: earlier runs leave anonymized votes (test_feedback.py).
+    ("ml_worker", (), "SELECT * FROM feedback.votes WHERE visitor_hash = 'seed'", 1),
+    ("ml_worker", (), "SELECT feedback.forget_old_visitor_hashes()", DENIED),
     ("ml_worker", (), INSERT_VOTE_H1, DENIED),
     ("ml_worker", (), "UPDATE feedback.votes SET vote = 'down'", DENIED),
     ("ml_worker", (), "DELETE FROM feedback.votes", DENIED),
@@ -109,6 +111,14 @@ CASES: list[tuple[str, tuple[LiteralString, ...], LiteralString, int | str]] = [
     ),
     ("api_search", (AS_VISITOR_H1, INSERT_VOTE_H1), "DELETE FROM feedback.votes", 1),
     ("api_search", (), INSERT_VOTE_H1, DENIED),  # no visitor set: not its own vote
+    # Hashes are cleared only by the expiry function, never directly.
+    (
+        "api_search",
+        (AS_VISITOR_H1, INSERT_VOTE_H1),
+        "UPDATE feedback.votes SET visitor_hash = NULL",
+        DENIED,
+    ),
+    ("api_search", (), "SELECT feedback.forget_old_visitor_hashes()", 1),
     ("api_search", (), "SELECT * FROM preview.spotify_cache", DENIED),
     ("api_search", (), INSERT_CACHE, DENIED),
     # api_preview: the preview cache only.
@@ -136,6 +146,7 @@ CASES: list[tuple[str, tuple[LiteralString, ...], LiteralString, int | str]] = [
     ),
     ("api_preview", (), "SELECT * FROM catalog.songs", DENIED),
     ("api_preview", (), "SELECT * FROM feedback.votes", DENIED),
+    ("api_preview", (), "SELECT feedback.forget_old_visitor_hashes()", DENIED),
     ("api_preview", (), INSERT_SONG, DENIED),
     ("api_preview", (), "SELECT '[1,2,3]'::extensions.vector", DENIED),
     ("api_preview", (), "SELECT * FROM jobs.queue", DENIED),

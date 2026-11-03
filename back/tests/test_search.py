@@ -6,7 +6,6 @@ checked with Songs whose vectors are placed at a known Fit from the Description.
 
 import math
 import os
-import time
 from collections.abc import Iterator
 from typing import Any
 from uuid import UUID, uuid4
@@ -20,8 +19,10 @@ from timbre_back.db import conninfo, vector_literal
 from timbre_back.embed import embed_query
 
 API_URL = os.environ.get("API_URL", "http://api:8000")
-AUTH = {"Authorization": f"Bearer {os.environ['FRONT_TOKEN']}"}
-SEED_SIZE = 200
+AUTH = {
+    "Authorization": f"Bearer {os.environ['FRONT_TOKEN']}",
+    "X-Visitor-IP": "192.0.2.1",  # TEST-NET-1: never a real visitor
+}
 NONSENSE = "xkqzv wplmr tjhgf"
 SAMPLES = [
     "violão calmo para estudar",
@@ -37,22 +38,7 @@ def search(**params: Any) -> httpx.Response:
     return httpx.get(f"{API_URL}/search", params=params, headers=AUTH, timeout=30)
 
 
-@pytest.fixture(scope="module", autouse=True)
-def seed_vectors_built() -> None:
-    """The worker builds the seed vectors after start; wait for it."""
-    deadline = time.monotonic() + 300
-    with psycopg.connect(conninfo("ml_worker")) as conn:
-        while time.monotonic() < deadline:
-            row = conn.execute(
-                "SELECT count(*) FILTER (WHERE vector IS NOT NULL),"
-                " (SELECT count(*) FROM jobs.queue WHERE status = 'queued')"
-                " FROM catalog.songs"
-            ).fetchone()
-            conn.rollback()
-            if row is not None and row[0] >= SEED_SIZE and row[1] == 0:
-                return
-            time.sleep(1)
-    raise TimeoutError("seed Catalog vectors were not built in time")
+pytestmark = pytest.mark.usefixtures("seed_vectors_built")
 
 
 @pytest.mark.parametrize("description", SAMPLES)
@@ -62,7 +48,7 @@ def test_each_sample_description_has_matches(description: str) -> None:
     body = response.json()
     assert body["count"] >= 1
     assert len(body["matches"]) == min(body["count"], 24)
-    assert set(body["matches"][0]) == {"id", "title", "artist"}
+    assert set(body["matches"][0]) == {"id", "title", "artist", "vote"}
 
 
 def test_nonsense_has_no_matches() -> None:
@@ -181,6 +167,15 @@ def test_description_is_trimmed_before_its_length_is_checked() -> None:
 def test_n_defaults_to_24_and_is_capped_at_60() -> None:
     assert len(search(q=SAMPLES[2]).json()["matches"]) == 24
     assert len(search(q=SAMPLES[2], n=60).json()["matches"]) == 60
+
+
+@pytest.mark.parametrize("ip", [None, "", "not-an-ip", "300.1.2.3"])
+def test_search_needs_the_visitor_ip(ip: str | None) -> None:
+    headers = {"Authorization": AUTH["Authorization"]}
+    if ip is not None:
+        headers["X-Visitor-IP"] = ip
+    response = httpx.get(f"{API_URL}/search", params={"q": "rock"}, headers=headers)
+    assert response.status_code == 422
 
 
 @pytest.mark.parametrize(

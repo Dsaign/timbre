@@ -75,6 +75,26 @@
               "default": 0,
               "title": "Offset"
             }
+          },
+          {
+            "name": "x-visitor-ip",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "ipv4"
+                },
+                {
+                  "type": "string",
+                  "format": "ipv6"
+                }
+              ],
+              "description": "The visitor's IP address, forwarded by front",
+              "title": "X-Visitor-Ip"
+            },
+            "description": "The visitor's IP address, forwarded by front"
           }
         ],
         "responses": {
@@ -90,6 +110,71 @@
           },
           "401": {
             "description": "Missing or wrong front token"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/feedback": {
+      "post": {
+        "summary": "Feedback",
+        "description": "Vote on a Match. The latest vote per visitor, Description and Song wins.",
+        "operationId": "feedback_feedback_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-visitor-ip",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "ipv4"
+                },
+                {
+                  "type": "string",
+                  "format": "ipv6"
+                }
+              ],
+              "description": "The visitor's IP address, forwarded by front",
+              "title": "X-Visitor-Ip"
+            },
+            "description": "The visitor's IP address, forwarded by front"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Missing or wrong front token"
+          },
+          "404": {
+            "description": "The Song is not in the Catalog"
           },
           "422": {
             "description": "Validation Error",
@@ -158,6 +243,39 @@
   },
   "components": {
     "schemas": {
+      "FeedbackRequest": {
+        "properties": {
+          "description": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Description"
+          },
+          "song_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Song Id"
+          },
+          "vote": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down",
+              "none"
+            ],
+            "title": "Vote",
+            "description": "\"none\" withdraws the vote"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "description",
+          "song_id",
+          "vote"
+        ],
+        "title": "FeedbackRequest"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -199,13 +317,30 @@
           "artist": {
             "type": "string",
             "title": "Artist"
+          },
+          "vote": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "up",
+                  "down"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vote",
+            "description": "The visitor's current vote, if any"
           }
         },
         "type": "object",
         "required": [
           "id",
           "title",
-          "artist"
+          "artist",
+          "vote"
         ],
         "title": "Match"
       },
