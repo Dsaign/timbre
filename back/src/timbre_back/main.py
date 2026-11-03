@@ -3,8 +3,9 @@ import os
 import secrets
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from datetime import timedelta
 from ipaddress import IPv4Address, IPv6Address
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 from uuid import UUID
 
 import httpx
@@ -23,6 +24,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from psycopg import AsyncConnection
 from psycopg_pool import AsyncConnectionPool
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from timbre_back.db import conninfo, vector_literal
 from timbre_back.embed import embed_query
@@ -35,10 +37,14 @@ from timbre_back.feedback import (
     record,
 )
 from timbre_back.preview import Spotify, delete_expired_daily, lookup
+from timbre_back.ratelimit import forget_old_hits_daily, over_limit
 
 # An unset token matches nothing, so a misconfigured API refuses every caller.
 FRONT_TOKEN = os.environ.get("FRONT_TOKEN", "").encode()
 IP_HASH_SALT = os.environ.get("IP_HASH_SALT", "").encode()
+SEARCH_LIMIT_PER_MIN = int(os.environ.get("SEARCH_LIMIT_PER_MIN") or 30)
+VOTE_LIMIT_PER_HOUR = int(os.environ.get("VOTE_LIMIT_PER_HOUR") or 60)
+MAX_BODY_BYTES = 16 * 1024
 
 bearer = HTTPBearer(auto_error=False)
 
@@ -68,6 +74,51 @@ async def visitor(
 
 
 Visitor = Annotated[str, Depends(visitor)]
+
+
+async def limit_searches(request: Request, visitor: Visitor) -> None:
+    if await over_limit(
+        request.app.state.search_pool,
+        visitor,
+        "search",
+        timedelta(minutes=1),
+        SEARCH_LIMIT_PER_MIN,
+    ):
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS)
+
+
+async def limit_votes(request: Request, visitor: Visitor) -> None:
+    if await over_limit(
+        request.app.state.search_pool,
+        visitor,
+        "feedback",
+        timedelta(hours=1),
+        VOTE_LIMIT_PER_HOUR,
+    ):
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS)
+
+
+class LimitBody:
+    """Refuses request bodies over MAX_BODY_BYTES with 413, chunked ones included."""
+
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        received = 0
+
+        async def limited() -> Message:
+            nonlocal received
+            message = await receive()
+            received += len(message.get("body", b""))
+            if received > MAX_BODY_BYTES:
+                # FastAPI re-raises an HTTPException from reading the body as is.
+                raise HTTPException(status_code=status.HTTP_413_CONTENT_TOO_LARGE)
+            return message
+
+        await self.app(scope, limited, send)
+
+
 Description = Annotated[
     str, StringConstraints(strip_whitespace=True, min_length=1, max_length=300)
 ]
@@ -157,7 +208,12 @@ async def health() -> Health:
     return Health(status="ok")
 
 
-@router.get("/search")
+TOO_MANY: dict[int | str, dict[str, Any]] = {
+    429: {"description": "Rate limit exceeded for this visitor"}
+}
+
+
+@router.get("/search", dependencies=[Depends(limit_searches)], responses=TOO_MANY)
 async def search(
     params: Annotated[SearchParams, Query()], visitor: Visitor, request: Request
 ) -> SearchResult:
@@ -182,7 +238,8 @@ async def search(
 @router.post(
     "/feedback",
     status_code=status.HTTP_204_NO_CONTENT,
-    responses={404: {"description": "The Song is not in the Catalog"}},
+    dependencies=[Depends(limit_votes)],
+    responses={404: {"description": "The Song is not in the Catalog"}, **TOO_MANY},
 )
 async def feedback(body: FeedbackRequest, visitor: Visitor, request: Request) -> None:
     """Vote on a Match. The latest vote per visitor, Description and Song wins."""
@@ -238,6 +295,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
         cleanups = [
             asyncio.create_task(delete_expired_daily(preview_pool)),
             asyncio.create_task(forget_old_hashes_daily(search_pool)),
+            asyncio.create_task(forget_old_hits_daily(search_pool)),
         ]
         yield
         for cleanup in cleanups:
@@ -250,13 +308,17 @@ def create_app(app_env: str | None) -> FastAPI:
         title="timbre",
         lifespan=lifespan,
         dependencies=[Depends(require_front_token)],
-        responses={401: {"description": "Missing or wrong front token"}},
+        responses={
+            401: {"description": "Missing or wrong front token"},
+            413: {"description": "Request body over 16 KB"},
+        },
         # Interactive docs and the live spec only in development.
         docs_url="/docs" if dev else None,
         redoc_url=None,
         openapi_url="/openapi.json" if dev else None,
     )
     app.include_router(router)
+    app.add_middleware(LimitBody)
     return app
 
 

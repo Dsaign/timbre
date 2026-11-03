@@ -7,7 +7,7 @@ Describe the music you want and get Matches. Early stage: search runs on a 200-S
 
 ## Setup (once per clone)
 
-Secrets live only in `back/.env` and `front/.env.local`, both git-ignored. Copy the names from each `.env.example` and fill in values (`openssl rand -hex 32` for passwords, the salt and the token; `FRONT_TOKEN` must be the same in both files).
+Secrets live only in `back/.env` and `front/.env.local`, both git-ignored. Copy the names from each `.env.example` and fill in values (`openssl rand -hex 32` for passwords, the salt and the token; `FRONT_TOKEN` must be the same in both files). `SEARCH_LIMIT_PER_MIN` and `VOTE_LIMIT_PER_HOUR` default to 30 and 60 per visitor. The tests need the test stack, which adds `-f compose.yaml -f compose.test.yaml` to raise both (every browser test is the same visitor).
 
 The pre-commit hooks block commits that contain secrets (gitleaks) or fail the fast checks CI runs (ruff on `back/`, ESLint and Prettier on `front/`). Install pre-commit and gitleaks user-locally:
 
@@ -40,7 +40,9 @@ cd back
 uv run ruff check . && uv run ruff format --check .
 uv run mypy src tests
 uv run pyright
-docker compose run --rm --build tests   # pytest inside the Compose network (the db port is not published)
+# The test stack (raised rate limits). Use it for pytest and for `pnpm test:e2e`.
+docker compose -f compose.yaml -f compose.test.yaml up -d --wait --build
+docker compose -f compose.yaml -f compose.test.yaml run --rm --build tests   # pytest inside the Compose network (the db port is not published)
 
 cd ../front
 pnpm lint
@@ -48,7 +50,7 @@ pnpm exec tsc --noEmit   # needs the route types: run `pnpm build` or `pnpm dev`
 pnpm exec prettier --check .
 pnpm build
 pnpm test                # Vitest
-pnpm test:e2e            # builds, then Playwright against `pnpm start`; needs the back stack up
+pnpm test:e2e            # builds, then Playwright against `pnpm start`; needs the back test stack up (above)
 pnpm format   # Prettier, rewrites files in place
 
 cd ..

@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
-// `pnpm test:e2e` builds first and never reuses a running server, so tests always hit the latest code. The back must be up (`docker compose up -d --wait` in back/).
+// `pnpm test:e2e` builds first and never reuses a running server, so tests always hit the latest code. The back test stack must be up (`docker compose -f compose.yaml -f compose.test.yaml up -d --wait` in back/), or the rate limits answer 429.
 export default defineConfig({
   testDir: 'e2e',
   forbidOnly: !!process.env.CI,

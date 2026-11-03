@@ -22,6 +22,9 @@
           },
           "401": {
             "description": "Missing or wrong front token"
+          },
+          "413": {
+            "description": "Request body over 16 KB"
           }
         },
         "security": [
@@ -111,6 +114,12 @@
           "401": {
             "description": "Missing or wrong front token"
           },
+          "413": {
+            "description": "Request body over 16 KB"
+          },
+          "429": {
+            "description": "Rate limit exceeded for this visitor"
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -173,8 +182,14 @@
           "401": {
             "description": "Missing or wrong front token"
           },
+          "413": {
+            "description": "Request body over 16 KB"
+          },
           "404": {
             "description": "The Song is not in the Catalog"
+          },
+          "429": {
+            "description": "Rate limit exceeded for this visitor"
           },
           "422": {
             "description": "Validation Error",
@@ -221,6 +236,9 @@
           },
           "401": {
             "description": "Missing or wrong front token"
+          },
+          "413": {
+            "description": "Request body over 16 KB"
           },
           "422": {
             "description": "Validation Error",

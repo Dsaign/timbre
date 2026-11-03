@@ -35,6 +35,7 @@ export function MatchGrid({
   )
   const [done, setDone] = useState(firstPage.length < n)
   const [focusFrom, setFocusFrom] = useState<number | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
   const list = useRef<HTMLUListElement>(null)
 
@@ -94,7 +95,10 @@ export function MatchGrid({
           onClick={() => {
             if (pending) return
             startTransition(async () => {
-              const next = await loadMore(description, n, offset)
+              const result = await loadMore(description, n, offset)
+              if ('error' in result) return setError(result.error)
+              setError(null)
+              const next = result.data.matches
               const previews = previewsFor(next.map((m) => m.id)).catch(
                 () => ({})
               )
@@ -111,6 +115,11 @@ export function MatchGrid({
           {pending && <LoaderCircle aria-hidden className="animate-spin" />}
           Carregar mais
         </Button>
+      )}
+      {error && (
+        <p role="alert" className="mt-2 text-center text-white">
+          {error}
+        </p>
       )}
     </>
   )

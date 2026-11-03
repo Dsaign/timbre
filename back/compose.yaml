@@ -1,7 +1,8 @@
 # Compose reads back/.env for ${...} interpolation. Each service gets only the variables it needs.
 # `docker compose up -d --wait` starts db, migrates it, sets role passwords, loads the seed
 # Catalog, then starts the API and the job worker (which builds the Song vectors).
-# `docker compose run --rm tests` runs pytest inside the network.
+# `docker compose -f compose.yaml -f compose.test.yaml run --rm tests` runs pytest inside the
+# network, on the test stack (raised rate limits).
 # Hardening for every service except db (the postgres entrypoint needs root capabilities).
 x-hardened: &hardened
   cap_drop: [ALL]
@@ -78,6 +79,9 @@ services:
       APP_ENV: ${APP_ENV:-production}
       FRONT_TOKEN: ${FRONT_TOKEN:?set in back/.env}
       IP_HASH_SALT: ${IP_HASH_SALT:?set in back/.env}
+      # Per visitor. compose.test.yaml raises both for the test stack.
+      SEARCH_LIMIT_PER_MIN: ${SEARCH_LIMIT_PER_MIN:-30}
+      VOTE_LIMIT_PER_HOUR: ${VOTE_LIMIT_PER_HOUR:-60}
       API_SEARCH_PASSWORD: ${API_SEARCH_PASSWORD}
       API_PREVIEW_PASSWORD: ${API_PREVIEW_PASSWORD}
       # Optional: without them every Song is "not available" for Preview.
