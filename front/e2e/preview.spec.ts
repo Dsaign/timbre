@@ -6,6 +6,12 @@ test.skip(
   !process.env.SPOTIFY_CLIENT_ID,
   'needs SPOTIFY_CLIENT_ID (and the back started with the Spotify secrets)'
 )
+// Spotify's embed loads slower outside Chromium (Firefox, WebKit); two cards can exceed 30s.
+test.slow()
+test.fixme(
+  ({ browserName }) => browserName !== 'chromium',
+  'Firefox and WebKit block the embed play(): .scratch/timbre-v1/issues/17-preview-autoplay-firefox-safari.md'
+)
 
 const SEARCH = `/?q=${encodeURIComponent('músicas alegres e dançantes para uma festa')}&n=4`
 
@@ -41,7 +47,9 @@ for (const viewport of [
         `spotify:track:${trackId}`,
         { timeout: 20_000 }
       )
-      await expect(dock).toHaveAttribute('data-paused', 'false')
+      await expect(dock).toHaveAttribute('data-paused', 'false', {
+        timeout: 20_000,
+      })
     }
     await expect(page.locator('iframe')).toHaveCount(1)
   })

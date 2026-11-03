@@ -35,4 +35,10 @@ Never cut: validation at trust boundaries, error handling that prevents data los
 
 Every test runs against the latest changes. Before testing, stop leftover servers from earlier runs (for example an old `next-server` on port 3000) instead of working around them on another port. `pnpm test:e2e` builds first and never reuses a running server; rebuild Compose images (`--build`) when back code changed.
 
+`pnpm test:e2e` runs every spec in four Playwright projects: `chromium`, `firefox`, `webkit` and `mobile-safari` (iPhone 15). Run one with `--project=<name>`. If WebKit won't launch locally because of missing system libraries, run `sudo pnpm exec playwright install-deps webkit` once.
+
 Every visual front change is also seen, not only tested: run the app and look at it (screenshots) in desktop Chromium, desktop Firefox, mobile Chrome (Android emulation) and mobile Safari (iPhone emulation, WebKit). Compare with what the ticket or spec describes, fix what differs, and look again until it matches. Cover the bulk, not every resolution or browser.
+
+## When a ticket is done
+
+Report it done and stop. Carl ([carl.md](carl.md)) reviews it next. Fix only the findings the user sends back, then report again so Carl re-reviews.
