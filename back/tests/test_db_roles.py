@@ -74,6 +74,7 @@ CASES: list[tuple[str, tuple[LiteralString, ...], LiteralString, int | str]] = [
     ("ml_worker", (), "UPDATE feedback.votes SET vote = 'down'", DENIED),
     ("ml_worker", (), "DELETE FROM feedback.votes", DENIED),
     ("ml_worker", (), "SELECT * FROM preview.spotify_cache", DENIED),
+    ("ml_worker", (), "SELECT ratelimit.hit('h1', 'search', '1 minute')", DENIED),
     ("ml_worker", (), INSERT_CACHE, DENIED),
     ("ml_worker", (), INSERT_JOB, 1),
     (
@@ -119,6 +120,11 @@ CASES: list[tuple[str, tuple[LiteralString, ...], LiteralString, int | str]] = [
         DENIED,
     ),
     ("api_search", (), "SELECT feedback.forget_old_visitor_hashes()", 1),
+    # Rate-limit counters only through ratelimit.hit(), never read or written directly.
+    ("api_search", (), "SELECT ratelimit.hit('h1', 'search', '1 minute')", 1),
+    ("api_search", (), "SELECT ratelimit.forget_old_hits()", 1),
+    ("api_search", (), "SELECT * FROM ratelimit.hits", DENIED),
+    ("api_search", (), "DELETE FROM ratelimit.hits", DENIED),
     ("api_search", (), "SELECT * FROM preview.spotify_cache", DENIED),
     ("api_search", (), INSERT_CACHE, DENIED),
     # api_preview: the preview cache only.
@@ -145,6 +151,7 @@ CASES: list[tuple[str, tuple[LiteralString, ...], LiteralString, int | str]] = [
         1,
     ),
     ("api_preview", (), "SELECT * FROM catalog.songs", DENIED),
+    ("api_preview", (), "SELECT ratelimit.hit('h1', 'search', '1 minute')", DENIED),
     ("api_preview", (), "SELECT * FROM feedback.votes", DENIED),
     ("api_preview", (), "SELECT feedback.forget_old_visitor_hashes()", DENIED),
     ("api_preview", (), INSERT_SONG, DENIED),

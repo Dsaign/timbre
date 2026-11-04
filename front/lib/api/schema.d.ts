@@ -200,6 +200,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Request body over 16 KB */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     search_search_get: {
@@ -234,6 +241,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Request body over 16 KB */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -242,6 +256,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+            /** @description Rate limit exceeded for this visitor */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -282,6 +303,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Request body over 16 KB */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -290,6 +318,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+            /** @description Rate limit exceeded for this visitor */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -317,6 +352,13 @@ export interface operations {
             };
             /** @description Missing or wrong front token */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request body over 16 KB */
+            413: {
                 headers: {
                     [name: string]: unknown;
                 };

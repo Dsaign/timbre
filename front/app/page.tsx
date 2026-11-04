@@ -4,11 +4,9 @@ import { SampleDescriptions } from '@/components/sample-descriptions'
 import { SearchForm } from '@/components/search-form'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { back } from '@/lib/api/client'
 import { GRID } from '@/lib/grid'
 import { lookupPreviews } from '@/lib/preview'
-import { parseDescription, parsePageSize } from '@/lib/search'
-import { visitorHeaders } from '@/lib/visitor'
+import { parseDescription, parsePageSize, searchMatches } from '@/lib/search'
 
 // Cache Components: the shell (panel and an empty form) is prerendered; whatever reads
 // searchParams streams in inside a Suspense boundary.
@@ -74,11 +72,14 @@ async function Results({ searchParams }: { searchParams: SearchParams }) {
 }
 
 async function Matches({ description, n }: { description: string; n: number }) {
-  const { data, response } = await back.GET('/search', {
-    params: { query: { q: description, n }, header: await visitorHeaders() },
-  })
-  // shortcut: any back failure goes to the error page; ticket 09 adds the friendly message
-  if (!data) throw new Error(`search failed: HTTP ${response.status}`)
+  const result = await searchMatches({ q: description, n })
+  if ('error' in result)
+    return (
+      <p role="alert" className="text-center text-white">
+        {result.error}
+      </p>
+    )
+  const { data } = result
 
   if (data.count === 0)
     return (

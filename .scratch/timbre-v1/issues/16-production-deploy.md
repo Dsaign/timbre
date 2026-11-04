@@ -13,3 +13,7 @@
 - [ ] Interactive API docs are off in production.
 - [ ] After one production check with no CSP violations, the CSP switches from Report-Only to enforcing.
 - [ ] Both domains are checked on securityheaders.com and the results noted.
+
+## Comments
+
+- From ticket 09: decide whether HSTS gets `preload` (hard to undo).

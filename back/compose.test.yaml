@@ -1,0 +1,7 @@
+# The test stack: `docker compose -f compose.yaml -f compose.test.yaml ...`. Every browser test is
+# one visitor, so the rate limits are raised here. Without this file the API keeps 30/60.
+services:
+  api:
+    environment:
+      SEARCH_LIMIT_PER_MIN: ${SEARCH_LIMIT_PER_MIN:-100000}
+      VOTE_LIMIT_PER_HOUR: ${VOTE_LIMIT_PER_HOUR:-100000}
