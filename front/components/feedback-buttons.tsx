@@ -65,7 +65,7 @@ export function FeedbackButtons({
           // aria-disabled, not disabled: the focused thumb keeps keyboard focus meanwhile
           aria-disabled={pending}
           onClick={() => press(thumb)}
-          className="cursor-pointer rounded-md text-zinc-300 hover:bg-white/10 hover:text-white aria-pressed:bg-white/20 aria-pressed:text-white aria-disabled:cursor-wait aria-disabled:opacity-50"
+          className="cursor-pointer rounded-md text-muted-foreground hover:bg-foreground/10 hover:text-foreground aria-pressed:bg-foreground/15 aria-pressed:text-foreground aria-disabled:cursor-wait aria-disabled:opacity-50"
         >
           <Icon aria-hidden className={vote === thumb ? 'fill-current' : ''} />
         </Button>

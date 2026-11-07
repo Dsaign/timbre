@@ -8,6 +8,9 @@ import { GRID } from '@/lib/grid'
 import { lookupPreviews } from '@/lib/preview'
 import { parseDescription, parsePageSize, searchMatches } from '@/lib/search'
 
+// The one blurred panel behind the grid, shared by the results and their skeleton.
+const RESULTS_PANEL = 'bg-glass frosted w-full rounded-3xl p-4'
+
 // Cache Components: the shell (panel and an empty form) is prerendered; whatever reads
 // searchParams streams in inside a Suspense boundary.
 export default function Home({ searchParams }: PageProps<'/'>) {
@@ -15,24 +18,22 @@ export default function Home({ searchParams }: PageProps<'/'>) {
     <div className="flex w-full max-w-5xl flex-col items-center gap-8 px-4 py-8">
       <Card
         className="
-        w-full lg:max-w-md md:min-w-md rounded-3xl 
-        bg-linear-to-br from-indigo-800 to-mauve-500
-        p-px text-center text-white
+        w-full lg:max-w-md md:min-w-md rounded-3xl
+        bg-glass frosted gradient-border ring-0 gap-0
+        p-6 text-center text-foreground
         has-[:hover]:shadow-[-5px_-5px_40px_1px_var(--color-indigo-500)]
         has-[:hover]:shadow-indigo-500/10
         transition-shadow
         duration-500
         "
       >
-        <div className="rounded-[calc(1.5rem-2px)] bg-black/60 p-6">
-          <h1 className="mb-8 mt-3 text-6xl">timbre.</h1>
-          <Suspense fallback={<SearchForm />}>
-            <FilledSearchForm searchParams={searchParams} />
-          </Suspense>
-          <p className="mt-4 text-xs text-zinc-300">
-            Descrições e votos são armazenados para melhorar o modelo.
-          </p>
-        </div>
+        <h1 className="mb-8 mt-3 text-6xl">timbre.</h1>
+        <Suspense fallback={<SearchForm />}>
+          <FilledSearchForm searchParams={searchParams} />
+        </Suspense>
+        <p className="mt-4 text-xs text-muted-foreground">
+          Descrições e votos são armazenados para melhorar o modelo.
+        </p>
       </Card>
       <Suspense>
         <Results searchParams={searchParams} />
@@ -75,7 +76,7 @@ async function Matches({ description, n }: { description: string; n: number }) {
   const result = await searchMatches({ q: description, n })
   if ('error' in result)
     return (
-      <p role="alert" className="text-center text-white">
+      <p role="alert" className="text-center">
         {result.error}
       </p>
     )
@@ -87,16 +88,14 @@ async function Matches({ description, n }: { description: string; n: number }) {
         aria-label="Resultados"
         className="flex flex-col items-center gap-4"
       >
-        <p role="status" className="text-white">
-          Nenhuma música encontrada
-        </p>
+        <p role="status">Nenhuma música encontrada</p>
         <SampleDescriptions />
       </section>
     )
 
   return (
-    <section aria-label="Resultados" className="w-full">
-      <p role="status" className="mb-4 text-center text-white">
+    <section aria-label="Resultados" className={RESULTS_PANEL}>
+      <p role="status" className="mb-4 text-center">
         {data.count}{' '}
         {data.count === 1 ? 'música encontrada' : 'músicas encontradas'}
       </p>
@@ -114,11 +113,15 @@ async function Matches({ description, n }: { description: string; n: number }) {
 
 function MatchesSkeleton({ n }: { n: number }) {
   return (
-    <div aria-busy="true" aria-label="Carregando resultados" className="w-full">
-      <Skeleton className="mx-auto mb-4 h-5 w-48 rounded-md bg-white/10" />
+    <div
+      aria-busy="true"
+      aria-label="Carregando resultados"
+      className={RESULTS_PANEL}
+    >
+      <Skeleton className="mx-auto mb-4 h-5 w-48 rounded-md bg-foreground/10" />
       <div className={GRID}>
         {Array.from({ length: n }, (_, i) => (
-          <Skeleton key={i} className="h-32 rounded-xl bg-white/10" />
+          <Skeleton key={i} className="bg-tint h-32 rounded-xl" />
         ))}
       </div>
     </div>
