@@ -10,6 +10,7 @@
 
 - **Bob** writes the code for each ticket: `docs/agents/bob.md`.
 - **Carl** reviews every ticket Bob finishes, before the user commits, with the `code-review` skill: `docs/agents/carl.md`.
+- **The main session** (never a sub-agent) opens the PR once a ticket is done, after the user accepts Carl's review and commits. The branch is `ticket/<NN>-<ticket_name_with_underscores>` (for example `ticket/10-themes_frosted_glass_footer`), cut from `main`. Create branches only for ticket PRs. The PR description summarises the actual changes and links the ticket file.
 
 ## Agent skills
 

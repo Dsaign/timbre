@@ -55,13 +55,15 @@ export function MatchGrid({
           <li
             key={match.id}
             tabIndex={i >= firstPage.length ? -1 : undefined}
-            className="rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-foreground"
           >
-            <Card className="h-32 gap-0 rounded-xl bg-black/40 p-4 text-white">
+            <Card className="bg-tint h-32 gap-0 rounded-xl p-4">
               <div className="flex items-start gap-2">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{match.title}</p>
-                  <p className="truncate text-zinc-300">{match.artist}</p>
+                  <p className="truncate text-muted-foreground">
+                    {match.artist}
+                  </p>
                 </div>
                 <FeedbackButtons
                   description={description}
@@ -73,7 +75,7 @@ export function MatchGrid({
               <div className="mt-auto">
                 <Suspense
                   fallback={
-                    <Skeleton className="h-11 rounded-md bg-white/10" />
+                    <Skeleton className="h-11 rounded-md bg-foreground/10" />
                   }
                 >
                   <PreviewControls
@@ -117,7 +119,7 @@ export function MatchGrid({
         </Button>
       )}
       {error && (
-        <p role="alert" className="mt-2 text-center text-white">
+        <p role="alert" className="mt-2 text-center">
           {error}
         </p>
       )}

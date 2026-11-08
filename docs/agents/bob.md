@@ -37,6 +37,10 @@ Every test runs against the latest changes. Before testing, stop leftover server
 
 `pnpm test:e2e` runs every spec in four Playwright projects: `chromium`, `firefox`, `webkit` and `mobile-safari` (iPhone 15). Run one with `--project=<name>`. If WebKit won't launch locally because of missing system libraries, run `sudo pnpm exec playwright install-deps webkit` once.
 
+Tests never play audible sound: the user works on this machine while they run. Browsers run muted (Playwright launch options, e.g. Chromium `--mute-audio`, Firefox pref `media.volume_scale: "0.0"`), and tests assert playback state, not real audio. This also covers screenshots and manual visual checks.
+
+When a task ends, clean up everything you started: Playwright browsers, test runners, `next-server`/dev servers, the Compose test stack (`docker compose ... down`) and any scratch helpers. Nothing you started may still be running when you report.
+
 Every visual front change is also seen, not only tested: run the app and look at it (screenshots) in desktop Chromium, desktop Firefox, mobile Chrome (Android emulation) and mobile Safari (iPhone emulation, WebKit). Compare with what the ticket or spec describes, fix what differs, and look again until it matches. Cover the bulk, not every resolution or browser.
 
 ## When a ticket is done

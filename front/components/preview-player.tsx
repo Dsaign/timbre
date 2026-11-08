@@ -1,8 +1,8 @@
 'use client'
 
 import { Play } from 'lucide-react'
-import Image from 'next/image'
 import { createContext, use, useCallback, useRef, useState } from 'react'
+import { BrandLogo } from '@/components/brand-logo'
 import { Button } from '@/components/ui/button'
 import type { Previews } from '@/lib/preview'
 
@@ -102,7 +102,7 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
         data-dock={open ? 'open' : 'closed'}
         data-playing-uri={playing.uri}
         data-paused={playing.paused}
-        className="fixed inset-x-0 bottom-0 z-10 bg-black/60 p-2 backdrop-blur-md data-[dock=closed]:hidden"
+        className="fixed inset-x-0 bottom-0 z-10 bg-glass frosted p-2 data-[dock=closed]:hidden"
       >
         <div ref={slot} className="mx-auto h-20 max-w-5xl" />
       </section>
@@ -141,15 +141,9 @@ export function PreviewControls({
         href={`https://open.spotify.com/track/${trackId}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex flex-col items-end gap-1 text-[10px] font-semibold tracking-wide text-white hover:underline"
+        className="flex flex-col items-end gap-1 text-[10px] font-semibold tracking-wide text-foreground hover:underline"
       >
-        <Image
-          src="/spotify-full-logo-white.svg"
-          alt=""
-          width={80}
-          height={22}
-          unoptimized
-        />
+        <BrandLogo name="spotify-full-logo" width={80} height={22} />
         LISTEN ON SPOTIFY
       </a>
     </div>

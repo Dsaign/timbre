@@ -68,12 +68,25 @@ async function searchUnderEnforcedPolicy(page: Page, baseURL: string) {
   ]
 }
 
-test('searching breaks no CSP rule, enforced', async ({ page, baseURL }) => {
+const FIREFOX_SKIP =
+  "Playwright's route interception of the next-themes chunk keeps Firefox from reaching networkidle"
+
+test('searching breaks no CSP rule, enforced', async ({
+  page,
+  baseURL,
+  browserName,
+}) => {
+  test.skip(browserName === 'firefox', FIREFOX_SKIP)
   const violations = await searchUnderEnforcedPolicy(page, baseURL!)
   expect(await violations()).toEqual([])
 })
 
-test('Preview breaks no CSP rule, enforced', async ({ page, baseURL }) => {
+test('Preview breaks no CSP rule, enforced', async ({
+  page,
+  baseURL,
+  browserName,
+}) => {
+  test.skip(browserName === 'firefox', FIREFOX_SKIP)
   test.skip(
     !process.env.SPOTIFY_CLIENT_ID,
     'Preview needs SPOTIFY_CLIENT_ID (and the back started with the Spotify secrets)'

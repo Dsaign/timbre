@@ -37,15 +37,16 @@ export function SearchForm({ defaultValue }: { defaultValue?: string }) {
           required
           maxLength={300}
           className="
-                border-0 text-base text-white md:text-xs
-                bg-linear-to-br from-indigo-950 to-mauve-700
-                focus:border placeholder:text-zinc-400"
+                border-0 text-base md:text-xs
+                bg-linear-to-br from-field-start to-field-end
+                focus:border placeholder:text-muted-foreground"
         />
 
+        {/* Intentionally fixed: the brand gradient stays light in both themes, so its text stays dark. */}
         <Button
           type="submit"
           variant="secondary"
-          className="w-full cursor-pointer bg-linear-to-br from-indigo-200 to-mauve-200 hover:from-indigo-300 transition-colors"
+          className="w-full cursor-pointer bg-linear-to-br from-indigo-200 to-mauve-200 text-zinc-900 hover:from-indigo-300 transition-colors"
         >
           Pesquisar
         </Button>

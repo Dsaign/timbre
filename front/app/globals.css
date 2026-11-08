@@ -5,6 +5,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-glass: var(--glass);
+  --color-field-start: var(--field-start);
+  --color-field-end: var(--field-end);
+  --color-tint: var(--tint);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -44,7 +48,7 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --muted-foreground: oklch(0.45 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
@@ -52,6 +56,13 @@
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
   --radius: 0.625rem;
+  /* glass: blurred panels; tint: cards; solid: both under prefers-reduced-transparency. */
+  --glass: oklch(1 0 0 / 55%);
+  --tint: oklch(1 0 0 / 75%);
+  --solid: oklch(0.97 0.01 300);
+  /* The search input's gradient. */
+  --field-start: var(--color-indigo-50);
+  --field-end: var(--color-mauve-100);
 }
 
 .dark {
@@ -66,13 +77,56 @@
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
+  --muted-foreground: oklch(0.8 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
+  --glass: oklch(0 0 0 / 55%);
+  --tint: oklch(0 0 0 / 60%);
+  --solid: oklch(0.2 0.03 290);
+  --field-start: var(--color-indigo-950);
+  --field-end: var(--color-mauve-700);
+}
+
+/* prefers-reduced-transparency: every glass and tint surface turns solid. */
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  .dark {
+    --glass: var(--solid);
+    --tint: var(--solid);
+  }
+}
+
+/* Real blur only on the few big panels (search, player, grid); cards just tint. */
+@utility frosted {
+  backdrop-filter: blur(16px);
+  @media (prefers-reduced-transparency: reduce) {
+    backdrop-filter: none;
+  }
+}
+
+/* A 1px gradient border that leaves the panel's own background see-through. */
+@utility gradient-border {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      to bottom right,
+      var(--color-indigo-800),
+      var(--color-mauve-500)
+    );
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    pointer-events: none;
+  }
 }
 
 @layer base {

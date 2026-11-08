@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
+import { ThemeProvider } from 'next-themes'
 import { Inter } from 'next/font/google'
 import { PreviewPlayer } from '@/components/preview-player'
+import { SiteFooter } from '@/components/site-footer'
+import { ThemeToggle } from '@/components/theme-toggle'
 import './globals.css'
 
 const inter = Inter({
@@ -16,12 +19,24 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="pt-br" className={`h-full antialiased ${inter.className}`}>
-      <body className="bg-zinc-900 text-zinc-300 ">
-        {/* Room at the bottom so the docked player never covers the last cards. */}
-        <main className="grid min-h-screen place-items-center bg-linear-to-br from-indigo-950 to-mauve-700 has-data-[dock=open]:pb-28">
-          <PreviewPlayer>{children}</PreviewPlayer>
-        </main>
+    // suppressHydrationWarning: next-themes sets the theme class on <html> before React hydrates.
+    <html
+      lang="pt-br"
+      suppressHydrationWarning
+      className={`antialiased ${inter.className}`}
+    >
+      {/* Room at the bottom so the docked player never covers the last cards or the footer. */}
+      <body className="flex min-h-screen flex-col bg-linear-to-br from-indigo-100 to-mauve-200 has-data-[dock=open]:pb-28 dark:from-indigo-950 dark:to-mauve-700">
+        {/* Default storage is localStorage (key "theme"); next-themes sets no cookie. */}
+        <ThemeProvider attribute="class" disableTransitionOnChange>
+          <header className="flex justify-end px-3 pt-3">
+            <ThemeToggle />
+          </header>
+          <main className="grid flex-1 place-items-center">
+            <PreviewPlayer>{children}</PreviewPlayer>
+          </main>
+          <SiteFooter />
+        </ThemeProvider>
       </body>
     </html>
   )
