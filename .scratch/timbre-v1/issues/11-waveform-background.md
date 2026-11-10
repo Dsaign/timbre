@@ -29,6 +29,7 @@
 - [ ] Keep the owner's own tweaks to the waveform particles in `front/components/waveform-background.tsx`. Build on them, don't revert them.
 - [ ] **Background as theme tokens:** the page's background gradient and vignette colours are theme tokens in `:root` and `.dark` (`--bg-center`, `--bg-mid`, `--bg-mid-at`, `--bg-edge`, `--vignette`), holding the owner's navy (Dark) and grey (Light) values; one `body` rule draws them.
 - [ ] **Readable text over the new look (owner decision):** keep the particles, bokeh, vignette and glass as they are; the small note under the search panel and the footer credits (text and links) use the full `foreground` colour instead of `muted-foreground`, so they reach WCAG AA (4.5:1) in both themes, in every browser, with a Preview playing.
+- [ ] **See-through search panel (owner decision, after CI):** the search panel keeps the owner's `bg-transparent/30`, so moving particles can pass right under the note below it (measured as low as 1:1). The owner accepts that: the note and the "timbre." title on that panel are left out of the contrast check (`data-contrast-skip`, read by `e2e/contrast.ts`) and are checked by eye. The search box and button have their own backgrounds and stay checked. Every other text keeps 4.5:1 / 3:1. Under `prefers-reduced-transparency` the panel turns solid (`bg-glass`, which is `--solid` there).
 
 ## Comments
 

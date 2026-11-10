@@ -48,7 +48,8 @@ export async function lowContrastText(page: Page) {
       if (!node.textContent?.trim() || !el) continue
       if (
         el.closest(
-          '[aria-hidden="true"], [aria-disabled="true"], [data-contrast-fixed], script, style, noscript'
+          // data-contrast-skip: owner-approved exceptions, checked by eye instead.
+          '[aria-hidden="true"], [aria-disabled="true"], [data-contrast-fixed], [data-contrast-skip], script, style, noscript'
         )
       )
         continue

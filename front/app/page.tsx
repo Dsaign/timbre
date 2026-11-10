@@ -22,18 +22,21 @@ export default function Home({ searchParams }: PageProps<'/'>) {
         w-full lg:max-w-md md:min-w-md rounded-3xl
         frosted gradient-border ring-0 gap-0
         p-6 text-center text-foreground bg-transparent/30
+        [@media(prefers-reduced-transparency:reduce)]:bg-glass
         has-[:hover]:shadow-[-5px_-5px_40px_1px_var(--color-indigo-500)]
         has-[:hover]:shadow-indigo-500/10
         transition-shadow
         duration-500
         "
       >
-        <h1 className="mb-8 mt-3 text-6xl">timbre.</h1>
+        <h1 className="mb-8 mt-3 text-6xl" data-contrast-skip>
+          timbre.
+        </h1>
         <Suspense fallback={<SearchForm />}>
           <FilledSearchForm searchParams={searchParams} />
         </Suspense>
-        {/* Full foreground, not muted: it must stay AA over the waveform behind the glass. */}
-        <p className="mt-4 text-xs text-foreground">
+        {/* Owner decision: like the title, moving particles can pass under this note on the see-through panel; both skip the contrast check. */}
+        <p className="mt-4 text-xs text-foreground" data-contrast-skip>
           Descrições e votos são armazenados para melhorar o modelo.
         </p>
       </Card>
