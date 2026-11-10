@@ -13,7 +13,8 @@ const CREDITS = new Intl.ListFormat('pt-BR').formatToParts(Object.keys(SOURCES))
 /** Credits the data sources and links to the public repository. */
 export function SiteFooter() {
   return (
-    <footer className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4 py-6 text-xs text-muted-foreground">
+    // Full foreground, not muted: the credits sit over the vignette and must stay AA.
+    <footer className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4 py-6 text-xs text-foreground">
       <p>
         Dados de{' '}
         {CREDITS.map(({ type, value }, i) =>
@@ -21,7 +22,7 @@ export function SiteFooter() {
             <a
               key={i}
               href={SOURCES[value as keyof typeof SOURCES]}
-              className="underline underline-offset-2 hover:text-foreground"
+              className="underline underline-offset-2"
             >
               {value}
             </a>

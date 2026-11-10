@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { searchUrl } from '@/components/search-form'
+import { search } from '@/components/search-form'
 import { Button } from '@/components/ui/button'
 
 // Owner-approved (ticket 06).
@@ -35,7 +35,7 @@ export function SampleDescriptions() {
               onClick={(event) => {
                 if (event.metaKey || event.ctrlKey || event.shiftKey) return // new tab/window
                 event.preventDefault()
-                router.push(searchUrl(q))
+                search(router, q)
               }}
             >
               {q}

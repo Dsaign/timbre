@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import { PreviewPlayer } from '@/components/preview-player'
 import { SiteFooter } from '@/components/site-footer'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { WaveformBackground } from '@/components/waveform-background'
 import './globals.css'
 
 const inter = Inter({
@@ -26,9 +27,10 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       className={`antialiased ${inter.className}`}
     >
       {/* Room at the bottom so the docked player never covers the last cards or the footer. */}
-      <body className="flex min-h-screen flex-col bg-linear-to-br from-indigo-100 to-mauve-200 has-data-[dock=open]:pb-28 dark:from-indigo-950 dark:to-mauve-700">
+      <body className="flex min-h-screen flex-col has-data-[dock=open]:pb-28">
         {/* Default storage is localStorage (key "theme"); next-themes sets no cookie. */}
         <ThemeProvider attribute="class" disableTransitionOnChange>
+          <WaveformBackground />
           <header className="flex justify-end px-3 pt-3">
             <ThemeToggle />
           </header>
