@@ -5,14 +5,21 @@ import { Button } from '@/components/ui/button'
 import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { pageSizeFor } from '@/lib/grid'
+import { setPage, waveKeystroke } from '@/lib/waveform'
 
 /** The results URL for a Description, with N sized to the visitor's screen. */
-export function searchUrl(q: string) {
+function searchUrl(q: string) {
   const n = pageSizeFor(
     document.documentElement.clientWidth,
     window.innerHeight
   )
   return `/?${new URLSearchParams({ q, n: String(n) })}`
+}
+
+/** Runs a search; the background waveform tightens until the Matches show. */
+export function search(router: ReturnType<typeof useRouter>, q: string) {
+  setPage('submitting')
+  router.push(searchUrl(q))
 }
 
 // Without JavaScript the form submits natively with only q, and the page uses N = 24.
@@ -22,9 +29,7 @@ export function SearchForm({ defaultValue }: { defaultValue?: string }) {
     <form
       onSubmit={(event) => {
         event.preventDefault()
-        router.push(
-          searchUrl(String(new FormData(event.currentTarget).get('q')))
-        )
+        search(router, String(new FormData(event.currentTarget).get('q')))
       }}
     >
       <Field>
@@ -34,6 +39,7 @@ export function SearchForm({ defaultValue }: { defaultValue?: string }) {
           aria-label="Descreva sua música favorita"
           placeholder="Descreva sua música favorita..."
           defaultValue={defaultValue}
+          onChange={() => waveKeystroke()}
           required
           maxLength={300}
           className="

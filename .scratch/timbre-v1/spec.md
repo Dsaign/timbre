@@ -193,17 +193,17 @@ Behind the page, a Catalog of about 10k well-known Songs is built only from open
 
 ### Background waveform
 
-- Raw WebGL2, with no 3D library. A ribbon of roughly 20–40k points is shaped by waves in a vertex shader. Depth of field is faked with point size and transparency by depth, plus a few drifting bokeh sprites. The look follows the reference image the project owner shared: a particle ribbon in deep navy and teal with a warm edge, kept low in contrast so it never pulls attention from the UI.
+- Raw WebGL2, with no 3D library. A ribbon of roughly 20–40k points is shaped by waves in a vertex shader. Depth of field is faked with point size and transparency by depth, plus a few drifting bokeh sprites. The shape and feel follow the reference image the project owner shared: twisting particle ribbons with depth and drifting bokeh. Colours come from the app's theme (Light and Dark), not from the image: the particles use the theme's colour tokens (with a warm accent while a Preview plays), and the page background is a radial gradient with a soft dark vignette whose colours are also theme tokens (navy in Dark, grey in Light). The particles stay low in contrast so they never pull attention from the UI.
 - **States and reactions:**
   - **idle:** slow drift, cool colours, low amplitude.
   - **typing:** each keystroke sends a soft brightness ripple along the ribbon, driven by one timestamp per keystroke.
   - **submitting:** the ribbon tightens and lines up horizontally.
   - **results shown:** the ribbon relaxes.
   - **Preview playing:** warmer colours and higher amplitude.
-  - **Preview stopped:** eases back to idle over about 2 s.
+  - **Preview stopped:** eases back over about 2 s to the Matches shape if Matches are on screen, and to idle otherwise.
   - All changes are smooth blends.
 - A pure function maps (state, theme, reduced-motion) to target shader parameters. With reduced motion, the ribbon is static and only colours change.
-- All colours live in one palette configuration per theme and state, so the look is easy to change.
+- All colours live in one palette configuration per theme and state, derived from the app's theme colours, so the look is easy to change.
 - The animation pauses when the tab is hidden.
 
 ### Security

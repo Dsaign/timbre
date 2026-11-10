@@ -21,7 +21,8 @@ type Run = {
 export async function lowContrastText(page: Page) {
   const runs: Run[] = await page.evaluate(() => {
     for (const el of document.body.querySelectorAll('*'))
-      if (getComputedStyle(el).position === 'fixed')
+      // The waveform canvas stays: it is the background the text must be readable over.
+      if (getComputedStyle(el).position === 'fixed' && el.tagName !== 'CANVAS')
         el.setAttribute('data-contrast-fixed', '')
     const found: Run[] = []
     const add = (text: string, el: Element, color: string, r: DOMRect) => {

@@ -6,6 +6,7 @@
 
 @theme inline {
   --color-glass: var(--glass);
+  --color-warm: var(--warm);
   --color-field-start: var(--field-start);
   --color-field-end: var(--field-end);
   --color-tint: var(--tint);
@@ -60,6 +61,14 @@
   --glass: oklch(1 0 0 / 55%);
   --tint: oklch(1 0 0 / 75%);
   --solid: oklch(0.97 0.01 300);
+  /* The warm accent: the background waveform while a Preview plays. */
+  --warm: oklch(0.62 0.15 50);
+  /* The page background: a radial gradient (centre, mid at --bg-mid-at, edge) under a dark vignette. */
+  --bg-center: #eef1f7;
+  --bg-mid: #dfe5ef;
+  --bg-mid-at: 60%;
+  --bg-edge: #cfd7e5;
+  --vignette: rgb(0 0 0 / 0.12);
   /* The search input's gradient. */
   --field-start: var(--color-indigo-50);
   --field-end: var(--color-mauve-100);
@@ -87,6 +96,12 @@
   --glass: oklch(0 0 0 / 55%);
   --tint: oklch(0 0 0 / 60%);
   --solid: oklch(0.2 0.03 290);
+  --warm: oklch(0.8 0.13 65);
+  --bg-center: #0e1424;
+  --bg-mid: #070a12;
+  --bg-mid-at: 55%;
+  --bg-edge: #020308;
+  --vignette: rgb(0 0 0 / 0.18);
   --field-start: var(--color-indigo-950);
   --field-end: var(--color-mauve-700);
 }
@@ -102,7 +117,7 @@
 
 /* Real blur only on the few big panels (search, player, grid); cards just tint. */
 @utility frosted {
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(10px);
   @media (prefers-reduced-transparency: reduce) {
     backdrop-filter: none;
   }
@@ -126,6 +141,7 @@
       linear-gradient(#000 0 0) content-box exclude,
       linear-gradient(#000 0 0);
     pointer-events: none;
+    opacity: 0.5;
   }
 }
 
@@ -136,4 +152,16 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* The page background, from the theme tokens: a soft dark vignette over a radial gradient. */
+body {
+  background:
+    radial-gradient(ellipse at 50% 50%, transparent 50%, var(--vignette)),
+    radial-gradient(
+      ellipse at 50% 55%,
+      var(--bg-center) 0%,
+      var(--bg-mid) var(--bg-mid-at),
+      var(--bg-edge) 100%
+    );
 }

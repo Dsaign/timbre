@@ -1,10 +1,18 @@
 'use client'
 
 import { Play } from 'lucide-react'
-import { createContext, use, useCallback, useRef, useState } from 'react'
+import {
+  createContext,
+  use,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { BrandLogo } from '@/components/brand-logo'
 import { Button } from '@/components/ui/button'
 import type { Previews } from '@/lib/preview'
+import { setPlaying as setWavePlaying } from '@/lib/waveform'
 
 // The parts of Spotify's iFrame API that timbre uses:
 // https://developer.spotify.com/documentation/embeds/references/iframe-api
@@ -52,6 +60,8 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
   const [playing, setPlaying] = useState<{ uri?: string; paused: boolean }>({
     paused: true,
   })
+  // The background waveform follows the same play/pause signal (ADR 0001: nothing else).
+  useEffect(() => setWavePlaying(!playing.paused), [playing.paused])
   const slot = useRef<HTMLDivElement>(null)
   const controller = useRef<Promise<EmbedController>>(null)
 

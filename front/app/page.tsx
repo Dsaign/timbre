@@ -3,6 +3,7 @@ import { MatchGrid } from '@/components/match-grid'
 import { SampleDescriptions } from '@/components/sample-descriptions'
 import { SearchForm } from '@/components/search-form'
 import { Card } from '@/components/ui/card'
+import { WaveformState } from '@/components/waveform-background'
 import { Skeleton } from '@/components/ui/skeleton'
 import { GRID } from '@/lib/grid'
 import { lookupPreviews } from '@/lib/preview'
@@ -19,8 +20,8 @@ export default function Home({ searchParams }: PageProps<'/'>) {
       <Card
         className="
         w-full lg:max-w-md md:min-w-md rounded-3xl
-        bg-glass frosted gradient-border ring-0 gap-0
-        p-6 text-center text-foreground
+        frosted gradient-border ring-0 gap-0
+        p-6 text-center text-foreground bg-transparent/30
         has-[:hover]:shadow-[-5px_-5px_40px_1px_var(--color-indigo-500)]
         has-[:hover]:shadow-indigo-500/10
         transition-shadow
@@ -31,7 +32,8 @@ export default function Home({ searchParams }: PageProps<'/'>) {
         <Suspense fallback={<SearchForm />}>
           <FilledSearchForm searchParams={searchParams} />
         </Suspense>
-        <p className="mt-4 text-xs text-muted-foreground">
+        {/* Full foreground, not muted: it must stay AA over the waveform behind the glass. */}
+        <p className="mt-4 text-xs text-foreground">
           Descrições e votos são armazenados para melhorar o modelo.
         </p>
       </Card>
@@ -68,6 +70,8 @@ async function Results({ searchParams }: { searchParams: SearchParams }) {
       fallback={<MatchesSkeleton n={pageSize} />}
     >
       <Matches description={description} n={pageSize} />
+      {/* Revealed together with the Matches (or their message): the waveform relaxes. */}
+      <WaveformState state="matches" />
     </Suspense>
   )
 }
