@@ -22,3 +22,29 @@ test('home page offers six keyboard-reachable sample Descriptions', async ({
   await page.keyboard.press('Tab')
   await expect(samples.first()).toBeFocused()
 })
+
+test('after a search the form sits in the sticky compact bar, without the info note', async ({
+  page,
+}) => {
+  await page.goto('/', { waitUntil: 'networkidle' })
+  await expect(page.getByText(/^Descrições e votos/)).toBeVisible()
+  await page
+    .getByRole('textbox', { name: 'Descreva sua música favorita' })
+    .fill('violão calmo para estudar')
+  await page.getByRole('button', { name: 'Pesquisar' }).click()
+
+  const bar = page.getByRole('banner')
+  await expect(
+    // "t." on small screens (mobile-safari), "timbre." otherwise.
+    bar.getByRole('link', { name: /^(timbre|t)\. \(página inicial\)$/ })
+  ).toHaveAttribute('href', '/')
+  await expect(
+    bar.getByRole('textbox', { name: 'Descreva sua música favorita' })
+  ).toHaveValue('violão calmo para estudar')
+  await expect(bar.getByRole('button', { name: 'Pesquisar' })).toBeVisible()
+  await expect(
+    bar.getByRole('button', { name: 'Alternar tema claro/escuro' })
+  ).toBeVisible()
+  await expect(bar).toHaveCSS('position', 'sticky')
+  await expect(page.getByText(/^Descrições e votos/)).toHaveCount(0)
+})

@@ -10,7 +10,7 @@ import logging
 import random
 import re
 import time
-from typing import Any
+from typing import Any, NamedTuple
 from uuid import UUID
 
 import httpx
@@ -25,11 +25,31 @@ RETRIES = 3
 BACKOFF = 0.5  # seconds before the first retry; doubles each time
 MAX_RETRY_AFTER = 10.0  # a longer Retry-After gives up instead of holding the grid
 TRACK_ID = re.compile(r"[0-9A-Za-z]{22}")  # Spotify base-62 ID
+IMAGE_URL = re.compile(r"https://i\.scdn\.co/image/[0-9a-f]+")  # Spotify's image CDN
+MIN_COVER = 64  # px: the card shows the cover at 64 px
 sleep = asyncio.sleep  # tests swap this to skip and record the waits
 
 
 class SpotifyError(Exception):
     pass
+
+
+class Track(NamedTuple):
+    id: str
+    album_image_url: str | None
+
+
+def album_image(album: dict[str, Any]) -> str | None:
+    """The smallest album image of at least MIN_COVER px, from a trusted host."""
+    images = [
+        image
+        for image in album.get("images") or []
+        if min(image.get("width") or 0, image.get("height") or 0) >= MIN_COVER
+    ]
+    if not images:
+        return None
+    url = min(images, key=lambda image: image["width"] * image["height"])["url"]
+    return url if isinstance(url, str) and IMAGE_URL.fullmatch(url) else None
 
 
 class Spotify:
@@ -85,8 +105,10 @@ class Spotify:
                 self.token_expires = time.monotonic() + body["expires_in"] - 60
             return self.token
 
-    async def find_track(self, isrc: str | None, title: str, artist: str) -> str | None:
-        """The Spotify track ID, by ISRC first, then title + artist. None: not found."""
+    async def find_track(
+        self, isrc: str | None, title: str, artist: str
+    ) -> Track | None:
+        """The Spotify track, by ISRC first, then title + artist. None: not found."""
         queries = [f"isrc:{isrc}"] if isrc else []
         # Quotes would end the field filter early.
         queries.append(
@@ -105,7 +127,9 @@ class Spotify:
                     track_id = items[0]["id"]
                     if not TRACK_ID.fullmatch(track_id):
                         raise SpotifyError("unexpected track ID format")
-                    return str(track_id)
+                    return Track(
+                        str(track_id), album_image(items[0].get("album") or {})
+                    )
         return None
 
 
@@ -114,18 +138,22 @@ async def lookup(
     search_pool: AsyncConnectionPool,
     preview_pool: AsyncConnectionPool,
     spotify: Spotify,
-) -> dict[UUID, str | None]:
-    """Each Song's Spotify track ID, or None for "not available".
+) -> dict[UUID, Track | None]:
+    """Each Song's Spotify track and album cover, or None for "not available".
 
     Found and not-found answers are cached for 24 h; errors are not cached.
     """
     async with preview_pool.connection() as conn:
         cur = await conn.execute(
-            "SELECT song_id, spotify_track_id FROM preview.spotify_cache"
+            "SELECT song_id, spotify_track_id, album_image_url"
+            " FROM preview.spotify_cache"
             " WHERE song_id = ANY(%s) AND expires_at > now()",
             (song_ids,),
         )
-        known: dict[UUID, str | None] = dict(await cur.fetchall())
+        known: dict[UUID, Track | None] = {
+            song_id: Track(track_id, image) if track_id else None
+            for song_id, track_id, image in await cur.fetchall()
+        }
     missing = [song_id for song_id in song_ids if song_id not in known]
     if missing:
         async with search_pool.connection() as conn:
@@ -141,7 +169,7 @@ async def lookup(
             ),
             return_exceptions=True,
         )
-        fresh: list[tuple[UUID, str | None]] = []
+        fresh: list[tuple[UUID, Track | None]] = []
         for (song_id, *_), answer in zip(songs, answers, strict=True):
             if isinstance(answer, BaseException):
                 log.warning("Spotify lookup failed: %r", answer)
@@ -151,12 +179,13 @@ async def lookup(
             async with preview_pool.connection() as conn, conn.cursor() as cur:
                 await cur.executemany(
                     "INSERT INTO preview.spotify_cache"
-                    " (song_id, spotify_track_id, expires_at)"
-                    " VALUES (%s, %s, now() + interval '24 hours')"
+                    " (song_id, spotify_track_id, album_image_url, expires_at)"
+                    " VALUES (%s, %s, %s, now() + interval '24 hours')"
                     " ON CONFLICT (song_id) DO UPDATE SET"
                     " spotify_track_id = excluded.spotify_track_id,"
+                    " album_image_url = excluded.album_image_url,"
                     " fetched_at = now(), expires_at = excluded.expires_at",
-                    fresh,
+                    [(song_id, *(track or (None, None))) for song_id, track in fresh],
                 )
             known.update(fresh)
     return {song_id: known.get(song_id) for song_id in song_ids}

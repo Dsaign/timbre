@@ -46,7 +46,9 @@ for (const viewport of [
       const count = parseInt((await status.textContent()) ?? '')
       const cards = cardsOf(page)
       await expect(cards).toHaveCount(Math.min(n, count))
-      expect(await renderedColumns(page)).toBe(gridColumns(viewport.width))
+      expect(await renderedColumns(page)).toBe(
+        gridColumns(viewport.width, viewport.height)
+      )
       expect(
         await page.evaluate(
           () =>
@@ -66,7 +68,9 @@ for (const viewport of [
       page.on('request', (request) => requests.push(request.url()))
       const other = viewport.width === 1440 ? 375 : 1440
       await page.setViewportSize({ width: other, height: viewport.height })
-      await expect.poll(() => renderedColumns(page)).toBe(gridColumns(other))
+      await expect
+        .poll(() => renderedColumns(page))
+        .toBe(gridColumns(other, viewport.height))
       expect(requests).toEqual([])
     })
   })

@@ -1,6 +1,7 @@
 'use client'
 
-import { Play } from 'lucide-react'
+import { Music, Pause, Play } from 'lucide-react'
+import Image from 'next/image'
 import {
   createContext,
   use,
@@ -20,6 +21,7 @@ type PlaybackEvent = { data: { playingURI?: string; isPaused?: boolean } }
 type EmbedController = {
   loadUri(uri: string): void
   play(): void
+  togglePlay(): void
   addListener(
     event: 'playback_started' | 'playback_update',
     listener: (e: PlaybackEvent) => void
@@ -51,15 +53,21 @@ function loadIframeApi() {
   return iframeApi
 }
 
-const PlayPreview = createContext<(trackId: string) => void>(() => {})
+type Playing = { uri?: string; paused: boolean }
+const PlayPreview = createContext<{
+  play: (trackId: string) => void
+  playing: Playing
+}>({ play: () => {}, playing: { paused: true } })
 
-/** One Spotify Embed docked at the bottom; every card's Preview plays in it. */
+/** One Spotify Embed floating at the bottom; every card's Preview plays in it. */
 export function PreviewPlayer({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
   // Only play and pause are listened to; position, duration and artwork never are.
-  const [playing, setPlaying] = useState<{ uri?: string; paused: boolean }>({
-    paused: true,
-  })
+  const [playing, setPlaying] = useState<Playing>({ paused: true })
+  const playingNow = useRef(playing)
+  useEffect(() => {
+    playingNow.current = playing
+  }, [playing])
   // The background waveform follows the same play/pause signal (ADR 0001: nothing else).
   useEffect(() => setWavePlaying(!playing.paused), [playing.paused])
   const slot = useRef<HTMLDivElement>(null)
@@ -69,7 +77,10 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
     const uri = `spotify:track:${trackId}`
     setOpen(true)
     if (controller.current) {
+      const { uri: current, paused } = playingNow.current
       controller.current.then((c) => {
+        // The card that is playing pauses; any other card starts its own track.
+        if (current === uri && !paused) return c.togglePlay()
         c.loadUri(uri)
         c.play()
       })
@@ -105,22 +116,62 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <PlayPreview value={play}>
+    <PlayPreview value={{ play, playing }}>
       {children}
+      {/* Exactly the embed (80 px, Spotify's smallest), nothing drawn over it. overflow-hidden
+          with the embed's own 12 px radius trims only the empty corners around it (ADR 0001). */}
       <section
         aria-label="Prévia no Spotify"
         data-dock={open ? 'open' : 'closed'}
         data-playing-uri={playing.uri}
         data-paused={playing.paused}
-        className="fixed inset-x-0 bottom-0 z-10 bg-glass frosted p-2 data-[dock=closed]:hidden"
+        className="fixed inset-x-0 bottom-3 z-10 mx-auto h-20 w-[min(100%_-_2rem,max(36rem,60vw),48rem)] overflow-hidden rounded-xl data-[dock=closed]:hidden [&_iframe]:block [&_iframe]:border-0"
       >
-        <div ref={slot} className="mx-auto h-20 max-w-5xl" />
+        <div ref={slot} className="h-20" />
       </section>
     </PlayPreview>
   )
 }
 
-/** A card's Preview button and "LISTEN ON SPOTIFY" link, or nothing when not available. */
+/** The 64 px box of a card's cover, its placeholder and its skeleton. */
+export const COVER_BOX = 'size-16 shrink-0 rounded-[4px]'
+
+/** The Song's album cover from Spotify (shown as is: Spotify's artwork rules), or a placeholder. */
+export function PreviewCover({
+  previews,
+  songId,
+}: {
+  previews: Promise<Previews>
+  songId: string
+}) {
+  const preview = use(previews)[songId]
+  const src = preview?.spotify_track_id && preview.album_image_url
+  if (src)
+    return (
+      // Empty alt: the title sits right next to it.
+      <Image
+        src={src}
+        alt=""
+        width={64}
+        height={64}
+        unoptimized
+        className={`${COVER_BOX} object-contain`}
+      />
+    )
+  return <CoverPlaceholder />
+}
+
+export function CoverPlaceholder() {
+  return (
+    <div
+      className={`${COVER_BOX} grid place-items-center border border-zinc-300 bg-zinc-100 text-zinc-900 dark:border-zinc-600 dark:bg-zinc-900 dark:text-white`}
+    >
+      <Music aria-hidden className="size-6" />
+    </div>
+  )
+}
+
+/** A card's Preview button and Spotify link, or "Prévia indisponível". */
 export function PreviewControls({
   previews,
   songId,
@@ -130,31 +181,37 @@ export function PreviewControls({
   songId: string
   title: string
 }) {
-  const play = use(PlayPreview)
-  const trackId = use(previews)[songId]
-  if (!trackId) return null
+  const { play, playing } = use(PlayPreview)
+  const trackId = use(previews)[songId]?.spotify_track_id
+  if (!trackId)
+    return (
+      <p className="py-3 text-xs text-muted-foreground">Prévia indisponível</p>
+    )
+  const playingThis =
+    playing.uri === `spotify:track:${trackId}` && !playing.paused
   return (
-    <div className="flex items-end justify-between gap-2">
+    <div className="flex items-center justify-between gap-2">
+      {/* The name starts with the visible text (WCAG 2.5.3), so it follows the state. */}
       <Button
         type="button"
         variant="secondary"
-        aria-label={`Prévia de ${title}`}
+        aria-label={`${playingThis ? 'Tocando' : 'Prévia de'} ${title}`}
         onClick={() => play(trackId)}
-        className="cursor-pointer rounded-md"
+        className="cursor-pointer rounded-md transition-colors hover:brand-gradient hover:text-zinc-900"
       >
-        <Play aria-hidden />
-        Prévia
+        {playingThis ? <Pause aria-hidden /> : <Play aria-hidden />}
+        {playingThis ? 'Tocando' : 'Prévia'}
       </Button>
-      {/* Spotify branding: full logo at 70 px or more, monochrome off black/white, and
-          one of the guideline's link texts (docs/research/spotify-platform-terms.md). */}
+      {/* Spotify branding: the official icon (21 px or more), black or white, on a link to the
+          track (docs/research/spotify-platform-terms.md §6). 44 px touch target. */}
       <a
         href={`https://open.spotify.com/track/${trackId}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex flex-col items-end gap-1 text-[10px] font-semibold tracking-wide text-foreground hover:underline"
+        aria-label={`Listen on Spotify: ${title}`}
+        className="-mr-2.5 grid size-11 shrink-0 place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-foreground"
       >
-        <BrandLogo name="spotify-full-logo" width={80} height={22} />
-        LISTEN ON SPOTIFY
+        <BrandLogo name="spotify-icon" width={24} height={23} />
       </a>
     </div>
   )

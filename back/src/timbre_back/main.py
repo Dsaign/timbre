@@ -198,6 +198,9 @@ class Preview(BaseModel):
     spotify_track_id: str | None = Field(
         description="Spotify track ID, or null when the Song is not available"
     )
+    album_image_url: str | None = Field(
+        description="Spotify album cover (at least 64 px), or null when there is none"
+    )
 
 
 router = APIRouter()
@@ -259,7 +262,14 @@ async def preview(body: PreviewRequest, request: Request) -> list[Preview]:
         request.app.state.preview_pool,
         request.app.state.spotify,
     )
-    return [Preview(song_id=i, spotify_track_id=t) for i, t in found.items()]
+    return [
+        Preview(
+            song_id=song_id,
+            spotify_track_id=track.id if track else None,
+            album_image_url=track.album_image_url if track else None,
+        )
+        for song_id, track in found.items()
+    ]
 
 
 @asynccontextmanager

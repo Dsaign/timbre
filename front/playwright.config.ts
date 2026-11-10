@@ -23,7 +23,9 @@ export default defineConfig({
   testDir: 'e2e',
   forbidOnly: !!process.env.CI,
   reporter: process.env.CI ? 'github' : 'list',
-  use: { baseURL: 'http://localhost:3000' },
+  // Reduced motion: no entrance fades or card stagger, so axe and the contrast check never
+  // measure a half-faded element.
+  use: { baseURL: 'http://localhost:3000', reducedMotion: 'reduce' },
   projects: [
     {
       name: 'chromium',

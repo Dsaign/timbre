@@ -11,11 +11,21 @@ import {
   type Shape,
   type WaveState,
 } from '@/lib/waveform'
+import { ENTRANCE_MS } from '@/lib/entrance'
 
 const RIBBONS = 2
-const ROWS = 56
+const ROWS = 46
 const COLS = 160
 const BOKEH = 120
+const SHOW_UI_AFTER_MS = 1000 // the UI shows even if the background isn't ready by then
+
+/** Starts the UI's entrance (globals.css) once; later mounts then just appear. */
+function showUi() {
+  const html = document.documentElement
+  if (html.dataset.ui) return
+  html.dataset.ui = 'ready'
+  setTimeout(() => (html.dataset.ui = 'done'), ENTRANCE_MS)
+}
 
 // =============================================
 // VERTEX SHADER
@@ -63,7 +73,7 @@ const float DEPTH_SLOPE = 0.42;
 // Movimento
 // ---------------------------------------------
 
-const float FLOW_SPEED = 0.012;
+const float FLOW_SPEED = 0.014;
 const float WAVE_SPEED = 0.55;
 const float TWIST_SPEED = 0.30;
 
@@ -399,6 +409,7 @@ export function WaveformBackground() {
 
   useEffect(() => {
     const canvas = ref.current!
+    const fallback = setTimeout(showUi, SHOW_UI_AFTER_MS)
 
     const gl = canvas.getContext('webgl2', {
       antialias: false,
@@ -406,7 +417,10 @@ export function WaveformBackground() {
       premultipliedAlpha: true,
     })
 
-    if (!gl) return
+    if (!gl) {
+      clearTimeout(fallback)
+      return showUi()
+    }
 
     const program = gl.createProgram()
 
@@ -668,6 +682,7 @@ export function WaveformBackground() {
       gl.drawArrays(gl.POINTS, 0, BOKEH)
 
       canvas.dataset.ready = ''
+      showUi()
 
       raf = requestAnimationFrame(frame)
     }
@@ -693,6 +708,7 @@ export function WaveformBackground() {
     // =========================================
 
     return () => {
+      clearTimeout(fallback)
       cancelAnimationFrame(raf)
 
       document.removeEventListener('visibilitychange', resume)

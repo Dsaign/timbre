@@ -140,6 +140,11 @@ export interface components {
              * @description Spotify track ID, or null when the Song is not available
              */
             spotify_track_id: string | null;
+            /**
+             * Album Image Url
+             * @description Spotify album cover (at least 64 px), or null when there is none
+             */
+            album_image_url: string | null;
         };
         /** PreviewRequest */
         PreviewRequest: {

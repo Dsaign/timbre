@@ -4,16 +4,18 @@ import { gridColumns, pageSizeFor } from './grid'
 describe('pageSizeFor', () => {
   it.each([
     // [width, height, columns, N]
-    [375, 667, 1, 4],
-    [768, 1024, 3, 21],
-    [1440, 900, 4, 24],
+    [320, 568, 1, 3],
+    [375, 667, 1, 3],
+    [768, 1024, 2, 12],
+    [1440, 900, 4, 20],
+    [1280, 600, 4, 12], // short: tight padding and gaps
   ])('%i×%i → %i columns, N = %i', (width, height, columns, n) => {
-    expect(gridColumns(width)).toBe(columns)
+    expect(gridColumns(width, height)).toBe(columns)
     expect(pageSizeFor(width, height)).toBe(n)
   })
 
-  it('stops growing columns at the max content width', () => {
-    expect(gridColumns(3840)).toBe(gridColumns(1440))
+  it('keeps adding columns on wide screens (no max width)', () => {
+    expect(gridColumns(2560)).toBe(8)
   })
 
   it('caps N at 60', () => {

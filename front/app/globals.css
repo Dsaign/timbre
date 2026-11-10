@@ -3,6 +3,15 @@
 @import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
+/* Narrow or short screens: tighter results padding and gaps. Same limits as isTight() in lib/grid.ts. */
+@custom-variant tight {
+  @media (width < 640px) {
+    @slot;
+  }
+  @media (height <= 640px) {
+    @slot;
+  }
+}
 
 @theme inline {
   --color-glass: var(--glass);
@@ -123,6 +132,19 @@
   }
 }
 
+/* The gradient border's direction; animatable, so a card's border can turn while hovered. */
+@property --angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 135deg;
+}
+
+@keyframes border-turn {
+  to {
+    --angle: 495deg;
+  }
+}
+
 /* A 1px gradient border that leaves the panel's own background see-through. */
 @utility gradient-border {
   position: relative;
@@ -133,7 +155,7 @@
     padding: 1px;
     border-radius: inherit;
     background: linear-gradient(
-      to bottom right,
+      var(--angle),
       var(--color-indigo-800),
       var(--color-mauve-500)
     );
@@ -143,6 +165,94 @@
     pointer-events: none;
     opacity: 0.5;
   }
+}
+
+/* The brand gradient for buttons. Intentionally fixed: it stays light in both themes, so pair
+   it with dark text (text-zinc-900, AA). --brand-from lets a hover deepen the start colour. */
+@utility brand-gradient {
+  background-image: linear-gradient(
+    to bottom right,
+    var(--brand-from, var(--color-indigo-200)),
+    var(--color-mauve-200)
+  );
+}
+
+/* With gradient-border: the border shows only on hover, turning slowly while hovered.
+   It fades in quickly and out slowly; reduced motion keeps the fade, not the turn. */
+@utility gradient-border-hover {
+  &&::before {
+    opacity: 0;
+    transition: opacity 700ms ease-out;
+    animation: border-turn 8s linear infinite paused;
+  }
+  &&:hover::before {
+    opacity: 1;
+    transition-duration: 250ms;
+    animation-play-state: running;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &&::before {
+      animation: none;
+    }
+  }
+}
+
+/* A card's cover appears at once when its card has finished entering (--card-entered, set in
+   match-grid.tsx): Spotify artwork is never animated. Reduced motion: no entrance, no wait. */
+@keyframes appear {
+  from {
+    visibility: hidden;
+  }
+}
+@utility after-card-enter {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: appear 0s var(--card-entered, 0s) both;
+  }
+}
+
+/* Entrance: the UI waits for the waveform's first frame (html[data-ui=ready], set by
+   waveform-background.tsx, which also gives up after ~1 s), then fades in top to bottom,
+   one --enter-step apart, each over --enter-fade (lib/entrance.ts). Only with scripting, so
+   the page is never blank without JavaScript; reduced motion shows everything at once.
+   data-ui=done: elements mounted later just appear. Animations inside a step (the cards'
+   stagger, a cover's wait) hold until the entrance starts, then start with their step
+   (--enter-offset, read by match-grid.tsx). */
+@keyframes ui-enter {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  html:not([data-ui]) [data-enter] {
+    opacity: 0;
+  }
+  html:not([data-ui]) [data-enter] * {
+    animation-play-state: paused;
+  }
+  html[data-ui='ready'] [data-enter] {
+    animation: ui-enter var(--enter-fade) cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  html[data-ui='ready'] [data-enter='2'] {
+    animation-delay: var(--enter-step);
+  }
+  html[data-ui='ready'] [data-enter='3'] {
+    animation-delay: calc(2 * var(--enter-step));
+  }
+  html[data-ui='ready'] [data-enter='4'] {
+    animation-delay: calc(3 * var(--enter-step));
+  }
+  /* Kept once done too: changing a running animation's delay would make it jump. */
+  html[data-ui] [data-enter='2'] {
+    --enter-offset: var(--enter-step);
+  }
+}
+
+/* The hero → compact bar morph (search-form.tsx): 300 ms. */
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 300ms;
 }
 
 @layer base {

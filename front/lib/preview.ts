@@ -1,8 +1,12 @@
 import 'server-only'
 import { back } from '@/lib/api/client'
+import type { components } from '@/lib/api/schema'
 
-/** Song ID → Spotify track ID. A Song that is null or missing is not available. */
-export type Previews = Record<string, string | null>
+/** Song ID → its Spotify track and cover. A Song missing here, or with a null track, is not available. */
+export type Previews = Record<
+  string,
+  components['schemas']['Preview'] | undefined
+>
 
 /** Never rejects: a failed lookup only hides Preview (the next search tries again). */
 export async function lookupPreviews(songIds: string[]): Promise<Previews> {
@@ -10,9 +14,7 @@ export async function lookupPreviews(songIds: string[]): Promise<Previews> {
     const { data } = await back.POST('/preview', {
       body: { song_ids: songIds },
     })
-    return Object.fromEntries(
-      (data ?? []).map((p) => [p.song_id, p.spotify_track_id])
-    )
+    return Object.fromEntries((data ?? []).map((p) => [p.song_id, p]))
   } catch {
     return {}
   }

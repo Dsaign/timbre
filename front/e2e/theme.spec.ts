@@ -120,10 +120,10 @@ for (const scheme of SCHEMES) {
       ],
     })
     await open(page, SEARCH, scheme)
+    // The floating player has no surface of its own: it is only Spotify's embed.
     for (const surface of [
-      page.locator('[data-slot=card]').first(), // search panel
+      page.getByRole('banner'), // compact search bar
       page.getByRole('region', { name: 'Resultados' }),
-      page.locator('section[aria-label="Prévia no Spotify"]'), // docked player (hidden until a Preview)
       cards(page).first().locator('[data-slot=card]'),
     ]) {
       await expect(surface).toHaveCSS('backdrop-filter', 'none')

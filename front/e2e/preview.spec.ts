@@ -34,14 +34,15 @@ for (const viewport of [
     for (const i of [0, 1]) {
       const card = cards.nth(i)
       const href = await card
-        .getByRole('link', { name: 'LISTEN ON SPOTIFY' })
+        .getByRole('link', { name: /^Listen on Spotify: / })
         .getAttribute('href')
       const trackId = href?.match(
         /^https:\/\/open\.spotify\.com\/track\/([0-9A-Za-z]{22})$/
       )?.[1]
       expect(trackId).toBeTruthy()
 
-      await card.getByRole('button', { name: /^Prévia de/ }).click()
+      const preview = card.getByRole('button', { name: /^Prévia de/ })
+      await preview.click()
       await expect(dock).toHaveAttribute(
         'data-playing-uri',
         `spotify:track:${trackId}`,
@@ -50,6 +51,10 @@ for (const viewport of [
       await expect(dock).toHaveAttribute('data-paused', 'false', {
         timeout: 20_000,
       })
+      // The card shows that its track is the one playing; its name follows the visible text.
+      await expect(card.getByRole('button', { name: /^Tocando / })).toHaveText(
+        'Tocando'
+      )
     }
     await expect(page.locator('iframe')).toHaveCount(1)
   })
