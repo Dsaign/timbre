@@ -61,8 +61,7 @@ for (const viewport of [
       await expect(cards.nth(n)).toBeFocused()
       expect(page.url()).toBe(url)
 
-      // Resizing only reflows: the column count follows and no request is made. Covers are
-      // left out: a lazy cover that a wider grid brings into view loads then (Firefox).
+      // Resizing only reflows: no request, except lazy covers a wider grid brings into view.
       const requests: string[] = []
       page.on('request', (request) => {
         if (request.resourceType() !== 'image') requests.push(request.url())

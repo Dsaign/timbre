@@ -47,10 +47,19 @@ test('after a search the form sits in the fixed compact bar, without the info no
   ).toBeVisible()
   await expect(page.getByText(/^Descrições e votos/)).toHaveCount(0)
 
-  // Fixed app shell: the page never scrolls, only the cards area does, between the bar and the footer.
-  await expect(page.getByRole('status')).toBeVisible()
+  // The first page fills the cards area; a second one makes it overflow.
+  const cards = page
+    .getByRole('list', { name: 'Músicas' })
+    .getByRole('listitem')
+  await expect(cards.first()).toBeVisible()
+  const firstPageSize = await cards.count()
+  await page.getByRole('button', { name: 'Carregar mais' }).click()
+  await expect(cards).not.toHaveCount(firstPageSize)
   const cardsArea = page.getByRole('main')
   await expect(cardsArea).toHaveCSS('overflow-y', 'auto')
+  expect(
+    await cardsArea.evaluate((main) => main.scrollHeight > main.clientHeight)
+  ).toBe(true)
   await cardsArea.evaluate((main) => main.scrollTo(0, main.scrollHeight))
   await expect(bar).toBeInViewport()
   await expect(page.getByRole('contentinfo')).toBeInViewport()
