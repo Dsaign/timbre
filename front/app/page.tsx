@@ -1,6 +1,6 @@
-import Link from 'next/link'
 import { Suspense } from 'react'
 import { MatchGrid } from '@/components/match-grid'
+import { ClosePreview, HomeLink } from '@/components/preview-player'
 import { SampleDescriptions } from '@/components/sample-descriptions'
 import { SearchForm } from '@/components/search-form'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -48,7 +48,7 @@ function SearchedLayout({
     <>
       <header
         data-enter="1"
-        className="sticky top-0 z-20 flex h-(--bar-height) items-center gap-3 bg-glass frosted px-(--gutter) max-sm:gap-2"
+        className="z-20 flex h-(--bar-height) shrink-0 items-center gap-3 bg-glass frosted px-(--gutter) max-sm:gap-2"
       >
         <Logo compact />
         {/* key: remount so a sample chip replaces text the visitor already typed */}
@@ -59,10 +59,13 @@ function SearchedLayout({
         />
         <ThemeToggle />
       </header>
-      {/* The results are the entrance's step 2 on a first load (globals.css). */}
+      {/* The results are the entrance's step 2 on a first load (globals.css). data-shell: the
+          page becomes a fixed 100dvh shell and only this cards area scrolls (globals.css). Its
+          scrollbar keeps its room even when nothing overflows, as lib/grid.ts counts it. */}
       <main
         data-enter="2"
-        className="flex flex-1 flex-col items-center px-(--gutter) py-(--main-pad-y) tight:py-(--main-pad-y-tight)"
+        data-shell
+        className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto [scrollbar-gutter:stable] px-(--gutter) py-(--main-pad-y) tight:py-(--main-pad-y-tight)"
       >
         {description ? (
           <Results description={description} n={n} />
@@ -91,14 +94,15 @@ function Logo({ compact = false }: { compact?: boolean }) {
     <h1 className={`${className} shrink-0 text-2xl`} data-contrast-skip>
       {/* The name starts with the visible text at every width (WCAG 2.5.3):
           "t. (página inicial)" on small screens, "timbre. (página inicial)" otherwise. */}
-      <Link
+      {/* Going home also closes the Preview dock and pauses it. */}
+      <HomeLink
         href="/"
         className="rounded-md outline-none focus-visible:ring-2 focus-visible:ring-foreground"
       >
         <span className="sm:hidden">t.</span>
         <span className="max-sm:hidden">timbre.</span>
         <span className="sr-only"> (página inicial)</span>
-      </Link>
+      </HomeLink>
     </h1>
   )
 }
@@ -106,6 +110,7 @@ function Logo({ compact = false }: { compact?: boolean }) {
 function HeroLayout() {
   return (
     <>
+      <ClosePreview />
       <header data-enter="1" className="flex justify-end px-3 pt-3">
         <ThemeToggle />
       </header>
@@ -173,7 +178,10 @@ async function Matches({ description, n }: { description: string; n: number }) {
 
   return (
     <section aria-label="Resultados" className={RESULTS_PANEL}>
-      <p role="status" className="h-(--status-height) text-sm text-center">
+      <p
+        role="status"
+        className="h-(--status-height) text-center text-xs text-foreground"
+      >
         {data.count}{' '}
         {data.count === 1 ? 'música encontrada' : 'músicas encontradas'}
       </p>
@@ -197,7 +205,7 @@ function MatchesSkeleton({ n }: { n: number }) {
       className={RESULTS_PANEL}
     >
       <div className="h-(--status-height)">
-        <Skeleton className="mx-auto h-5 w-48 rounded-md bg-foreground/10" />
+        <Skeleton className="mx-auto h-4 w-40 rounded-md bg-foreground/10" />
       </div>
       <div className={GRID}>
         {Array.from({ length: n }, (_, i) => (

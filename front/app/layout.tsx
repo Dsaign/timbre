@@ -27,10 +27,11 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       suppressHydrationWarning
       className={`antialiased no-scrollbar ${inter.className}`}
     >
-      {/* Room at the bottom so the floating player (80 px, 12 px up) never covers the last cards or the footer. */}
+      {/* After a search (main[data-shell]) the page is a fixed 100dvh shell: bar, scrolling
+          cards area, open dock, footer. Only the cards area scrolls. */}
       <body
         style={{ ...LAYOUT_VARS, ...ENTRANCE_VARS }}
-        className="flex min-h-screen flex-col has-data-[dock=open]:pb-26"
+        className="flex min-h-screen flex-col has-data-shell:h-dvh has-data-shell:min-h-0 has-data-shell:overflow-hidden"
       >
         {/* Default storage is localStorage (key "theme"); next-themes sets no cookie. */}
         <ThemeProvider attribute="class" disableTransitionOnChange>

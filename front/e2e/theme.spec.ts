@@ -120,10 +120,10 @@ for (const scheme of SCHEMES) {
       ],
     })
     await open(page, SEARCH, scheme)
-    // The floating player has no surface of its own: it is only Spotify's embed.
+    // The player has no surface of its own (only Spotify's embed), nor has the results panel
+    // (owner decision: the waveform shows through it).
     for (const surface of [
       page.getByRole('banner'), // compact search bar
-      page.getByRole('region', { name: 'Resultados' }),
       cards(page).first().locator('[data-slot=card]'),
     ]) {
       await expect(surface).toHaveCSS('backdrop-filter', 'none')

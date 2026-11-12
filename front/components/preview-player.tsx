@@ -2,6 +2,7 @@
 
 import { Music, Pause, Play } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import {
   createContext,
   use,
@@ -12,6 +13,7 @@ import {
 } from 'react'
 import { BrandLogo } from '@/components/brand-logo'
 import { Button } from '@/components/ui/button'
+import { LAYOUT } from '@/lib/grid'
 import type { Previews } from '@/lib/preview'
 import { setPlaying as setWavePlaying } from '@/lib/waveform'
 
@@ -21,6 +23,7 @@ type PlaybackEvent = { data: { playingURI?: string; isPaused?: boolean } }
 type EmbedController = {
   loadUri(uri: string): void
   play(): void
+  pause(): void
   togglePlay(): void
   addListener(
     event: 'playback_started' | 'playback_update',
@@ -56,10 +59,15 @@ function loadIframeApi() {
 type Playing = { uri?: string; paused: boolean }
 const PlayPreview = createContext<{
   play: (trackId: string) => void
+  close: () => void
+  open: boolean
   playing: Playing
-}>({ play: () => {}, playing: { paused: true } })
+}>({ play: () => {}, close: () => {}, open: false, playing: { paused: true } })
 
-/** One Spotify Embed floating at the bottom; every card's Preview plays in it. */
+/** Whether the dock is open (it takes room the results' page size must leave). */
+export const useDockOpen = () => use(PlayPreview).open
+
+/** One Spotify Embed docked above the footer; every card's Preview plays in it. */
 export function PreviewPlayer({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
   // Only play and pause are listened to; position, duration and artwork never are.
@@ -94,7 +102,7 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
           slot.current?.append(element)
           api.createController(
             element,
-            { uri, width: '100%', height: 80 },
+            { uri, width: '100%', height: LAYOUT.dock.height },
             (c) => {
               c.addListener('playback_started', ({ data }) =>
                 setPlaying((p) => ({ ...p, uri: data.playingURI }))
@@ -115,22 +123,50 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
     controller.current.catch(() => (controller.current = null))
   }, [])
 
+  // Hidden and paused: no audio keeps playing out of sight.
+  const close = useCallback(() => {
+    setOpen(false)
+    controller.current?.then((c) => c.pause())
+  }, [])
+
   return (
-    <PlayPreview value={{ play, playing }}>
+    <PlayPreview value={{ play, close, open, playing }}>
       {children}
-      {/* Exactly the embed (80 px, Spotify's smallest), nothing drawn over it. overflow-hidden
-          with the embed's own 12 px radius trims only the empty corners around it (ADR 0001). */}
+      {/* Exactly the embed (Spotify's smallest, LAYOUT.dock), nothing drawn over it, in its own
+          space above the footer. overflow-hidden with the embed's own 12 px radius trims only
+          the empty corners around it (ADR 0001). */}
       <section
         aria-label="Prévia no Spotify"
         data-dock={open ? 'open' : 'closed'}
         data-playing-uri={playing.uri}
         data-paused={playing.paused}
-        className="fixed inset-x-0 bottom-3 z-10 mx-auto h-20 w-[min(100%_-_2rem,max(36rem,60vw),48rem)] overflow-hidden rounded-xl data-[dock=closed]:hidden [&_iframe]:block [&_iframe]:border-0"
+        className="mx-auto mt-(--dock-gap) h-(--dock-height) w-[min(100%_-_2rem,max(36rem,60vw),48rem)] shrink-0 overflow-hidden rounded-xl data-[dock=closed]:hidden [&_iframe]:block [&_iframe]:border-0"
       >
-        <div ref={slot} className="h-20" />
+        <div ref={slot} className="h-(--dock-height)" />
       </section>
     </PlayPreview>
   )
+}
+
+/** A link home that first closes the dock and pauses its playback. */
+export function HomeLink(props: React.ComponentProps<typeof Link>) {
+  const { close } = use(PlayPreview)
+  return (
+    <Link
+      {...props}
+      onClick={(event) => {
+        close()
+        props.onClick?.(event)
+      }}
+    />
+  )
+}
+
+/** On the home page the dock closes and pauses, however the visitor got there (logo, Back). */
+export function ClosePreview() {
+  const { close } = use(PlayPreview)
+  useEffect(close, [close])
+  return null
 }
 
 /** The 64 px box of a card's cover, its placeholder and its skeleton. */

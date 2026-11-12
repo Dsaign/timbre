@@ -3,9 +3,11 @@
 @import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
-/* Narrow or short screens: tighter results padding and gaps. Same limits as isTight() in lib/grid.ts. */
+/* Narrow or short screens: tighter results padding and gaps. Narrow is Tailwind's max-sm (the
+   sm breakpoint, 40rem = 640 px); short is height <= 640 px. lib/grid.ts mirrors both
+   (LAYOUT.narrow, LAYOUT.short): the one JS <-> CSS pair to keep in sync. */
 @custom-variant tight {
-  @media (width < 640px) {
+  @variant max-sm {
     @slot;
   }
   @media (height <= 640px) {
@@ -78,9 +80,11 @@
   --bg-mid-at: 60%;
   --bg-edge: #cfd7e5;
   --vignette: rgb(0 0 0 / 0.12);
-  /* The search input's gradient. */
-  --field-start: var(--color-indigo-50);
-  --field-end: var(--color-mauve-100);
+  /* The search input: a solid background (AA text) inside a field-start → field-end gradient border. */
+  --field-bg: oklch(1 0 0);
+  /* The gradient border on the white field: both ends at least 3:1 (WCAG 1.4.11). */
+  --field-start: var(--color-indigo-500);
+  --field-end: var(--color-mauve-500);
 }
 
 .dark {
@@ -111,6 +115,7 @@
   --bg-mid-at: 55%;
   --bg-edge: #020308;
   --vignette: rgb(0 0 0 / 0.18);
+  --field-bg: oklch(0.17 0.02 285);
   --field-start: var(--color-indigo-950);
   --field-end: var(--color-mauve-700);
 }
@@ -245,6 +250,19 @@
   /* Kept once done too: changing a running animation's delay would make it jump. */
   html[data-ui] [data-enter='2'] {
     --enter-offset: var(--enter-step);
+  }
+}
+
+/* The fixed app shell's footer (main[data-shell], app/page.tsx): no padding, one line of
+   credits (two when narrow) at the least heights lib/grid.ts counts (LAYOUT.footer). It grows
+   instead of clipping if the credits need more room; lib/grid.ts then measures it. */
+body:has(main[data-shell]) > footer {
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  min-height: var(--footer-height);
+  padding-block: 0;
+  @variant max-sm {
+    min-height: var(--footer-height-narrow);
   }
 }
 

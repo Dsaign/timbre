@@ -5,17 +5,15 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field } from '@/components/ui/field'
+import { useDockOpen } from '@/components/preview-player'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import { pageSizeFor } from '@/lib/grid'
+import { currentScreen, pageSizeFor } from '@/lib/grid'
 import { setPage, waveKeystroke } from '@/lib/waveform'
 
 /** The results URL for a Description, with N sized to the visitor's screen. */
-function searchUrl(q: string) {
-  const n = pageSizeFor(
-    document.documentElement.clientWidth,
-    window.innerHeight
-  )
+function searchUrl(q: string, dockOpen: boolean) {
+  const n = pageSizeFor(currentScreen(dockOpen))
   return `/?${new URLSearchParams({ q, n: String(n) })}`
 }
 
@@ -23,9 +21,13 @@ function searchUrl(q: string) {
 let morphed: (() => void) | undefined
 
 /** Runs a search; the background waveform tightens until the Matches show. */
-export function search(router: ReturnType<typeof useRouter>, q: string) {
+export function search(
+  router: ReturnType<typeof useRouter>,
+  q: string,
+  dockOpen: boolean
+) {
   setPage('submitting')
-  const url = searchUrl(q)
+  const url = searchUrl(q, dockOpen)
   // From the home page, the logo and form morph into the compact bar (View Transitions API).
   // Without support, or with reduced motion, the layout switches at once.
   if (
@@ -53,6 +55,7 @@ export function SearchForm({
   compact?: boolean
 }) {
   const router = useRouter()
+  const dockOpen = useDockOpen()
   // The compact bar is on screen: a pending morph can capture it now.
   useEffect(() => {
     if (!compact) return
@@ -63,10 +66,11 @@ export function SearchForm({
     <form
       onSubmit={(event) => {
         event.preventDefault()
-        document
-          .getElementsByTagName('html')[0]
-          .classList.remove('no-scrollbar')
-        search(router, String(new FormData(event.currentTarget).get('q')))
+        search(
+          router,
+          String(new FormData(event.currentTarget).get('q')),
+          dockOpen
+        )
       }}
       className={cn(
         '[view-transition-name:search]',
@@ -84,10 +88,12 @@ export function SearchForm({
           required
           maxLength={300}
           autoComplete="off"
+          // A solid --field-bg inside a 1 px gradient border (field-start → field-end).
           className="
-                border-0 text-base md:text-xs
-                bg-linear-to-br from-field-start to-field-end
-                focus:border placeholder:text-muted-foreground"
+                text-base md:text-xs border-transparent
+                [background:linear-gradient(var(--field-bg),var(--field-bg))_padding-box,linear-gradient(to_bottom_right,var(--field-start),var(--field-end))_border-box]
+                max-w-xl
+                placeholder:text-muted-foreground"
         />
 
         <Button

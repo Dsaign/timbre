@@ -59,3 +59,58 @@ for (const viewport of [
     await expect(page.locator('iframe')).toHaveCount(1)
   })
 }
+
+test('going home with the logo hides the player and pauses it', async ({
+  page,
+}) => {
+  await page.goto(SEARCH)
+  const dock = page.getByRole('region', { name: 'Prévia no Spotify' })
+  await page
+    .getByRole('list', { name: 'Músicas' })
+    .getByRole('listitem')
+    .first()
+    .getByRole('button', { name: /^Prévia de/ })
+    .click()
+  await expect(dock).toHaveAttribute('data-paused', 'false', {
+    timeout: 20_000,
+  })
+
+  await page
+    .getByRole('banner')
+    .getByRole('link', { name: /página inicial/ })
+    .click()
+  await expect(page).toHaveURL(/\/$/)
+  await expect(dock).toBeHidden()
+  await expect(dock).toHaveAttribute('data-paused', 'true', {
+    timeout: 20_000,
+  })
+})
+
+test("going back to home with the browser's Back hides the player and pauses it", async ({
+  page,
+}) => {
+  await page.goto('/', { waitUntil: 'networkidle' })
+  await page
+    .getByRole('link', {
+      name: 'músicas alegres e dançantes para uma festa',
+      exact: true,
+    })
+    .click()
+  const dock = page.getByRole('region', { name: 'Prévia no Spotify' })
+  await page
+    .getByRole('list', { name: 'Músicas' })
+    .getByRole('listitem')
+    .first()
+    .getByRole('button', { name: /^Prévia de/ })
+    .click()
+  await expect(dock).toHaveAttribute('data-paused', 'false', {
+    timeout: 20_000,
+  })
+
+  await page.goBack()
+  await expect(page).toHaveURL(/\/$/)
+  await expect(dock).toBeHidden()
+  await expect(dock).toHaveAttribute('data-paused', 'true', {
+    timeout: 20_000,
+  })
+})

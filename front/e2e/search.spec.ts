@@ -35,7 +35,7 @@ for (const viewport of [
     test('the grid fills the screen and "carregar mais" appends the next page', async ({
       page,
     }) => {
-      const n = pageSizeFor(viewport.width, viewport.height)
+      const n = pageSizeFor(viewport)
       await search(page)
 
       await expect(page).toHaveURL(
@@ -46,9 +46,7 @@ for (const viewport of [
       const count = parseInt((await status.textContent()) ?? '')
       const cards = cardsOf(page)
       await expect(cards).toHaveCount(Math.min(n, count))
-      expect(await renderedColumns(page)).toBe(
-        gridColumns(viewport.width, viewport.height)
-      )
+      expect(await renderedColumns(page)).toBe(gridColumns(viewport))
       expect(
         await page.evaluate(
           () =>
@@ -70,7 +68,7 @@ for (const viewport of [
       await page.setViewportSize({ width: other, height: viewport.height })
       await expect
         .poll(() => renderedColumns(page))
-        .toBe(gridColumns(other, viewport.height))
+        .toBe(gridColumns({ width: other, height: viewport.height }))
       expect(requests).toEqual([])
     })
   })

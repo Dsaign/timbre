@@ -16,6 +16,7 @@ export function SiteFooter() {
     // Full foreground, not muted: the credits sit over the vignette and must stay AA.
     <footer
       data-enter="4"
+      data-site-footer
       className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4 py-6 text-xs text-foreground"
     >
       <p>

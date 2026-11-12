@@ -6,6 +6,7 @@ import { loadMore, previewsFor } from '@/app/actions'
 import { FeedbackButtons } from '@/components/feedback-buttons'
 import {
   COVER_BOX,
+  useDockOpen,
   PreviewControls,
   PreviewCover,
 } from '@/components/preview-player'
@@ -13,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { components } from '@/lib/api/schema'
-import { GRID } from '@/lib/grid'
+import { currentScreen, GRID, gridRows, nextPageSize } from '@/lib/grid'
 import type { Previews } from '@/lib/preview'
 
 type Match = components['schemas']['Match']
@@ -55,6 +56,7 @@ export function MatchGrid({
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
   const list = useRef<HTMLUListElement>(null)
+  const dockOpen = useDockOpen()
 
   // Move focus to the first new card, so keyboard and screen-reader users land on it.
   useEffect(() => {
@@ -133,8 +135,17 @@ export function MatchGrid({
           aria-busy={pending}
           onClick={() => {
             if (pending) return
+            // Sized for the screen as it is now: complete the last row, then fill the cards area.
+            const columns = getComputedStyle(
+              list.current!
+            ).gridTemplateColumns.split(' ').length
+            const size = nextPageSize(
+              offset,
+              columns,
+              gridRows(currentScreen(dockOpen))
+            )
             startTransition(async () => {
-              const result = await loadMore(description, n, offset)
+              const result = await loadMore(description, size, offset)
               if ('error' in result) return setError(result.error)
               setError(null)
               const next = result.data.matches
@@ -145,7 +156,7 @@ export function MatchGrid({
                 ...current,
                 ...next.map((match) => ({ ...match, previews, from: offset })),
               ])
-              setDone(next.length < n)
+              setDone(next.length < size)
               setFocusFrom(offset)
             })
           }}
