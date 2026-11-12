@@ -80,7 +80,7 @@ export function MatchGrid({
             )}
             className="rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-foreground motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:fill-mode-both"
           >
-            <Card className="bg-glass frosted gradient-border gradient-border-hover h-(--card-height) flex-row gap-3 rounded-xl p-3 tight:gap-2.5 tight:p-2.5">
+            <Card className="bg-glass gradient-border gradient-border-hover h-(--card-height) flex-row gap-3 rounded-xl p-3 tight:gap-2.5 tight:p-2.5">
               {/* Spotify artwork stays as delivered: no crop, overlay or animation. It shows only
                   once its card has finished entering, so it never fades with the card.
                   Wrapped, so Card's own first-image styles (no radius, no top padding) skip it. */}

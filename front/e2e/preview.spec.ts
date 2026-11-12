@@ -64,7 +64,11 @@ test('going home with the logo hides the player and pauses it', async ({
   page,
 }) => {
   await page.goto(SEARCH)
-  const dock = page.getByRole('region', { name: 'Prévia no Spotify' })
+  // includeHidden: once home the dock is display:none, and its pause must still be checked.
+  const dock = page.getByRole('region', {
+    name: 'Prévia no Spotify',
+    includeHidden: true,
+  })
   await page
     .getByRole('list', { name: 'Músicas' })
     .getByRole('listitem')
@@ -96,7 +100,11 @@ test("going back to home with the browser's Back hides the player and pauses it"
       exact: true,
     })
     .click()
-  const dock = page.getByRole('region', { name: 'Prévia no Spotify' })
+  // includeHidden: once home the dock is display:none, and its pause must still be checked.
+  const dock = page.getByRole('region', {
+    name: 'Prévia no Spotify',
+    includeHidden: true,
+  })
   await page
     .getByRole('list', { name: 'Músicas' })
     .getByRole('listitem')

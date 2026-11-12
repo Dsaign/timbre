@@ -23,7 +23,7 @@ test('home page offers six keyboard-reachable sample Descriptions', async ({
   await expect(samples.first()).toBeFocused()
 })
 
-test('after a search the form sits in the sticky compact bar, without the info note', async ({
+test('after a search the form sits in the fixed compact bar, without the info note', async ({
   page,
 }) => {
   await page.goto('/', { waitUntil: 'networkidle' })
@@ -45,6 +45,20 @@ test('after a search the form sits in the sticky compact bar, without the info n
   await expect(
     bar.getByRole('button', { name: 'Alternar tema claro/escuro' })
   ).toBeVisible()
-  await expect(bar).toHaveCSS('position', 'sticky')
   await expect(page.getByText(/^Descrições e votos/)).toHaveCount(0)
+
+  // Fixed app shell: the page never scrolls, only the cards area does, between the bar and the footer.
+  await expect(page.getByRole('status')).toBeVisible()
+  const cardsArea = page.getByRole('main')
+  await expect(cardsArea).toHaveCSS('overflow-y', 'auto')
+  await cardsArea.evaluate((main) => main.scrollTo(0, main.scrollHeight))
+  await expect(bar).toBeInViewport()
+  await expect(page.getByRole('contentinfo')).toBeInViewport()
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollHeight <=
+        document.documentElement.clientHeight
+    )
+  ).toBe(true)
 })

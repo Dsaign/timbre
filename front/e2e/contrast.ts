@@ -25,8 +25,20 @@ export async function lowContrastText(page: Page) {
       if (getComputedStyle(el).position === 'fixed' && el.tagName !== 'CANVAS')
         el.setAttribute('data-contrast-fixed', '')
     const found: Run[] = []
-    const add = (text: string, el: Element, color: string, r: DOMRect) => {
-      if (r.width < 2 || r.height < 2) return // visually hidden (sr-only)
+    const add = (text: string, el: Element, color: string, box: DOMRect) => {
+      // Only the part no clipping box cuts away is on screen (cards scrolled out of the cards
+      // area, lines past a line clamp): the rest is never seen over what lies behind it.
+      let { left, top, right, bottom } = box
+      for (let a: Element | null = el; a; a = a.parentElement) {
+        if (getComputedStyle(a).overflow === 'visible') continue
+        const c = a.getBoundingClientRect()
+        left = Math.max(left, c.left)
+        top = Math.max(top, c.top)
+        right = Math.min(right, c.right)
+        bottom = Math.min(bottom, c.bottom)
+      }
+      const r = new DOMRect(left, top, right - left, bottom - top)
+      if (r.width < 2 || r.height < 2) return // visually hidden (sr-only) or clipped away
       const cs = getComputedStyle(el)
       const size = parseFloat(cs.fontSize)
       found.push({
@@ -59,15 +71,23 @@ export async function lowContrastText(page: Page) {
       for (const r of range.getClientRects())
         add(node.textContent, el, getComputedStyle(el).color, r)
     }
-    // An input's value and placeholder are not text nodes.
+    // An input's value and placeholder are not text nodes. They sit inside the border (the
+    // search field's gradient border is non-text, 3:1), so only the padding box is their background.
     for (const input of document.querySelectorAll('input'))
-      if ((input.value || input.placeholder) && input.checkVisibility())
+      if ((input.value || input.placeholder) && input.checkVisibility()) {
+        const r = input.getBoundingClientRect()
         add(
           input.value || input.placeholder,
           input,
           getComputedStyle(input, input.value ? null : '::placeholder').color,
-          input.getBoundingClientRect()
+          new DOMRect(
+            r.left + input.clientLeft,
+            r.top + input.clientTop,
+            input.clientWidth,
+            input.clientHeight
+          )
         )
+      }
     return found
   })
 
@@ -104,10 +124,12 @@ export async function lowContrastText(page: Page) {
       const failures: { text: string; ratio: number; required: number }[] = []
       runs.forEach((run, i) => {
         const [tr, tg, tb, ta] = colors[i]
-        const x = Math.max(0, Math.floor(run.x))
-        const y = Math.max(0, Math.floor(run.y))
-        const w = Math.min(canvas.width - x, Math.ceil(run.w))
-        const h = Math.min(canvas.height - y, Math.ceil(run.h))
+        // Whole pixels inside the box: a pixel it only partly covers is mostly a neighbour's
+        // (an input's border).
+        const x = Math.max(0, Math.ceil(run.x))
+        const y = Math.max(0, Math.ceil(run.y))
+        const w = Math.min(canvas.width, Math.floor(run.x + run.w)) - x
+        const h = Math.min(canvas.height, Math.floor(run.y + run.h)) - y
         if (w <= 0 || h <= 0) return
         const px = ctx.getImageData(x, y, w, h).data
         let worst = Infinity
