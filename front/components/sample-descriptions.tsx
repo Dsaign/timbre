@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useDockOpen } from '@/components/preview-player'
 import { search } from '@/components/search-form'
 import { Button } from '@/components/ui/button'
 
@@ -17,6 +18,7 @@ const SAMPLES = [
 /** Sample Descriptions as links: one click fills the input and runs the search. */
 export function SampleDescriptions() {
   const router = useRouter()
+  const dockOpen = useDockOpen()
   return (
     <ul
       aria-label="Exemplos de descrição"
@@ -35,7 +37,7 @@ export function SampleDescriptions() {
               onClick={(event) => {
                 if (event.metaKey || event.ctrlKey || event.shiftKey) return // new tab/window
                 event.preventDefault()
-                search(router, q)
+                search(router, q, dockOpen)
               }}
             >
               {q}

@@ -14,7 +14,7 @@ export function ThemeToggle() {
       size="icon-lg"
       aria-label="Alternar tema claro/escuro"
       onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-      className="cursor-pointer rounded-full"
+      className="cursor-pointer rounded-full [view-transition-name:theme-toggle]"
     >
       <Moon aria-hidden className="dark:hidden" />
       <Sun aria-hidden className="hidden dark:block" />

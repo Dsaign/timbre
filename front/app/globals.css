@@ -3,6 +3,17 @@
 @import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
+/* Narrow or short screens: tighter results padding and gaps. Narrow is Tailwind's max-sm (the
+   sm breakpoint, 40rem = 640 px); short is height <= 640 px. lib/grid.ts mirrors both
+   (LAYOUT.narrow, LAYOUT.short): the one JS <-> CSS pair to keep in sync. */
+@custom-variant tight {
+  @variant max-sm {
+    @slot;
+  }
+  @media (height <= 640px) {
+    @slot;
+  }
+}
 
 @theme inline {
   --color-glass: var(--glass);
@@ -69,41 +80,43 @@
   --bg-mid-at: 60%;
   --bg-edge: #cfd7e5;
   --vignette: rgb(0 0 0 / 0.12);
-  /* The search input's gradient. */
-  --field-start: var(--color-indigo-50);
-  --field-end: var(--color-mauve-100);
+  /* The search input: a solid background (AA text) inside a field-start → field-end gradient border. */
+  --field-bg: oklch(1 0 0);
+  /* The gradient border, shared by both themes' fields: at least 3:1 on the dark field (WCAG 1.4.11). */
+  --field-start: var(--color-indigo-500);
+  --field-end: var(--color-mauve-500);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  /* Softer than near-black, mirroring the Light theme not being pure white (edge oklch L ≈ 0.21). */
+  --background: oklch(0.21 0 0);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --card: oklch(0.27 0 0);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
+  --popover: oklch(0.27 0 0);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
+  --secondary: oklch(0.33 0 0);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
+  --muted: oklch(0.33 0 0);
   --muted-foreground: oklch(0.8 0 0);
-  --accent: oklch(0.269 0 0);
+  --accent: oklch(0.33 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
-  --glass: oklch(0 0 0 / 55%);
-  --tint: oklch(0 0 0 / 60%);
-  --solid: oklch(0.2 0.03 290);
+  --glass: oklch(0.15 0.02 268 / 55%);
+  --tint: oklch(0.15 0.02 268 / 60%);
+  --solid: oklch(0.27 0.03 290);
   --warm: oklch(0.8 0.13 65);
-  --bg-center: #0e1424;
-  --bg-mid: #070a12;
+  --bg-center: #242b3d;
+  --bg-mid: #1b2130;
   --bg-mid-at: 55%;
-  --bg-edge: #020308;
-  --vignette: rgb(0 0 0 / 0.18);
-  --field-start: var(--color-indigo-950);
-  --field-end: var(--color-mauve-700);
+  --bg-edge: #131824;
+  --vignette: rgb(0 0 0 / 0.12);
+  --field-bg: oklch(0.24 0.02 285);
 }
 
 /* prefers-reduced-transparency: every glass and tint surface turns solid. */
@@ -123,6 +136,19 @@
   }
 }
 
+/* The gradient border's direction; animatable, so a card's border can turn while hovered. */
+@property --angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 135deg;
+}
+
+@keyframes border-turn {
+  to {
+    --angle: 495deg;
+  }
+}
+
 /* A 1px gradient border that leaves the panel's own background see-through. */
 @utility gradient-border {
   position: relative;
@@ -133,7 +159,7 @@
     padding: 1px;
     border-radius: inherit;
     background: linear-gradient(
-      to bottom right,
+      var(--angle),
       var(--color-indigo-800),
       var(--color-mauve-500)
     );
@@ -143,6 +169,107 @@
     pointer-events: none;
     opacity: 0.5;
   }
+}
+
+/* The brand gradient for buttons. Intentionally fixed: it stays light in both themes, so pair
+   it with dark text (text-zinc-900, AA). --brand-from lets a hover deepen the start colour. */
+@utility brand-gradient {
+  background-image: linear-gradient(
+    to bottom right,
+    var(--brand-from, var(--color-indigo-200)),
+    var(--color-mauve-200)
+  );
+}
+
+/* With gradient-border: the border shows only on hover, turning slowly while hovered.
+   It fades in quickly and out slowly; reduced motion keeps the fade, not the turn. */
+@utility gradient-border-hover {
+  &&::before {
+    opacity: 0;
+    transition: opacity 700ms ease-out;
+    animation: border-turn 8s linear infinite paused;
+  }
+  &&:hover::before {
+    opacity: 1;
+    transition-duration: 250ms;
+    animation-play-state: running;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &&::before {
+      animation: none;
+    }
+  }
+}
+
+/* A card's cover appears at once when its card has finished entering (--card-entered, set in
+   match-grid.tsx): Spotify artwork is never animated. Reduced motion: no entrance, no wait. */
+@keyframes appear {
+  from {
+    visibility: hidden;
+  }
+}
+@utility after-card-enter {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: appear 0s var(--card-entered, 0s) both;
+  }
+}
+
+/* Entrance: the UI waits for the waveform's first frame (html[data-ui=ready], set by
+   waveform-background.tsx, which also gives up after ~1 s), then fades in top to bottom,
+   one --enter-step apart, each over --enter-fade (lib/entrance.ts). Only with scripting, so
+   the page is never blank without JavaScript; reduced motion shows everything at once.
+   data-ui=done: elements mounted later just appear. Animations inside a step (the cards'
+   stagger, a cover's wait) hold until the entrance starts, then start with their step
+   (--enter-offset, read by match-grid.tsx). */
+@keyframes ui-enter {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  html:not([data-ui]) [data-enter] {
+    opacity: 0;
+  }
+  html:not([data-ui]) [data-enter] * {
+    animation-play-state: paused;
+  }
+  html[data-ui='ready'] [data-enter] {
+    animation: ui-enter var(--enter-fade) cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  html[data-ui='ready'] [data-enter='2'] {
+    animation-delay: var(--enter-step);
+  }
+  html[data-ui='ready'] [data-enter='3'] {
+    animation-delay: calc(2 * var(--enter-step));
+  }
+  html[data-ui='ready'] [data-enter='4'] {
+    animation-delay: calc(3 * var(--enter-step));
+  }
+  /* Kept once done too: changing a running animation's delay would make it jump. */
+  html[data-ui] [data-enter='2'] {
+    --enter-offset: var(--enter-step);
+  }
+}
+
+/* The fixed app shell's footer (main[data-shell], app/page.tsx): no padding, one line of
+   credits (two when narrow) at the least heights lib/grid.ts counts (LAYOUT.footer). It grows
+   instead of clipping if the credits need more room; lib/grid.ts then measures it. */
+body:has(main[data-shell]) > footer {
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  min-height: var(--footer-height);
+  padding-block: 0;
+  @variant max-sm {
+    min-height: var(--footer-height-narrow);
+  }
+}
+
+/* The hero → compact bar morph (search-form.tsx): 300 ms. */
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 300ms;
 }
 
 @layer base {

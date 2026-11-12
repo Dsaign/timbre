@@ -380,12 +380,25 @@
             ],
             "title": "Spotify Track Id",
             "description": "Spotify track ID, or null when the Song is not available"
+          },
+          "album_image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Album Image Url",
+            "description": "Spotify album cover (at least 64 px), or null when there is none"
           }
         },
         "type": "object",
         "required": [
           "song_id",
-          "spotify_track_id"
+          "spotify_track_id",
+          "album_image_url"
         ],
         "title": "Preview"
       },

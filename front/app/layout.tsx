@@ -3,13 +3,14 @@ import { ThemeProvider } from 'next-themes'
 import { Inter } from 'next/font/google'
 import { PreviewPlayer } from '@/components/preview-player'
 import { SiteFooter } from '@/components/site-footer'
-import { ThemeToggle } from '@/components/theme-toggle'
 import { WaveformBackground } from '@/components/waveform-background'
+import { ENTRANCE_VARS } from '@/lib/entrance'
+import { LAYOUT_VARS } from '@/lib/grid'
 import './globals.css'
 
 const inter = Inter({
   style: 'normal',
-  weight: '400',
+  weight: ['400', '600'],
   subsets: ['latin'],
 })
 
@@ -24,19 +25,19 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
     <html
       lang="pt-br"
       suppressHydrationWarning
-      className={`antialiased ${inter.className}`}
+      className={`antialiased no-scrollbar ${inter.className}`}
     >
-      {/* Room at the bottom so the docked player never covers the last cards or the footer. */}
-      <body className="flex min-h-screen flex-col has-data-[dock=open]:pb-28">
+      {/* After a search (main[data-shell]) the page is a fixed 100dvh shell: bar, scrolling
+          cards area, open dock, footer. Only the cards area scrolls. */}
+      <body
+        style={{ ...LAYOUT_VARS, ...ENTRANCE_VARS }}
+        className="flex min-h-screen flex-col has-data-shell:h-dvh has-data-shell:min-h-0 has-data-shell:overflow-hidden"
+      >
         {/* Default storage is localStorage (key "theme"); next-themes sets no cookie. */}
         <ThemeProvider attribute="class" disableTransitionOnChange>
           <WaveformBackground />
-          <header className="flex justify-end px-3 pt-3">
-            <ThemeToggle />
-          </header>
-          <main className="grid flex-1 place-items-center">
-            <PreviewPlayer>{children}</PreviewPlayer>
-          </main>
+          {/* The page renders its own header (theme toggle, search bar) and main. */}
+          <PreviewPlayer>{children}</PreviewPlayer>
           <SiteFooter />
         </ThemeProvider>
       </body>

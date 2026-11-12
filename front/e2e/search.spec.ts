@@ -35,7 +35,7 @@ for (const viewport of [
     test('the grid fills the screen and "carregar mais" appends the next page', async ({
       page,
     }) => {
-      const n = pageSizeFor(viewport.width, viewport.height)
+      const n = pageSizeFor(viewport)
       await search(page)
 
       await expect(page).toHaveURL(
@@ -46,7 +46,7 @@ for (const viewport of [
       const count = parseInt((await status.textContent()) ?? '')
       const cards = cardsOf(page)
       await expect(cards).toHaveCount(Math.min(n, count))
-      expect(await renderedColumns(page)).toBe(gridColumns(viewport.width))
+      expect(await renderedColumns(page)).toBe(gridColumns(viewport))
       expect(
         await page.evaluate(
           () =>
@@ -61,12 +61,16 @@ for (const viewport of [
       await expect(cards.nth(n)).toBeFocused()
       expect(page.url()).toBe(url)
 
-      // Resizing only reflows: the column count follows and no request is made.
+      // Resizing only reflows: no request, except lazy covers a wider grid brings into view.
       const requests: string[] = []
-      page.on('request', (request) => requests.push(request.url()))
+      page.on('request', (request) => {
+        if (request.resourceType() !== 'image') requests.push(request.url())
+      })
       const other = viewport.width === 1440 ? 375 : 1440
       await page.setViewportSize({ width: other, height: viewport.height })
-      await expect.poll(() => renderedColumns(page)).toBe(gridColumns(other))
+      await expect
+        .poll(() => renderedColumns(page))
+        .toBe(gridColumns({ width: other, height: viewport.height }))
       expect(requests).toEqual([])
     })
   })

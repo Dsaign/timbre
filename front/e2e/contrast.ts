@@ -24,9 +24,28 @@ export async function lowContrastText(page: Page) {
       // The waveform canvas stays: it is the background the text must be readable over.
       if (getComputedStyle(el).position === 'fixed' && el.tagName !== 'CANVAS')
         el.setAttribute('data-contrast-fixed', '')
+    // Text a scrolling ancestor clips away is never seen, so it is not measured.
+    // shortcut: treats every overflow ancestor as clipping, wrong for an absolute child whose containing block lies outside it; handle it if such an element appears.
+    const visibleBox = (el: Element, box: DOMRect) => {
+      let { left, top, right, bottom } = box
+      for (
+        let ancestor: Element | null = el;
+        ancestor;
+        ancestor = ancestor.parentElement
+      ) {
+        if (getComputedStyle(ancestor).overflow === 'visible') continue
+        const clip = ancestor.getBoundingClientRect()
+        left = Math.max(left, clip.left)
+        top = Math.max(top, clip.top)
+        right = Math.min(right, clip.right)
+        bottom = Math.min(bottom, clip.bottom)
+      }
+      return new DOMRect(left, top, right - left, bottom - top)
+    }
     const found: Run[] = []
-    const add = (text: string, el: Element, color: string, r: DOMRect) => {
-      if (r.width < 2 || r.height < 2) return // visually hidden (sr-only)
+    const add = (text: string, el: Element, color: string, box: DOMRect) => {
+      const r = visibleBox(el, box)
+      if (r.width < 2 || r.height < 2) return // visually hidden (sr-only) or clipped away
       const cs = getComputedStyle(el)
       const size = parseFloat(cs.fontSize)
       found.push({
@@ -59,15 +78,22 @@ export async function lowContrastText(page: Page) {
       for (const r of range.getClientRects())
         add(node.textContent, el, getComputedStyle(el).color, r)
     }
-    // An input's value and placeholder are not text nodes.
+    // Input text is no text node; its background is the padding box, not the (non-text) border.
     for (const input of document.querySelectorAll('input'))
-      if ((input.value || input.placeholder) && input.checkVisibility())
+      if ((input.value || input.placeholder) && input.checkVisibility()) {
+        const border = input.getBoundingClientRect()
         add(
           input.value || input.placeholder,
           input,
           getComputedStyle(input, input.value ? null : '::placeholder').color,
-          input.getBoundingClientRect()
+          new DOMRect(
+            border.left + input.clientLeft,
+            border.top + input.clientTop,
+            input.clientWidth,
+            input.clientHeight
+          )
         )
+      }
     return found
   })
 
@@ -104,10 +130,11 @@ export async function lowContrastText(page: Page) {
       const failures: { text: string; ratio: number; required: number }[] = []
       runs.forEach((run, i) => {
         const [tr, tg, tb, ta] = colors[i]
-        const x = Math.max(0, Math.floor(run.x))
-        const y = Math.max(0, Math.floor(run.y))
-        const w = Math.min(canvas.width - x, Math.ceil(run.w))
-        const h = Math.min(canvas.height - y, Math.ceil(run.h))
+        // Whole pixels only: a partly covered edge pixel belongs to a neighbour (an input's border).
+        const x = Math.max(0, Math.ceil(run.x))
+        const y = Math.max(0, Math.ceil(run.y))
+        const w = Math.min(canvas.width, Math.floor(run.x + run.w)) - x
+        const h = Math.min(canvas.height, Math.floor(run.y + run.h)) - y
         if (w <= 0 || h <= 0) return
         const px = ctx.getImageData(x, y, w, h).data
         let worst = Infinity

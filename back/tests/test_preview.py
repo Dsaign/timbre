@@ -24,7 +24,9 @@ from timbre_back.db import conninfo
 API_URL = os.environ.get("API_URL", "http://api:8000")
 AUTH = {"Authorization": f"Bearer {os.environ['FRONT_TOKEN']}"}
 RECORDED = Path(__file__).with_name("spotify")
-DYNAMITE = "5QDLhrAOJJdNAmCTJ8xMyW"
+# The smallest image of at least 64 px in the recorded album.images (640, 300, 64).
+COVER = "https://i.scdn.co/image/ab67616d00004851c07d5d2fdc02ae252fcd07e5"
+DYNAMITE = preview.Track("5QDLhrAOJJdNAmCTJ8xMyW", COVER)
 
 
 def recorded(name: str) -> httpx.Response:
@@ -95,7 +97,7 @@ def songs() -> Iterator[list[UUID]]:
         )
 
 
-Lookup = Callable[[list[UUID]], Awaitable[dict[UUID, str | None]]]
+Lookup = Callable[[list[UUID]], Awaitable[dict[UUID, preview.Track | None]]]
 
 
 @asynccontextmanager
@@ -116,16 +118,16 @@ async def lookups(fake: FakeSpotify) -> AsyncGenerator[Lookup]:
         yield lambda ids: preview.lookup(ids, search_pool, preview_pool, spotify)
 
 
-def cached(song_id: UUID) -> tuple[str | None, float] | None:
-    """The cache row's track ID and TTL in hours, or None when not cached."""
+def cached(song_id: UUID) -> tuple[str | None, str | None, float] | None:
+    """The cache row's track ID, cover and TTL in hours, or None when not cached."""
     with psycopg.connect(conninfo("api_preview")) as conn:
         row = conn.execute(
-            "SELECT spotify_track_id,"
+            "SELECT spotify_track_id, album_image_url,"
             " extract(epoch FROM expires_at - fetched_at) / 3600"
             " FROM preview.spotify_cache WHERE song_id = %s",
             (song_id,),
         ).fetchone()
-    return None if row is None else (row[0], float(row[1]))
+    return None if row is None else (row[0], row[1], float(row[2]))
 
 
 @pytest.mark.anyio
@@ -137,7 +139,7 @@ async def test_found_by_isrc_is_cached_for_24_hours(songs: list[UUID]) -> None:
     assert fake.searches == [
         "isrc:QM7282022872"
     ]  # the second answer came from the cache
-    assert cached(songs[0]) == (DYNAMITE, 24.0)
+    assert cached(songs[0]) == (*DYNAMITE, 24.0)
 
 
 @pytest.mark.anyio
@@ -155,7 +157,7 @@ async def test_not_found_is_cached_as_not_available(songs: list[UUID]) -> None:
         assert await lookup(songs[:1]) == {songs[0]: None}
         assert await lookup(songs[:1]) == {songs[0]: None}
     assert len(fake.searches) == 2  # ISRC + title/artist once, then the cache
-    assert cached(songs[0]) == (None, 24.0)
+    assert cached(songs[0]) == (None, None, 24.0)
 
 
 @pytest.mark.anyio
@@ -238,6 +240,30 @@ async def test_cleanup_deletes_only_expired_rows() -> None:
             )
 
 
+@pytest.mark.parametrize(
+    ("images", "expected"),
+    [
+        ([], None),
+        ([{"width": 32, "height": 32, "url": COVER}], None),  # too small
+        ([{"width": None, "height": None, "url": COVER}], None),  # unknown size
+        (
+            [
+                {"width": 640, "height": 640, "url": COVER + "0"},
+                {"width": 64, "height": 64, "url": COVER},
+                {"width": 300, "height": 300, "url": COVER + "1"},
+            ],
+            COVER,
+        ),
+        ([{"width": 64, "height": 64, "url": "https://evil.example/x.jpg"}], None),
+    ],
+    ids=["none", "too-small", "no-size", "smallest-64", "other-host"],
+)
+def test_album_image_is_the_smallest_trusted_cover_of_64_px(
+    images: list[dict[str, object]], expected: str | None
+) -> None:
+    assert preview.album_image({"images": images}) == expected
+
+
 def post_preview(song_ids: list[str], headers: dict[str, str] = AUTH) -> httpx.Response:
     return httpx.post(
         f"{API_URL}/preview", json={"song_ids": song_ids}, headers=headers, timeout=30
@@ -248,7 +274,9 @@ def test_endpoint_reports_each_song() -> None:
     unknown = str(uuid4())  # not in the Catalog, so Spotify is never called
     response = post_preview([unknown, unknown])
     assert response.status_code == 200
-    assert response.json() == [{"song_id": unknown, "spotify_track_id": None}]
+    assert response.json() == [
+        {"song_id": unknown, "spotify_track_id": None, "album_image_url": None}
+    ]
 
 
 @pytest.mark.parametrize(

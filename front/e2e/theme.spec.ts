@@ -120,10 +120,10 @@ for (const scheme of SCHEMES) {
       ],
     })
     await open(page, SEARCH, scheme)
+    // The player has no surface of its own (only Spotify's embed), nor has the results panel
+    // (owner decision: the waveform shows through it).
     for (const surface of [
-      page.locator('[data-slot=card]').first(), // search panel
-      page.getByRole('region', { name: 'Resultados' }),
-      page.locator('section[aria-label="Prévia no Spotify"]'), // docked player (hidden until a Preview)
+      page.getByRole('banner'), // compact search bar
       cards(page).first().locator('[data-slot=card]'),
     ]) {
       await expect(surface).toHaveCSS('backdrop-filter', 'none')

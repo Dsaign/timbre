@@ -14,7 +14,11 @@ const CREDITS = new Intl.ListFormat('pt-BR').formatToParts(Object.keys(SOURCES))
 export function SiteFooter() {
   return (
     // Full foreground, not muted: the credits sit over the vignette and must stay AA.
-    <footer className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4 py-6 text-xs text-foreground">
+    <footer
+      data-enter="4"
+      data-site-footer
+      className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4 py-6 text-xs text-foreground"
+    >
       <p>
         Dados de{' '}
         {CREDITS.map(({ type, value }, i) =>
