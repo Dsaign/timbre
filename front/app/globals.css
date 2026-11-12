@@ -82,42 +82,41 @@
   --vignette: rgb(0 0 0 / 0.12);
   /* The search input: a solid background (AA text) inside a field-start → field-end gradient border. */
   --field-bg: oklch(1 0 0);
-  /* The gradient border on the white field: both ends at least 3:1 (WCAG 1.4.11). */
+  /* The gradient border, shared by both themes' fields: at least 3:1 on the dark field (WCAG 1.4.11). */
   --field-start: var(--color-indigo-500);
   --field-end: var(--color-mauve-500);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  /* Softer than near-black, mirroring the Light theme not being pure white (edge oklch L ≈ 0.21). */
+  --background: oklch(0.21 0 0);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --card: oklch(0.27 0 0);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
+  --popover: oklch(0.27 0 0);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
+  --secondary: oklch(0.33 0 0);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
+  --muted: oklch(0.33 0 0);
   --muted-foreground: oklch(0.8 0 0);
-  --accent: oklch(0.269 0 0);
+  --accent: oklch(0.33 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
-  --glass: oklch(0 0 0 / 55%);
-  --tint: oklch(0 0 0 / 60%);
-  --solid: oklch(0.2 0.03 290);
+  --glass: oklch(0.15 0.02 268 / 55%);
+  --tint: oklch(0.15 0.02 268 / 60%);
+  --solid: oklch(0.27 0.03 290);
   --warm: oklch(0.8 0.13 65);
-  --bg-center: #0e1424;
-  --bg-mid: #070a12;
+  --bg-center: #242b3d;
+  --bg-mid: #1b2130;
   --bg-mid-at: 55%;
-  --bg-edge: #020308;
-  --vignette: rgb(0 0 0 / 0.18);
-  --field-bg: oklch(0.17 0.02 285);
-  --field-start: var(--color-indigo-950);
-  --field-end: var(--color-mauve-700);
+  --bg-edge: #131824;
+  --vignette: rgb(0 0 0 / 0.12);
+  --field-bg: oklch(0.24 0.02 285);
 }
 
 /* prefers-reduced-transparency: every glass and tint surface turns solid. */
