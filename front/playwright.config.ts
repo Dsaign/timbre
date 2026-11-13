@@ -22,6 +22,8 @@ const muted = {
 export default defineConfig({
   testDir: 'e2e',
   forbidOnly: !!process.env.CI,
+  // CI runner: 4 vCPUs (default would be 2); one is left for next-server and the Compose stack.
+  workers: process.env.CI ? 3 : undefined,
   reporter: process.env.CI ? 'github' : 'list',
   // Reduced motion: no entrance fades or card stagger, so axe and the contrast check never
   // measure a half-faded element.

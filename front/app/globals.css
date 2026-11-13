@@ -68,7 +68,7 @@
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
   --radius: 0.625rem;
-  /* glass: blurred panels; tint: cards; solid: both under prefers-reduced-transparency. */
+  /* glass: blurred panels and cards; tint: card skeletons; solid: both under prefers-reduced-transparency. */
   --glass: oklch(1 0 0 / 55%);
   --tint: oklch(1 0 0 / 75%);
   --solid: oklch(0.97 0.01 300);
@@ -107,7 +107,8 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
-  --glass: oklch(0.15 0.02 268 / 55%);
+  /* 75%: card text stays AA over a white waveform core (artist line 4.9:1, title 8.8:1). */
+  --glass: oklch(0.15 0.02 268 / 75%);
   --tint: oklch(0.15 0.02 268 / 60%);
   --solid: oklch(0.27 0.03 290);
   --warm: oklch(0.8 0.13 65);
