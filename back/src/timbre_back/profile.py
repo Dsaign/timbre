@@ -1,4 +1,4 @@
-"""A Song's profile text: AcousticBrainz labels written as words, plus instruments."""
+"""A Song's profile text: AcousticBrainz labels as words, instruments and tags."""
 
 from collections.abc import Mapping
 
@@ -42,13 +42,17 @@ WORDS = {
 
 
 def profile_text(
-    acousticbrainz: Mapping[str, Mapping[str, float]], instruments: list[str]
+    acousticbrainz: Mapping[str, Mapping[str, float]],
+    instruments: list[str],
+    tags: list[str],
 ) -> str:
     words: list[str] = []
     for (classifier, label), text in WORDS.items():
         if acousticbrainz.get(classifier, {}).get(label, 0) > THRESHOLD:
             words.extend(w for w in text.split(", ") if w not in words)
-    profile = ", ".join(words)
+    parts = [", ".join(words)] if words else []
     if instruments:
-        profile += ". Instruments: " + ", ".join(instruments)
-    return profile
+        parts.append("Instruments: " + ", ".join(instruments))
+    if tags:
+        parts.append("Tags: " + ", ".join(tags))
+    return ". ".join(parts)

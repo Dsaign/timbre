@@ -28,12 +28,13 @@ def test_build_vectors_fills_profile_and_vector_for_new_songs() -> None:
         try:
             conn.execute(
                 "INSERT INTO catalog.songs"
-                " (id, title, artist, acousticbrainz, instruments)"
-                " VALUES (%s, 'new', 'new', %s, %s)",
+                " (id, title, artist, acousticbrainz, instruments, tags)"
+                " VALUES (%s, 'new', 'new', %s, %s, %s)",
                 (
                     song_id,
                     Jsonb({"mood_relaxed": {"relaxed": 0.9, "not_relaxed": 0.1}}),
                     ["piano"],
+                    ["jazz", "bossa nova"],
                 ),
             )
             job = conn.execute(
@@ -46,6 +47,9 @@ def test_build_vectors_fills_profile_and_vector_for_new_songs() -> None:
                 "SELECT profile, vector_dims(vector) FROM catalog.songs WHERE id = %s",
                 (song_id,),
             ).fetchone()
-            assert song == ("relaxed, calm. Instruments: piano", 384)
+            assert song == (
+                "relaxed, calm. Instruments: piano. Tags: jazz, bossa nova",
+                384,
+            )
         finally:
             conn.execute("DELETE FROM catalog.songs WHERE id = %s", (song_id,))
