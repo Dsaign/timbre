@@ -1,0 +1,42 @@
+[
+ {
+  "artist_mbids": [
+   "00000000-0000-0000-0012-0000000000a2"
+  ],
+  "artist_name": "Linkin Park",
+  "artists": [
+   {
+    "artist_credit_name": "Linkin Park",
+    "artist_mbid": "00000000-0000-0000-0012-0000000000a2",
+    "join_phrase": ""
+   }
+  ],
+  "length": 216293,
+  "recording_mbid": "00000000-0000-0000-0012-000000000005",
+  "recording_name": "In the End",
+  "release_mbid": "a92e8636-a48c-4ad1-8a5f-4f8a968a50ac",
+  "release_name": "Hybrid Theory",
+  "total_listen_count": 2907326,
+  "total_user_count": 195793
+ },
+ {
+  "artist_mbids": [
+   "00000000-0000-0000-0012-0000000000a2"
+  ],
+  "artist_name": "Linkin Park",
+  "artists": [
+   {
+    "artist_credit_name": "Linkin Park",
+    "artist_mbid": "00000000-0000-0000-0012-0000000000a2",
+    "join_phrase": ""
+   }
+  ],
+  "length": 187520,
+  "recording_mbid": "00000000-0000-0000-0012-000000000006",
+  "recording_name": "Numb",
+  "release_mbid": "e9b5c5ad-d91e-39d0-89fc-b8ac312bcc55",
+  "release_name": "Meteora",
+  "total_listen_count": 2615621,
+  "total_user_count": 181877
+ }
+]

@@ -1,0 +1,28 @@
+{
+ "payload": {
+  "artists": [
+   {
+    "artist_mbid": "00000000-0000-0000-0012-0000000000a1",
+    "artist_name": "Radiohead",
+    "listen_count": 3654336
+   },
+   {
+    "artist_mbid": "00000000-0000-0000-0012-0000000000a2",
+    "artist_name": "Linkin Park",
+    "listen_count": 3115206
+   },
+   {
+    "artist_mbid": "00000000-0000-0000-0012-0000000000a3",
+    "artist_name": "Daft Punk",
+    "listen_count": 2990142
+   }
+  ],
+  "count": 3,
+  "from_ts": 1009843200,
+  "last_updated": 1792921533,
+  "offset": 0,
+  "range": "all_time",
+  "to_ts": 1792889532,
+  "total_artist_count": 12018095
+ }
+}

@@ -1,0 +1,5 @@
+[
+ {"id": "00000000-0000-0000-0012-000000000003", "title": "Reckoner (live)", "artist": "Radiohead", "isrc": "TEST00000003", "listens": 3, "acousticbrainz": {}, "instruments": []},
+ {"id": "00000000-0000-0000-0012-000000000004", "title": "Lucky", "artist": "Radiohead", "isrc": "TEST00000004", "listens": 4, "acousticbrainz": {}, "instruments": []},
+ {"id": "00000000-0000-0000-0012-000000000009", "title": "Not on MusicBrainz", "artist": "test", "isrc": "TEST00000009", "listens": 9, "acousticbrainz": {}, "instruments": []}
+]

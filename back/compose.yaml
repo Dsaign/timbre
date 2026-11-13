@@ -103,7 +103,7 @@ services:
       role-passwords:
         condition: service_completed_successfully
 
-  # shortcut: loads the committed seed Catalog on every start; ticket 12's import replaces it
+  # Skips the seed once the Catalog import has started: it would undo the import's tags.
   seed:
     <<: *hardened
     build:
@@ -125,6 +125,9 @@ services:
     restart: unless-stopped
     environment:
       ML_WORKER_PASSWORD: ${ML_WORKER_PASSWORD}
+      # Empty is allowed: only the import job needs them, and it fails without them.
+      METABRAINZ_CONTACT: ${METABRAINZ_CONTACT:-}
+      LISTENBRAINZ_TOKEN: ${LISTENBRAINZ_TOKEN:-}
     depends_on:
       seed:
         condition: service_completed_successfully

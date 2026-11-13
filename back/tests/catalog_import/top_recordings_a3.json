@@ -1,0 +1,42 @@
+[
+ {
+  "artist_mbids": [
+   "00000000-0000-0000-0012-0000000000a3"
+  ],
+  "artist_name": "Daft Punk",
+  "artists": [
+   {
+    "artist_credit_name": "Daft Punk",
+    "artist_mbid": "00000000-0000-0000-0012-0000000000a3",
+    "join_phrase": ""
+   }
+  ],
+  "length": 224293,
+  "recording_mbid": "00000000-0000-0000-0012-000000000007",
+  "recording_name": "Harder, Better, Faster, Stronger",
+  "release_mbid": "bd3bb36e-16c8-438f-850e-dfbf4d1478f0",
+  "release_name": "Discovery",
+  "total_listen_count": 2536925,
+  "total_user_count": 220546
+ },
+ {
+  "artist_mbids": [
+   "00000000-0000-0000-0012-0000000000a3"
+  ],
+  "artist_name": "Daft Punk",
+  "artists": [
+   {
+    "artist_credit_name": "Daft Punk",
+    "artist_mbid": "00000000-0000-0000-0012-0000000000a3",
+    "join_phrase": ""
+   }
+  ],
+  "length": 298333,
+  "recording_mbid": "00000000-0000-0000-0012-000000000008",
+  "recording_name": "Digital Love",
+  "release_mbid": "bd3bb36e-16c8-438f-850e-dfbf4d1478f0",
+  "release_name": "Discovery",
+  "total_listen_count": 1552783,
+  "total_user_count": 163934
+ }
+]
