@@ -21,7 +21,7 @@ How closely a Song suits a Description, as judged by timbre's model.
 _Avoid_: Similarity, score, relevance
 
 **Match**:
-A Song whose Fit with a Description passes the cutoff. The number of Matches is the count shown for a search.
+A Song returned for a Description, for one of two reasons: its artist or title matches the Description by name, or its Fit passes the cutoff. When there are name matches, they come first and Fit is measured against them instead of the Description. After name matches, only the first 60 related Songs are Matches. The number of Matches is the count shown for a search.
 _Avoid_: Result, recommendation, hit
 
 **Popularity**:

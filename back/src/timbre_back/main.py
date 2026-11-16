@@ -148,30 +148,45 @@ class SearchResult(BaseModel):
     matches: list[Match]
 
 
-# Fit = cosine similarity. Matches are Songs with Fit above the promoted model's cutoff,
-# ordered by Fit + weight * log1p(listens) / log1p(max listens in the Catalog).
+# Titles need a whole-string match: they are everyday words. Related Songs are capped
+# at 60: Song-to-Song Fit passes the cutoff for almost the whole Catalog.
 SEARCH_SQL = """
 WITH model AS (
   SELECT cutoff, popularity_weight FROM catalog.model_versions WHERE promoted
+), named AS (
+  SELECT id, title, artist, listens, vector
+  FROM catalog.songs, (SELECT catalog.unaccented(%(description)s) AS q) d
+  WHERE q <<%% catalog.unaccented(artist)
+      AND strict_word_similarity(q, catalog.unaccented(artist)) >= 0.55
+    OR catalog.unaccented(title) %% q
+      AND similarity(catalog.unaccented(title), q) >= 0.7
 ), fit AS (
-  SELECT id, title, artist, listens, 1 - (vector <=> %(vector)s::vector) AS fit
-  FROM catalog.songs WHERE vector IS NOT NULL
+  SELECT id, title, artist, listens,
+    1 - (vector <=> CASE WHEN EXISTS (SELECT FROM named)
+      THEN (SELECT avg(vector) FROM named WHERE vector IS NOT NULL)
+      ELSE %(vector)s::vector
+    END) AS fit
+  FROM catalog.songs WHERE vector IS NOT NULL AND id NOT IN (SELECT id FROM named)
 ), matches AS (
-  SELECT id, title, artist,
+  SELECT id, title, artist, 0 AS part, listens::float8 AS rank FROM named
+  UNION ALL
+  (SELECT id, title, artist, 1 AS part,
     fit + popularity_weight * coalesce(
       ln(1 + listens) / nullif(ln(1 + (SELECT max(listens) FROM catalog.songs)), 0), 0
     ) AS rank
   FROM fit, model WHERE fit > cutoff
+  ORDER BY rank DESC, id
+  LIMIT CASE WHEN EXISTS (SELECT FROM named) THEN 60 END) -- NULL: no limit
 )
 SELECT
   (SELECT count(*) FROM matches),
   coalesce((
     SELECT json_agg(
       json_build_object('id', id, 'title', title, 'artist', artist, 'vote', vote)
-      ORDER BY rank DESC, id
+      ORDER BY part, rank DESC, id
     )
     FROM (
-      SELECT * FROM matches ORDER BY rank DESC, id LIMIT %(n)s OFFSET %(offset)s
+      SELECT * FROM matches ORDER BY part, rank DESC, id LIMIT %(n)s OFFSET %(offset)s
     ) page
     LEFT JOIN feedback.votes v ON v.song_id = page.id
       AND v.description = %(description)s AND v.visitor_hash = %(visitor)s

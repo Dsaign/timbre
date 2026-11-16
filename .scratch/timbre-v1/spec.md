@@ -4,7 +4,7 @@ Status: ready-for-agent
 
 ## Problem Statement
 
-People often know the *feel* of the music they want ("violão calmo para estudar", "guitarra suja e voz rouca, clima de estrada à noite", "something dark and electronic to focus") but not the names of songs that have it. Music apps search by title, artist or genre, which is no help when all you have is a mood, an instrument or a texture. A visitor should be able to describe the music in their own words, in Portuguese or English, and get real songs they can listen to right away.
+People often know the *feel* of the music they want ("violão calmo para estudar", "guitarra suja e voz rouca, clima de estrada à noite", "something dark and electronic to focus") but not the names of songs that have it. Music apps search by title, artist or genre, which is no help when all you have is a mood, an instrument or a texture. A visitor should be able to describe the music in their own words, in Portuguese or English, and get real songs they can listen to right away. A visitor who does know a name ("Linkin Park") should get that artist's or song's Songs first, then Songs that sound like them: the model reads feel, not names, so names are matched separately.
 
 The project owner also has a second goal: to learn full-stack development and an AI-assisted workflow on a real, portfolio-quality system. That system has a Next.js front end, a Python ML back end, a vector database, background jobs, its own trained model measured against a baseline, and production-grade security. All of it must stay within the Spotify Developer Policy and the licences of open music data.
 
@@ -27,96 +27,97 @@ Behind the page, a Catalog of about 10k well-known Songs is built only from open
 7. As a visitor, I want the search to accept up to 300 characters, so that I have room to describe what I want without writing an essay.
 8. As a visitor, I want to submit by pressing Enter or clicking "Pesquisar", so that searching works the way I expect.
 9. As a visitor, I want an empty Description to be blocked before it is sent, so that I don't get a meaningless search.
-10. As a visitor, I want the page URL to contain my search, so that I can share it or come back to it.
-11. As a visitor, I want to see clickable sample Descriptions on the home page before I search, so that I understand what kind of Descriptions timbre understands.
-12. As a visitor, I want clicking a sample Description to fill the search box and run the search in one click, so that I can try timbre instantly.
+10. As a visitor, I want to type an artist or song title, even with a small typo or without accents ("linkn park", "Beyonce"), so that I get its Songs first and then Songs that sound like them.
+11. As a visitor, I want the page URL to contain my search, so that I can share it or come back to it.
+12. As a visitor, I want to see clickable sample Descriptions on the home page before I search, so that I understand what kind of Descriptions timbre understands.
+13. As a visitor, I want clicking a sample Description to fill the search box and run the search in one click, so that I can try timbre instantly.
 
 ### Matches
 
-13. As a visitor, I want to see how many Matches my Description found, so that I know how broad or narrow it was.
-14. As a visitor, I want the Matches shown in a grid that fills my screen, so that I see as many as fit without scrolling first.
-15. As a visitor on a phone, I want the grid to adapt to my screen width with no horizontal scrolling, so that the page is comfortable on mobile.
-16. As a visitor, I want resizing or rotating my screen to only re-arrange the grid (not reload it), so that I don't lose what I'm looking at.
-17. As a visitor, I want a "carregar mais" button, so that I can see the next set of Matches.
-18. As a visitor, I want each Match card to show the Song's title and artist, so that I know what it is.
-19. As a visitor, I want the best-fitting Matches first, with well-known Songs slightly favoured, so that the top of the grid is the most useful.
-20. As a visitor, I want the grid to appear immediately even while Spotify availability is still being checked, so that the page feels fast.
-21. As a visitor, I want a skeleton grid while my search runs, so that I know something is happening.
-22. As a visitor whose Description finds no Matches (for example random letters), I want a clear "Nenhuma música encontrada" message with sample Descriptions to click, so that I know what to try instead.
-23. As a visitor, I want a friendly message when I search too often ("muitas buscas, tente em instantes"), so that I understand why nothing happened.
-24. As a visitor, I want a friendly message if the service is unavailable, so that I am not left with a broken page.
+14. As a visitor, I want to see how many Matches my Description found, so that I know how broad or narrow it was.
+15. As a visitor, I want the Matches shown in a grid that fills my screen, so that I see as many as fit without scrolling first.
+16. As a visitor on a phone, I want the grid to adapt to my screen width with no horizontal scrolling, so that the page is comfortable on mobile.
+17. As a visitor, I want resizing or rotating my screen to only re-arrange the grid (not reload it), so that I don't lose what I'm looking at.
+18. As a visitor, I want a "carregar mais" button, so that I can see the next set of Matches.
+19. As a visitor, I want each Match card to show the Song's title and artist, so that I know what it is.
+20. As a visitor, I want the best-fitting Matches first, with well-known Songs slightly favoured, so that the top of the grid is the most useful.
+21. As a visitor, I want the grid to appear immediately even while Spotify availability is still being checked, so that the page feels fast.
+22. As a visitor, I want a skeleton grid while my search runs, so that I know something is happening.
+23. As a visitor whose Description finds no Matches (for example random letters), I want a clear "Nenhuma música encontrada" message with sample Descriptions to click, so that I know what to try instead.
+24. As a visitor, I want a friendly message when I search too often ("muitas buscas, tente em instantes"), so that I understand why nothing happened.
+25. As a visitor, I want a friendly message if the service is unavailable, so that I am not left with a broken page.
 
 ### Preview
 
-25. As a visitor, I want a Preview button on a card only when that Song is available on Spotify, so that I'm never offered something that doesn't work.
-26. As a visitor, I want clicking Preview to play the Song in a single player docked at the bottom of the page, so that I can keep browsing while listening.
-27. As a visitor, I want starting a Preview on another card to switch the docked player to that Song, so that only one Song plays at a time.
-28. As a visitor, I want a "LISTEN ON SPOTIFY" link on cards whose Song is on Spotify, so that I can open the full track in Spotify.
-29. As a visitor, I want cards whose Song is not on Spotify to show neither Preview nor the Spotify link, so that the card stays honest.
-30. As a visitor, I want a temporary Spotify problem to simply hide the Preview button (and work again on a later search), so that one failure doesn't break the page.
+26. As a visitor, I want a Preview button on a card only when that Song is available on Spotify, so that I'm never offered something that doesn't work.
+27. As a visitor, I want clicking Preview to play the Song in a single player docked at the bottom of the page, so that I can keep browsing while listening.
+28. As a visitor, I want starting a Preview on another card to switch the docked player to that Song, so that only one Song plays at a time.
+29. As a visitor, I want a "LISTEN ON SPOTIFY" link on cards whose Song is on Spotify, so that I can open the full track in Spotify.
+30. As a visitor, I want cards whose Song is not on Spotify to show neither Preview nor the Spotify link, so that the card stays honest.
+31. As a visitor, I want a temporary Spotify problem to simply hide the Preview button (and work again on a later search), so that one failure doesn't break the page.
 
 ### Feedback
 
-31. As a visitor, I want to vote 👍 or 👎 on each Match, so that I can tell timbre whether that Song fits my Description.
-32. As a visitor, I want my chosen thumb to stay highlighted, so that I can see what I voted.
-33. As a visitor, I want to switch my vote from 👍 to 👎 (or back), so that I can fix a misclick.
-34. As a visitor, I want to press the same thumb again to withdraw my vote, so that I can undo it entirely.
-35. As a visitor, I want a short notice under the search box saying that Descriptions and votes are stored to improve the model, so that I know what happens with my input.
-36. As the project owner, I want each visitor limited to one vote per Description and Song, so that one person cannot flood the Feedback.
-37. As the project owner, I want Feedback stored without any information that identifies a person, so that timbre respects privacy law (LGPD).
+32. As a visitor, I want to vote 👍 or 👎 on each Match, so that I can tell timbre whether that Song fits my Description.
+33. As a visitor, I want my chosen thumb to stay highlighted, so that I can see what I voted.
+34. As a visitor, I want to switch my vote from 👍 to 👎 (or back), so that I can fix a misclick.
+35. As a visitor, I want to press the same thumb again to withdraw my vote, so that I can undo it entirely.
+36. As a visitor, I want a short notice under the search box saying that Descriptions and votes are stored to improve the model, so that I know what happens with my input.
+37. As the project owner, I want each visitor limited to one vote per Description and Song, so that one person cannot flood the Feedback.
+38. As the project owner, I want Feedback stored without any information that identifies a person, so that timbre respects privacy law (LGPD).
 
 ### Background and look
 
-38. As a visitor, I want a subtle animated waveform made of particles behind the page, so that the page feels musical and alive without distracting me.
-39. As a visitor, I want the waveform to ripple softly while I type, so that the page responds to me.
-40. As a visitor, I want the waveform to tighten and line up when I submit, and relax when the Matches appear, so that searching feels like the page is listening.
-41. As a visitor, I want the waveform to grow warmer and livelier while a Preview plays, and calm down over about two seconds when it stops, so that the page reflects what I'm doing.
-42. As a visitor who prefers reduced motion, I want the waveform to stay still (changing only colour between states), so that the page doesn't make me uncomfortable.
-43. As a visitor, I want the animation to pause when the tab is hidden, so that it doesn't waste my battery.
-44. As a visitor, I want frosted-glass panels that stay readable over the background, so that the interface is beautiful and legible.
-45. As a visitor who prefers reduced transparency, I want solid panels instead of frosted glass, so that text is easy to read.
-46. As a visitor, I want Light and Dark themes that follow my system setting by default, so that the page matches my device.
-47. As a visitor, I want a toggle to switch theme, remembered on my next visit, so that I can choose what I like.
-48. As a visitor, I want the background colours to change with the theme, so that the whole page feels consistent.
-49. As a visitor, I want the page never to flash the wrong theme while loading, so that it feels polished.
-50. As a keyboard or screen-reader user, I want the search box, buttons and votes to be labelled and reachable by keyboard, so that I can use timbre fully.
+39. As a visitor, I want a subtle animated waveform made of particles behind the page, so that the page feels musical and alive without distracting me.
+40. As a visitor, I want the waveform to ripple softly while I type, so that the page responds to me.
+41. As a visitor, I want the waveform to tighten and line up when I submit, and relax when the Matches appear, so that searching feels like the page is listening.
+42. As a visitor, I want the waveform to grow warmer and livelier while a Preview plays, and calm down over about two seconds when it stops, so that the page reflects what I'm doing.
+43. As a visitor who prefers reduced motion, I want the waveform to stay still (changing only colour between states), so that the page doesn't make me uncomfortable.
+44. As a visitor, I want the animation to pause when the tab is hidden, so that it doesn't waste my battery.
+45. As a visitor, I want frosted-glass panels that stay readable over the background, so that the interface is beautiful and legible.
+46. As a visitor who prefers reduced transparency, I want solid panels instead of frosted glass, so that text is easy to read.
+47. As a visitor, I want Light and Dark themes that follow my system setting by default, so that the page matches my device.
+48. As a visitor, I want a toggle to switch theme, remembered on my next visit, so that I can choose what I like.
+49. As a visitor, I want the background colours to change with the theme, so that the whole page feels consistent.
+50. As a visitor, I want the page never to flash the wrong theme while loading, so that it feels polished.
+51. As a keyboard or screen-reader user, I want the search box, buttons and votes to be labelled and reachable by keyboard, so that I can use timbre fully.
 
 ### Footer and credits
 
-51. As a visitor, I want a footer crediting MusicBrainz, AcousticBrainz, ListenBrainz and Spotify, so that the data sources get the credit they require.
-52. As a visitor, I want a GitHub mark in the footer that links to the public repository, so that I can see how timbre is built.
+52. As a visitor, I want a footer crediting MusicBrainz, AcousticBrainz, ListenBrainz and Spotify, so that the data sources get the credit they require.
+53. As a visitor, I want a GitHub mark in the footer that links to the public repository, so that I can see how timbre is built.
 
 ### Catalog and model (project owner)
 
-53. As the project owner, I want to build a Catalog of about 10k well-known Songs from open data through the public APIs, so that timbre never depends on Spotify data for matching.
-54. As the project owner, I want the import to respect each API's rate limit and to resume where it stopped, so that a long import survives interruptions.
-55. As the project owner, I want only Songs with an ISRC and AcousticBrainz data in the Catalog, so that every Song can be described and found on Spotify reliably.
-56. As the project owner, I want each Song's profile to combine its genres and tags, AcousticBrainz labels expressed as words, and instrument credits, so that Descriptions about mood, instrument and style can all find it.
-57. As the project owner, I want a pretrained multilingual baseline model, so that timbre works from day one.
-58. As the project owner, I want my own trained model on top of the baseline, so that I can study and show measurable ML improvement.
-59. As the project owner, I want initial training pairs drafted from Catalog Songs (kept apart from the Benchmark), so that my model can be trained before any Feedback exists.
-60. As the project owner, I want retraining to run as a background job that uses accumulated Feedback, so that the model improves as people use timbre.
-61. As the project owner, I want a newly trained model to go live only if it scores no worse than the current one on the Benchmark, so that a bad training run never reaches visitors.
-62. As the project owner, I want every model version recorded with its Benchmark score, so that I can show the model's progress over time.
-63. As the project owner, I want a Benchmark of 100 Descriptions (about 40 hand-written, 60 drafted and reviewed), each with the Songs that should be Matches, so that "better" is a number.
-64. As the project owner, I want the cutoff that decides what counts as a Match tuned on the Benchmark, so that the Match count means something.
-65. As the project owner, I want the Popularity weight in the ordering tuned on the Benchmark, so that favouring well-known Songs never overrides Fit.
+54. As the project owner, I want to build a Catalog of about 10k well-known Songs from open data through the public APIs, so that timbre never depends on Spotify data for matching.
+55. As the project owner, I want the import to respect each API's rate limit and to resume where it stopped, so that a long import survives interruptions.
+56. As the project owner, I want only Songs with an ISRC and AcousticBrainz data in the Catalog, so that every Song can be described and found on Spotify reliably.
+57. As the project owner, I want each Song's profile to combine its genres and tags, AcousticBrainz labels expressed as words, and instrument credits, so that Descriptions about mood, instrument and style can all find it.
+58. As the project owner, I want a pretrained multilingual baseline model, so that timbre works from day one.
+59. As the project owner, I want my own trained model on top of the baseline, so that I can study and show measurable ML improvement.
+60. As the project owner, I want initial training pairs drafted from Catalog Songs (kept apart from the Benchmark), so that my model can be trained before any Feedback exists.
+61. As the project owner, I want retraining to run as a background job that uses accumulated Feedback, so that the model improves as people use timbre.
+62. As the project owner, I want a newly trained model to go live only if it scores no worse than the current one on the Benchmark, so that a bad training run never reaches visitors.
+63. As the project owner, I want every model version recorded with its Benchmark score, so that I can show the model's progress over time.
+64. As the project owner, I want a Benchmark of 100 Descriptions (about 40 hand-written, 60 drafted and reviewed), each with the Songs that should be Matches, so that "better" is a number.
+65. As the project owner, I want the cutoff that decides what counts as a Match tuned on the Benchmark, so that the Match count means something.
+66. As the project owner, I want the Popularity weight in the ordering tuned on the Benchmark, so that favouring well-known Songs never overrides Fit.
 
 ### Operations and security (project owner)
 
-66. As the project owner, I want the Spotify lookup cache kept in a separate place that no ML code can read, enforced by the database itself, so that the Spotify Developer Policy is respected by construction.
-67. As the project owner, I want expired Spotify cache entries deleted daily, so that Spotify data is never stored indefinitely.
-68. As the project owner, I want Spotify lookups limited in parallel and retried with backoff on rate limits, so that timbre stays within its development-mode quota.
-69. As the project owner, I want the API to accept requests only from the front end, so that nobody can use up my quota by calling it directly.
-70. As the project owner, I want rate limits on searching and voting, so that scripts can't abuse timbre.
-71. As the project owner, I want every input validated on both the front end and the API, so that malformed or malicious input is rejected early.
-72. As the project owner, I want row level security and minimal grants on every table, so that a mistake in one place doesn't expose data.
-73. As the project owner, I want all secrets kept out of git and checked automatically, so that keys never leak.
-74. As the project owner, I want HTTPS everywhere and strict security headers, so that visitors are protected in transit.
-75. As the project owner, I want an OpenAPI contract and a generated typed client, so that front end and back end can't drift apart silently.
-76. As the project owner, I want CI to run lint, type checks, tests, the contract check, secret scanning and dependency and image scans, so that problems are caught before deploy.
-77. As the project owner, I want the whole back end to run with one Docker Compose file, both locally and on the server, so that development and production match.
-78. As the project owner, I want automatic server snapshots, so that Feedback, the one piece of data that can't be rebuilt, survives a disaster.
+67. As the project owner, I want the Spotify lookup cache kept in a separate place that no ML code can read, enforced by the database itself, so that the Spotify Developer Policy is respected by construction.
+68. As the project owner, I want expired Spotify cache entries deleted daily, so that Spotify data is never stored indefinitely.
+69. As the project owner, I want Spotify lookups limited in parallel and retried with backoff on rate limits, so that timbre stays within its development-mode quota.
+70. As the project owner, I want the API to accept requests only from the front end, so that nobody can use up my quota by calling it directly.
+71. As the project owner, I want rate limits on searching and voting, so that scripts can't abuse timbre.
+72. As the project owner, I want every input validated on both the front end and the API, so that malformed or malicious input is rejected early.
+73. As the project owner, I want row level security and minimal grants on every table, so that a mistake in one place doesn't expose data.
+74. As the project owner, I want all secrets kept out of git and checked automatically, so that keys never leak.
+75. As the project owner, I want HTTPS everywhere and strict security headers, so that visitors are protected in transit.
+76. As the project owner, I want an OpenAPI contract and a generated typed client, so that front end and back end can't drift apart silently.
+77. As the project owner, I want CI to run lint, type checks, tests, the contract check, secret scanning and dependency and image scans, so that problems are caught before deploy.
+78. As the project owner, I want the whole back end to run with one Docker Compose file, both locally and on the server, so that development and production match.
+79. As the project owner, I want automatic server snapshots, so that Feedback, the one piece of data that can't be rebuilt, survives a disaster.
 
 ## Implementation Decisions
 
@@ -144,7 +145,8 @@ Behind the page, a Catalog of about 10k well-known Songs is built only from open
 - **Song profile text:** MusicBrainz genres and tags, AcousticBrainz high-level labels above a probability threshold, written as words (for example relaxed, instrumental, dark, danceable), and instrument credits.
 - **Own model (first version):** the e5 model stays frozen. A small trained layer works on top: a learned projection of the Description vector, plus a head that predicts AcousticBrainz label probabilities from the Description and compares them with the Song's real values. Fit combines the two. It trains on CPU. Fine-tuning e5 itself is out of scope.
 - **Training data:** pairs drafted by an LLM from Catalog Songs, then 👍 Feedback (positives) and 👎 Feedback (hard negatives). Benchmark Descriptions and Songs paired with them in the Benchmark are never used for training. Anything too close to a Benchmark Description is excluded too.
-- A Song is a **Match** when its Fit is above the cutoff. The count is the number of Matches. The cutoff is tuned on the Benchmark, stored with the model version, and re-tuned whenever a model is promoted.
+- **Name matches (ticket 14.5):** a Song is a Match when the Description matches part of its artist (`pg_trgm` `strict_word_similarity` of at least 0.55, so "chilli peppers" finds Red Hot Chili Peppers) or its whole title (`similarity` of at least 0.7), case and accents ignored. A Song with no vector can still be a name match, but only name matches with a vector count toward the average. If no name-matched Song has a vector, there are no related Songs. Name matches come first, by Popularity; the other Matches then use Fit with the average vector of the name matches instead of the Description, without repeats, capped at the first 60 (Song-to-Song Fit passes the cutoff for almost the whole Catalog, so without a cap every Song would be a Match). The count is the name matches plus those related Songs. Every sample and Benchmark Description scores below these thresholds. Known risk: a one-word Description that is part of an artist name ("rock" → Jay Rock) counts as a name match. Descriptions that mix a name and a feel ("Linkin Park mais calmo") are out of scope and use Fit as usual. The Benchmark and evaluate job score Fit only and are unaffected.
+- A Song is a **Match** when its Fit is above the cutoff, or by name as above. The count is the number of Matches. The cutoff is tuned on the Benchmark, stored with the model version, and re-tuned whenever a model is promoted.
 - **Order of Matches:** Fit plus a small Popularity weight (from ListenBrainz listen counts), with the weight tuned on the Benchmark. Popularity never turns a non-Match into a Match. Audio signals affect only Fit, so fixed global weights for audio features are not used.
 - Spotify Audio Features are not used: new apps can no longer access them, and the Developer Policy forbids it (ADR 0001).
 

@@ -4,6 +4,7 @@ Runs on the seed Catalog once the worker has built its vectors. Order and cutoff
 checked with Songs whose vectors are placed at a known Fit from the Description.
 """
 
+import json
 import math
 import os
 from collections.abc import Iterator
@@ -15,6 +16,7 @@ import numpy as np
 import psycopg
 import pytest
 
+from timbre_back import benchmark
 from timbre_back.db import conninfo, vector_literal
 from timbre_back.embed import embed_query
 
@@ -129,6 +131,134 @@ def test_order_is_fit_plus_a_small_popularity_weight(
     ]
     assert body["count"] == len(ids)  # every Match is on this page, so absence counts
     assert placed_songs["below_cutoff_popular"] not in ids
+
+
+# Search as it was before name matching: Matches by Fit alone.
+FIT_RANKING_SQL = """
+WITH m AS (
+  SELECT cutoff, popularity_weight AS w FROM catalog.model_versions WHERE promoted
+), f AS (
+  SELECT id, listens, 1 - (vector <=> %s::vector) AS fit
+  FROM catalog.songs WHERE vector IS NOT NULL
+)
+SELECT coalesce(array_agg(id ORDER BY fit + w * coalesce(
+  ln(1 + listens) / nullif(ln(1 + (SELECT max(listens) FROM catalog.songs)), 0), 0
+) DESC, id), '{}')
+FROM f, m WHERE fit > cutoff
+"""
+
+
+def fit_ranking(description: str) -> list[UUID]:
+    """Every Fit-based Match for the Description, in order."""
+    with psycopg.connect(conninfo("ml_worker")) as conn:
+        row = conn.execute(
+            FIT_RANKING_SQL, (vector_literal(embed_query(description)),)
+        ).fetchone()
+    assert row is not None
+    return list(row[0])
+
+
+def benchmark_descriptions() -> list[str]:
+    entries = [e for f in benchmark.FILES for e in json.loads(f.read_text())]
+    return [e["description"] for e in entries if e["description"]]
+
+
+@pytest.mark.parametrize("description", SAMPLES + benchmark_descriptions())
+def test_feel_descriptions_pick_up_no_name_matches(description: str) -> None:
+    body = search(q=description, n=60).json()
+    expected = fit_ranking(description)
+    assert body["count"] == len(expected)
+    assert [UUID(m["id"]) for m in body["matches"]] == expected[:60]
+
+
+# The named Songs sound like it, so their related Songs are its Matches.
+RELATED = SAMPLES[5]
+CAP = 60  # related Songs after name matches
+
+
+@pytest.fixture
+def named_songs() -> Iterator[list[UUID]]:
+    """Songs by an accented, made-up artist, most listens first."""
+    vector = vector_literal(embed_query(RELATED))
+    songs = [
+        ("Pelagic Hum", 500),
+        ("Quiet Lantern", 50),
+        ("Vellichor Marmalade Harbor", 5),
+    ]
+    ids = [uuid4() for _ in songs]
+    with psycopg.connect(conninfo("ml_worker"), autocommit=True) as conn:
+        try:
+            for id_, (title, listens) in zip(ids, songs, strict=True):
+                conn.execute(
+                    "INSERT INTO catalog.songs (id, title, artist, listens, vector)"
+                    " VALUES (%s, %s, 'Zórblax Kwintét', %s, %s::vector)",
+                    (id_, title, listens, vector),
+                )
+            yield ids
+        finally:
+            conn.execute("DELETE FROM catalog.songs WHERE id = ANY(%s)", (ids,))
+
+
+@pytest.mark.parametrize(
+    "q", ["Zórblax Kwintét", "zorblx kwintet"], ids=["exact", "typo-and-no-accents"]
+)
+def test_artist_songs_come_first_then_songs_like_them(
+    named_songs: list[UUID], q: str
+) -> None:
+    ids = all_ids(q)
+    related = [i for i in fit_ranking(RELATED) if i not in named_songs]
+    assert related, "the related part should not be empty"
+    assert ids == named_songs + related[:CAP]
+
+
+def test_song_title_comes_first(named_songs: list[UUID]) -> None:
+    ids = all_ids("vellichor marmalade harbour")
+    related = [i for i in fit_ranking(RELATED) if i != named_songs[2]]
+    assert ids == [named_songs[2], *related[:CAP]]
+
+
+def test_part_of_an_artist_name_with_a_typo_matches() -> None:
+    body = search(q="chilli peppers").json()
+    assert body["matches"][0]["artist"] == "Red Hot Chili Peppers"  # in the seed
+
+
+def test_name_matches_without_vectors_get_no_related_songs() -> None:
+    """Fit against the typed name would be noise, so there is nothing to relate to."""
+    id_ = uuid4()
+    with psycopg.connect(conninfo("ml_worker"), autocommit=True) as conn:
+        try:
+            conn.execute(
+                "INSERT INTO catalog.songs (id, title, artist)"
+                " VALUES (%s, 'Untold Song', 'Quorvath Ensemble')",
+                (id_,),
+            )
+            body = search(q="Quorvath Ensemble").json()
+        finally:
+            conn.execute("DELETE FROM catalog.songs WHERE id = %s", (id_,))
+    assert body["count"] == 1
+    assert [m["id"] for m in body["matches"]] == [str(id_)]
+
+
+def all_ids(q: str) -> list[UUID]:
+    """Every Match, page by page, checking that count and paging agree."""
+    pages = [search(q=q, n=60, offset=o).json() for o in (0, 60, 120)]
+    count = pages[0]["count"]
+    assert {p["count"] for p in pages} == {count}
+    ids = [UUID(m["id"]) for p in pages for m in p["matches"]]
+    assert len(ids) == len(set(ids)) == count
+    return ids
+
+
+def test_pages_cross_from_name_matches_to_related_songs(
+    named_songs: list[UUID],
+) -> None:
+    everything = search(q="Zórblax Kwintét", n=8).json()
+    pages = [search(q="Zórblax Kwintét", n=2, offset=o).json() for o in (0, 2, 4, 6)]
+    assert {p["count"] for p in pages} == {everything["count"]}
+    assert [m for p in pages for m in p["matches"]] == everything["matches"]
+    assert len({m["id"] for m in everything["matches"]}) == 8
+    end = search(q="Zórblax Kwintét", n=10, offset=everything["count"]).json()
+    assert end == {"count": everything["count"], "matches": []}
 
 
 @pytest.mark.parametrize(
