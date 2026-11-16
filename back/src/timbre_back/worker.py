@@ -6,6 +6,7 @@ from collections.abc import Awaitable, Callable
 
 import psycopg
 
+from timbre_back.benchmark import evaluate
 from timbre_back.catalog_import import run as run_catalog_import
 from timbre_back.db import conninfo, vector_literal
 from timbre_back.embed import embed_passages
@@ -48,6 +49,7 @@ async def build_vectors(conn: psycopg.AsyncConnection) -> None:
 JOBS: dict[str, Callable[[psycopg.AsyncConnection], Awaitable[None]]] = {
     "build-vectors": build_vectors,
     "import-catalog": run_catalog_import,
+    "evaluate": evaluate,
 }
 
 

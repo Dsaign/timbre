@@ -90,6 +90,8 @@ CASES: list[tuple[str, tuple[LiteralString, ...], LiteralString, int | str]] = [
     ("api_search", (), "SELECT * FROM catalog.model_versions WHERE id = 1", 1),
     ("api_search", (), INSERT_MODEL_VERSION, DENIED),
     ("api_search", (), "SELECT * FROM jobs.queue", DENIED),
+    ("api_search", (), "SELECT * FROM catalog.benchmark_descriptions", DENIED),
+    ("api_search", (), "SELECT * FROM catalog.benchmark_songs", DENIED),
     ("api_search", (), INSERT_JOB, DENIED),
     ("api_search", (AS_VISITOR_SEED,), "SELECT * FROM feedback.votes", 1),  # own vote
     ("api_search", (), "SELECT * FROM feedback.votes", 0),  # no visitor set: none own
@@ -158,6 +160,8 @@ CASES: list[tuple[str, tuple[LiteralString, ...], LiteralString, int | str]] = [
     ("api_preview", (), "SELECT '[1,2,3]'::extensions.vector", DENIED),
     ("api_preview", (), "SELECT * FROM jobs.queue", DENIED),
     ("api_preview", (), "SELECT * FROM catalog.model_versions", DENIED),
+    ("api_preview", (), "SELECT * FROM catalog.benchmark_descriptions", DENIED),
+    ("api_preview", (), "SELECT * FROM catalog.benchmark_songs", DENIED),
     # Nobody can create objects.
     ("ml_worker", (), "CREATE TABLE public.x (i int)", DENIED),
     ("ml_worker", (), "CREATE TABLE jobs.x (i int)", DENIED),

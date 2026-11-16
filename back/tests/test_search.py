@@ -84,17 +84,22 @@ def placed_songs() -> Iterator[dict[str, UUID]]:
     """Songs placed at a known Fit from DESCRIPTION, with no or the most listens."""
     query = np.array(embed_query(DESCRIPTION))
     with psycopg.connect(conninfo("ml_worker"), autocommit=True) as conn:
-        cutoff_row = conn.execute(
-            "SELECT cutoff FROM catalog.model_versions WHERE promoted"
+        model_row = conn.execute(
+            "SELECT cutoff, popularity_weight FROM catalog.model_versions"
+            " WHERE promoted"
         ).fetchone()
-        assert cutoff_row is not None
-        cutoff = float(cutoff_row[0])
+        assert model_row is not None
+        cutoff, weight = float(model_row[0]), float(model_row[1])
+        if weight == 0:
+            pytest.skip("the evaluate job tuned the Popularity weight to 0")
+        if 1 - 2 * weight <= cutoff:
+            pytest.skip("far_popular would fall below the promoted cutoff")
         most = 10**12  # above any real listen count, so log1p ratio is exactly 1
         songs = {
             # name: (Fit, listens)
             "exact": (1.0, 0),
-            "close_popular": (0.995, most),  # 0.995 + 0.02 beats 1.0
-            "far_popular": (0.95, most),  # 0.95 + 0.02 does not
+            "close_popular": (1 - weight / 2, most),  # + weight beats 1.0
+            "far_popular": (1 - 2 * weight, most),  # + weight does not
             "below_cutoff_popular": (cutoff - 0.01, most),  # never a Match
         }
         ids = {name: uuid4() for name in songs}
