@@ -1,5 +1,7 @@
 # timbre
 
+<img width="2880" height="1800" alt="timbre-home-dark" src="https://github.com/user-attachments/assets/7306557e-4076-4e5a-bacb-559a87b29eb2" />
+
 Describe the music you want and get Matches. Early stage: search runs on a 200-Song seed Catalog with the baseline model (multilingual-e5-small).
 
 - `front/`: the Next.js 16 app (pnpm).
