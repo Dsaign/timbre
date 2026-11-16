@@ -104,17 +104,20 @@ The test stack uses the same database volume as `docker compose up`, so these 7 
 
 The Benchmark scores the model: Descriptions, each with at least 3 Songs that should be Matches. It lives in two committed files in `back/src/timbre_back/`, each a JSON list of `{"description", "source", "reviewed", "songs": [{"id", "title", "artist"}]}` where `id` is the Song's MusicBrainz recording ID in the Catalog (`title` and `artist` are only for reading):
 
-- `benchmark_drafted.json`: 60 Descriptions drafted by Bob (`"source": "drafted"`), `"reviewed": false` until the owner checks them.
-- `benchmark_hand_written.json`: the template for the owner's 40 (`"source": "hand-written"`). Blank entries are skipped, so fill them in place.
+- `benchmark_drafted.json`: 60 Descriptions drafted by Bob (`"source": "drafted"`), reviewed by the owner.
+- `benchmark_hand_written.json`: the owner's 40 (`"source": "hand-written"`), in pt-BR and English.
 
-Load the files into `catalog` and score the baseline, from `back/` with the stack up:
+Load the files into `catalog` and score the model, from `back/` with the stack up. The worker image holds a copy of the files, so rebuild it after editing them:
 
 ```bash
+docker compose up -d --build worker                          # picks up edited Benchmark files
 docker compose exec worker python -m timbre_back.benchmark   # loads the files, queues the evaluate job
 docker compose logs worker | grep evaluate                   # the report
 ```
 
 The score is the share of expected Songs in the top 24 Matches, averaged over Descriptions. The job also tunes the cutoff (0.005 grid, only cutoffs at least 0.005 above the best Fit of the nonsense string `xkqzv wplmr tjhgf`, so it keeps 0 Matches; ties to the highest) and the Popularity weight (0 to 0.05 in 0.005 steps, ties to the lowest), and records the score, cutoff and weight on the promoted model version (today version 1, the baseline). With no Song vectorized yet it logs that it skipped and changes nothing. The new cutoff and weight are live at once. A Song ID missing from the Catalog, or a Description with fewer than 3 Songs, stops the load with an error. Training must never read the Benchmark (ticket 15).
+
+Baseline (multilingual-e5-small) on the full Benchmark of 100, on the 10,000-Song Catalog (2026-11-16): score 0.112, cutoff 0.830, Popularity weight 0.050.
 
 ## Change the API
 
