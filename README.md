@@ -88,7 +88,7 @@ An interrupted import resumes after the last finished artist (or seed tag batch)
 
 ### Re-check the cutoff
 
-A Song is a Match when its Fit is above the promoted model's cutoff: 0.835, in `catalog.model_versions` (row 1, set in `back/migrations/20261029160000_vectors_jobs_model_versions.sql`). It was picked on the seed, so check it again on the full Catalog. Wait until the import and build-vectors are done (`SELECT kind, status FROM jobs.queue WHERE status = 'queued'` returns nothing), then from `back/`:
+A Song is a Match when its Fit is above the promoted model's cutoff, in `catalog.model_versions` (row 1). It started at 0.835, picked on the seed in `back/migrations/20261029160000_vectors_jobs_model_versions.sql`; the evaluate job (see Benchmark) now tunes it. Check it again on the full Catalog. Wait until the import and build-vectors are done (`SELECT kind, status FROM jobs.queue WHERE status = 'queued'` returns nothing), then from `back/`:
 
 ```bash
 docker compose -f compose.yaml -f compose.test.yaml run --rm tests \
@@ -96,6 +96,22 @@ docker compose -f compose.yaml -f compose.test.yaml run --rm tests \
 ```
 
 The test stack uses the same database volume as `docker compose up`, so these 7 tests search the full Catalog. They pass when the fixed nonsense string `xkqzv wplmr tjhgf` gets 0 Matches and each of the six sample Descriptions (`SAMPLES` in `back/tests/test_search.py`) gets at least 1. If no single cutoff gives both, stop and ask the project owner: don't add a gibberish filter.
+
+## Benchmark
+
+The Benchmark scores the model: Descriptions, each with at least 3 Songs that should be Matches. It lives in two committed files in `back/src/timbre_back/`, each a JSON list of `{"description", "source", "reviewed", "songs": [{"id", "title", "artist"}]}` where `id` is the Song's MusicBrainz recording ID in the Catalog (`title` and `artist` are only for reading):
+
+- `benchmark_drafted.json`: 60 Descriptions drafted by Bob (`"source": "drafted"`), `"reviewed": false` until the owner checks them.
+- `benchmark_hand_written.json`: the template for the owner's 40 (`"source": "hand-written"`). Blank entries are skipped, so fill them in place.
+
+Load the files into `catalog` and score the baseline, from `back/` with the stack up:
+
+```bash
+docker compose exec worker python -m timbre_back.benchmark   # loads the files, queues the evaluate job
+docker compose logs worker | grep evaluate                   # the report
+```
+
+The score is the share of expected Songs in the top 24 Matches, averaged over Descriptions. The job also tunes the cutoff (0.005 grid, only cutoffs at least 0.005 above the best Fit of the nonsense string `xkqzv wplmr tjhgf`, so it keeps 0 Matches; ties to the highest) and the Popularity weight (0 to 0.05 in 0.005 steps, ties to the lowest), and records the score, cutoff and weight on the promoted model version (today version 1, the baseline). With no Song vectorized yet it logs that it skipped and changes nothing. The new cutoff and weight are live at once. A Song ID missing from the Catalog, or a Description with fewer than 3 Songs, stops the load with an error. Training must never read the Benchmark (ticket 15).
 
 ## Change the API
 
