@@ -1,242 +1,402 @@
 [
   {
-    "description": "",
+    "description": "Heavy guitar riffs and pounding drums, 80s metal energy",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "0151d8a4-50c8-4036-b824-4a4f4b140e8e", "title": "Master of Puppets", "artist": "Metallica"},
+      {"id": "8e44e4ea-9bce-47c2-a48c-8aa338242fb2", "title": "The Number of the Beast", "artist": "Iron Maiden"},
+      {"id": "ef71afb6-5e51-41df-999b-9e7c7306063a", "title": "Back in Black", "artist": "AC/DC"}
+    ]
   },
   {
-    "description": "",
+    "description": "Rock alternativo dos anos 90",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "5fb524f1-8cc8-4c04-a921-e34c0a911ea7", "title": "Smells Like Teen Spirit", "artist": "Nirvana"},
+      {"id": "70595637-9310-45f2-a266-58f8de4874a7", "title": "Creep", "artist": "Radiohead"},
+      {"id": "9160e42b-8fae-402d-9cee-d6826c5cce33", "title": "Everlong", "artist": "Foo Fighters"}
+    ]
   },
   {
-    "description": "",
+    "description": "Upbeat pop songs to dance at a party",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "38e06968-af06-44ea-9eba-a1a275832767", "title": "Uptown Funk", "artist": "Mark Ronson"},
+      {"id": "ce3a5a96-e755-4742-9f20-2578600daa4c", "title": "Poker Face", "artist": "Lady Gaga"},
+      {"id": "957df7c5-9c3a-4dbc-b139-f339f2378986", "title": "Levitating", "artist": "Dua Lipa"}
+    ]
   },
   {
-    "description": "",
+    "description": "Indie pop com sintetizadores psicodélicos",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "c741a7ef-dd33-4c79-a4d4-8745d9675620", "title": "Kids", "artist": "MGMT"},
+      {"id": "987a88ef-6f47-479c-a0ad-1a17aa85e8ed", "title": "Electric Feel", "artist": "MGMT"},
+      {"id": "24436eea-e79f-4592-b7f8-3e9bfe01f483", "title": "Time to Pretend", "artist": "MGMT"}
+    ]
   },
   {
-    "description": "",
+    "description": "Indie rock melancólico",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "f1e57531-e0df-4b3e-938f-1ae30c5b1a11", "title": "Do I Wanna Know?", "artist": "Arctic Monkeys"},
+      {"id": "4810b42e-2bb1-4795-874b-85df8fd62ca9", "title": "Fluorescent Adolescent", "artist": "Arctic Monkeys"},
+      {"id": "c2705dfc-83bf-4838-bdcb-07734e71c7d7", "title": "Mardy Bum", "artist": "Arctic Monkeys"}
+    ]
   },
   {
-    "description": "",
+    "description": "Músicas eletrônicas para uma festa",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "60fa767a-d85d-4991-82bc-4294e0b11ae7", "title": "One More Time", "artist": "Daft Punk"},
+      {"id": "0069c0f7-9274-4b4b-a10e-110b90a4bcc0", "title": "Titanium", "artist": "David Guetta"},
+      {"id": "6528ab6c-74ca-41d8-8eb8-9bb61c82a78f", "title": "Levels", "artist": "Avicii"}
+    ]
   },
   {
-    "description": "",
+    "description": "Épicos do rock dos anos 70 com solos de guitarra marcantes",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "b1a9c0e9-d987-4042-ae91-78d6a3267d69", "title": "Bohemian Rhapsody", "artist": "Queen"},
+      {"id": "ccfdd180-22e1-49b9-bd81-b5fcf2c6474e", "title": "Stairway to Heaven", "artist": "Led Zeppelin"},
+      {"id": "e135871f-0fed-4683-90e3-ebbe435fbe4e", "title": "Dream On", "artist": "Aerosmith"}
+    ]
   },
   {
-    "description": "",
+    "description": "Sad, dreamy songs with a female voice, slow and cinematic",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "b9d06b81-b582-46d4-ad41-be47a6961892", "title": "Video Games", "artist": "Lana Del Rey"},
+      {"id": "9bf3902b-096a-4b8f-83d6-fc9b2c0d83e7", "title": "Blue Jeans", "artist": "Lana Del Rey"},
+      {"id": "9170054a-8a9b-4f33-b31f-4ed58347154a", "title": "Wandering Star", "artist": "Portishead"}
+    ]
   },
   {
-    "description": "",
+    "description": "2000s indie rock anthems to sing along in the car",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "560062d0-e122-46be-9d89-0f3b44077fdf", "title": "Mr. Brightside", "artist": "The Killers"},
+      {"id": "45024040-a343-4141-9bc9-27ef0cc9163d", "title": "Somebody Told Me", "artist": "The Killers"},
+      {"id": "b38f9ded-8ac3-409e-82c3-187495e4da47", "title": "When You Were Young", "artist": "The Killers"}
+    ]
   },
   {
-    "description": "",
+    "description": "Músicas dos anos 80 com muito sintetizador e bateria eletrônica",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "12f65dca-de8f-43fe-a65d-f12a02aaadf3", "title": "Take On Me", "artist": "a-ha"},
+      {"id": "8caee4aa-bc6e-454d-b8ab-16695a398c75", "title": "Enjoy the Silence", "artist": "Depeche Mode"},
+      {"id": "9aa2be7b-8fb0-4187-bce4-9bb4e84815fc", "title": "Blue Monday", "artist": "New Order"}
+    ]
   },
   {
-    "description": "",
+    "description": "Funky beats with rap verses and a strong bass line",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "318a1c51-5910-4823-bda1-09ea6d84648a", "title": "Clint Eastwood", "artist": "Gorillaz"},
+      {"id": "aca57a7f-8e25-4ee0-bced-6a53bfa31513", "title": "California Love", "artist": "2Pac"},
+      {"id": "a06d7304-5980-408d-9227-70c2ded24293", "title": "DARE", "artist": "Gorillaz featuring Shaun Ryder"}
+    ]
   },
   {
-    "description": "",
+    "description": "Músicas românticas e emocionantes com piano e violão",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "20919a48-4ad5-409c-b639-8db7ca9f9e7a", "title": "Fix You", "artist": "Coldplay"},
+      {"id": "b84dd2d1-2bf1-4fcc-aadc-6cc39c36ba35", "title": "Perfect", "artist": "Ed Sheeran"},
+      {"id": "e42df375-e203-4f9c-8e06-a385634e76c7", "title": "Make You Feel My Love", "artist": "Adele"}
+    ]
   },
   {
-    "description": "",
+    "description": "Grunge e rock pesado dos anos 90",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "35cbb45d-0b40-415e-9301-f43fec4e1497", "title": "Black", "artist": "Pearl Jam"},
+      {"id": "b0b9e9c1-a234-42db-a2b6-d0d576bf525d", "title": "Would?", "artist": "Alice in Chains"},
+      {"id": "f16627cc-e681-45e7-b82a-b64a60f48f99", "title": "Heart-Shaped Box", "artist": "Nirvana"}
+    ]
   },
   {
-    "description": "",
+    "description": "High energy guitar riffs to get pumped up",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "a1818245-54db-4881-86be-7ff3180c3e06", "title": "Take Me Out", "artist": "Franz Ferdinand"},
+      {"id": "b39b7227-c271-4ab8-912b-cb1fe2fc0e5e", "title": "Song 2", "artist": "Blur"},
+      {"id": "24cc8311-98fd-423a-bed1-97728f5eabc5", "title": "Seven Nation Army", "artist": "The White Stripes"}
+    ]
   },
   {
-    "description": "",
+    "description": "Clima sombrio e hipnótico para ouvir de madrugada",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "f3bba4cd-8018-468b-902e-bc8f029593e5", "title": "Teardrop", "artist": "Massive Attack"},
+      {"id": "8e74dd9d-e5a3-4acd-918a-c36a0f8cda84", "title": "Angel", "artist": "Massive Attack"},
+      {"id": "8a49dba0-253a-4535-b87f-78bb035336ce", "title": "Roads", "artist": "Portishead"}
+    ]
   },
   {
-    "description": "",
+    "description": "Pop rock emotivo com piano, cordas e refrões grandes",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "a478f801-521b-40e7-8bb4-5faeffb1f3e4", "title": "The Scientist", "artist": "Coldplay"},
+      {"id": "729cf505-94eb-4fbe-bc76-cbae44cff091", "title": "Yellow", "artist": "Coldplay"},
+      {"id": "307ce9da-5690-4e21-ab71-9d12ea106e52", "title": "Viva la vida", "artist": "Coldplay"}
+    ]
   },
   {
-    "description": "",
+    "description": "Músicas animadas para treinar na academia",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "58ba910b-4762-4c76-99bf-02031e11dd94", "title": "Till I Collapse", "artist": "Eminem"},
+      {"id": "040cc48d-ad1a-469f-b1f4-1fcec9525d15", "title": "Stronger", "artist": "Kanye West"},
+      {"id": "54a3c21c-5395-44a2-b90b-b7fab8095c20", "title": "Faint", "artist": "Linkin Park"}
+    ]
   },
   {
-    "description": "",
+    "description": "Dreamy, hazy songs with reverb-soaked guitars for a rainy day",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "28565ecb-6f65-4f57-ab7f-1846d643c1d7", "title": "Crystalised", "artist": "The xx"},
+      {"id": "5a8f7959-6906-4672-ac64-f994e98976ae", "title": "Space Song", "artist": "Beach House"},
+      {"id": "6493b1ac-87ca-4da5-8eaa-db254186e702", "title": "Cherry-coloured Funk", "artist": "Cocteau Twins"}
+    ]
   },
   {
-    "description": "",
+    "description": "Reggae clássico e roots reggae",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "25b56e50-9952-4623-971b-27a754aac86e", "title": "No Woman, No Cry", "artist": "Bob Marley & The Wailers"},
+      {"id": "82a6f20d-93ac-4849-a490-bf24cccdf005", "title": "Exodus", "artist": "Bob Marley & The Wailers"},
+      {"id": "bd825833-dfcd-49f8-adda-a297d7d50a24", "title": "Roots, Rock, Reggae", "artist": "Bob Marley & The Wailers"}
+    ]
   },
   {
-    "description": "",
+    "description": "Pop e funk dançante com baixo marcante e metais",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "f980fc14-e29b-481d-ad3a-5ed9b4ab6340", "title": "Billie Jean", "artist": "Michael Jackson"},
+      {"id": "de798de6-70fc-49f6-b580-339cd2e62052", "title": "Beat It", "artist": "Michael Jackson"},
+      {"id": "661d35c3-6ade-4367-af96-6c2898149906", "title": "September", "artist": "Earth, Wind & Fire"}
+    ]
   },
   {
-    "description": "",
+    "description": "Quiet acoustic songs with falsetto vocals for a cold night",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "c218b538-538d-4d71-9f6d-d063f5c57188", "title": "Holocene", "artist": "Bon Iver"},
+      {"id": "9292cc80-2875-4efa-b7f8-ec2e25525d15", "title": "For Emma", "artist": "Bon Iver"},
+      {"id": "1080ccc2-23c0-47e1-8853-cb3c3cc7624e", "title": "Flume", "artist": "Bon Iver"}
+    ]
   },
   {
-    "description": "",
+    "description": "Metal progressivo com baixo pesado e bateria complexa",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "865f015e-0ecf-4af5-b019-9edf16ea21c5", "title": "Schism", "artist": "Tool"},
+      {"id": "c102891a-d4dd-442b-83b5-fa57cc6c1026", "title": "Hysteria", "artist": "Muse"},
+      {"id": "71d746c6-bf53-4ef1-bcfd-596d7b2b6b54", "title": "The Pot", "artist": "Tool"}
+    ]
   },
   {
-    "description": "",
+    "description": "Pop internacional dos anos 2000",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "82214173-a7e5-4abc-938e-03031d9241b3", "title": "Hot n Cold", "artist": "Katy Perry"},
+      {"id": "899a043d-67bc-420c-85ea-6fee705baeb3", "title": "Halo", "artist": "Beyoncé"},
+      {"id": "0810268f-2e52-4f89-86be-42762ea3f6d4", "title": "Just Dance", "artist": "Lady Gaga featuring Colby O’Donis"}
+    ]
   },
   {
-    "description": "",
+    "description": "Pop feminino dos anos 2000",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "ffb6e773-2d24-420c-90ce-36b6025f31e2", "title": "Toxic", "artist": "Britney Spears"},
+      {"id": "4b6ad952-257a-4f39-99bb-ed30e6036fd8", "title": "Hold It Against Me", "artist": "Britney Spears"},
+      {"id": "bb2d1754-0d93-41a1-8346-e95dacab304d", "title": "Womanizer", "artist": "Britney Spears"}
+    ]
   },
   {
-    "description": "",
+    "description": "Post-punk e dark wave",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "6c450822-41ca-444e-8be5-10ee5a9ea53a", "title": "Evil", "artist": "Interpol"},
+      {"id": "926171f6-b04e-4eb8-a948-0a02440d44ae", "title": "A Forest", "artist": "The Cure"},
+      {"id": "1612c91a-f7f3-4727-901d-bb338987132d", "title": "Obstacle 1", "artist": "Interpol"}
+    ]
   },
   {
-    "description": "",
+    "description": "Clássicos do rock britânico dos anos 60",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "485bbe7f-d0f7-4ffe-8adb-0f1093dd2dbf", "title": "Come Together", "artist": "The Beatles"},
+      {"id": "b849acd4-0638-49ea-8e40-7391613d4890", "title": "Something", "artist": "The Beatles"},
+      {"id": "424c10aa-a857-4dc6-872e-2a8fb0b707f3", "title": "Eleanor Rigby", "artist": "The Beatles"}
+    ]
   },
   {
-    "description": "",
+    "description": "Rock psicodélico e experimental",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "d3528f95-1a3f-45d2-a569-826740c0adee", "title": "Comfortably Numb", "artist": "Pink Floyd"},
+      {"id": "2d1201cf-59bb-4ffa-9f52-f5b3afa13346", "title": "Us and Them", "artist": "Pink Floyd"},
+      {"id": "71c0e054-b700-4fd2-a35b-95c7afc566cb", "title": "Brain Damage", "artist": "Pink Floyd"}
+    ]
   },
   {
-    "description": "",
+    "description": "Hard-hitting trap beats with heavy 808 bass",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "73784600-a665-4a6c-9687-187dbefc556d", "title": "SICKO MODE", "artist": "Travis Scott"},
+      {"id": "398bf241-7d57-4993-860b-1f9ef496c97f", "title": "HUMBLE.", "artist": "Kendrick Lamar"},
+      {"id": "841bb140-860a-44d6-b212-84ffeb7d8fdc", "title": "God's Plan", "artist": "Drake"}
+    ]
   },
   {
-    "description": "",
+    "description": "Músicas tristes com voz e violão",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "a5741d3d-c925-4070-8a83-910d23eb33d4", "title": "I Will Follow You Into the Dark", "artist": "Death Cab for Cutie"},
+      {"id": "4e17b118-70a6-4c1f-b326-b4ce91fd3fad", "title": "Soul Meets Body", "artist": "Death Cab for Cutie"},
+      {"id": "ddfb4085-e87c-4b38-9ae6-e579f8a7e20e", "title": "The Sound of Silence", "artist": "Simon & Garfunkel"}
+    ]
   },
   {
-    "description": "",
+    "description": "Pop punk e emo dos anos 2000",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "9d70086c-5d7a-4e7f-b1ed-c53c4b11310f", "title": "In the End", "artist": "Linkin Park"},
+      {"id": "26bc1124-b228-401e-8f38-5cea1625d8c2", "title": "Misery Business", "artist": "Paramore"},
+      {"id": "e3b7cd96-c41d-497a-b401-dc7494f638db", "title": "The Middle", "artist": "Jimmy Eat World"}
+    ]
   },
   {
-    "description": "",
+    "description": "Hinos de rock e pop para cantar junto",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "0ba72f0d-70ae-4655-94d9-c1069b5abcfb", "title": "Boulevard of Broken Dreams", "artist": "Green Day"},
+      {"id": "1c398e28-a63d-4c25-813b-ef9a96aadacb", "title": "Basket Case", "artist": "Green Day"},
+      {"id": "a23f107f-36cd-4a4c-b8d5-6dd73b9148c7", "title": "Wake Me Up When September Ends", "artist": "Green Day"}
+    ]
   },
   {
-    "description": "",
+    "description": "Eletrônica francesa com sintetizadores e vocais robóticos",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "15f16efc-8762-4151-95ab-c12d06268640", "title": "Digital Love", "artist": "Daft Punk"},
+      {"id": "7c0e11a3-1c7a-4e6d-a14d-6e86d86dbaad", "title": "Aerodynamic", "artist": "Daft Punk"},
+      {"id": "f1a6a40f-78f5-4918-968d-f64363bae94c", "title": "Harder, Better, Faster, Stronger", "artist": "Daft Punk"}
+    ]
   },
   {
-    "description": "",
+    "description": "Rock clássico britânico",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "c6ddba3b-a1a4-40a5-b686-b040ba536f24", "title": "Paint It Black", "artist": "The Rolling Stones"},
+      {"id": "a6081bc1-2a76-4984-b21f-38bc3dcca3a5", "title": "Baba O’Riley", "artist": "The Who"},
+      {"id": "9d9c8206-8b4c-45fc-8f12-ffc1940b2b7f", "title": "Whole Lotta Love", "artist": "Led Zeppelin"}
+    ]
   },
   {
-    "description": "",
+    "description": "Minimal, calm music to focus while studying",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "773a1557-a974-4f1e-978e-c240be4c3cb8", "title": "Intro", "artist": "The xx"},
+      {"id": "4b95b3fb-3c50-4940-b8bf-d39f77a9691f", "title": "Islands", "artist": "The xx"},
+      {"id": "57b5c897-cf7d-4a73-b38d-6d5d83c298c8", "title": "VCR", "artist": "The xx"}
+    ]
   },
   {
-    "description": "",
+    "description": "Pop latino e reggaeton",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "a3171d92-c25f-4d8d-8416-e90c5d6c100d", "title": "LA CANCIÓN", "artist": "J Balvin & Bad Bunny"},
+      {"id": "581b8e7a-3d14-44cf-8a7c-02262c3d1b00", "title": "Yo perreo sola", "artist": "Bad Bunny"},
+      {"id": "cf143f8b-6586-4297-ab4a-1396877cb07f", "title": "Safaera", "artist": "Bad Bunny, Jowell & Randy & Ñengo Flow"}
+    ]
   },
   {
-    "description": "",
+    "description": "Grunge e rock alternativo pesado",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "1b055a51-eac1-4b06-a28f-d0b8c7a5e65a", "title": "Man in the Box", "artist": "Alice in Chains"},
+      {"id": "d141baa5-ad5d-4893-aa9e-ae50d6c117bf", "title": "Jeremy", "artist": "Pearl Jam"},
+      {"id": "5583123a-a245-48b3-bcea-e178b7e9721e", "title": "Outshined", "artist": "Soundgarden"}
+    ]
   },
   {
-    "description": "",
+    "description": "Rock psicodélico dos anos 70 com solos longos de guitarra e saxofone",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "feecff58-8ee2-4a7f-ac23-dc8ce7925286", "title": "Wish You Were Here", "artist": "Pink Floyd"},
+      {"id": "0e11c0fd-a1da-4b88-a438-7ef55c5809ec", "title": "Time", "artist": "Pink Floyd"},
+      {"id": "7fef22bd-76aa-4803-b56b-93a5d6e70662", "title": "Money", "artist": "Pink Floyd"}
+    ]
   },
   {
-    "description": "",
+    "description": "Feel-good disco grooves for a summer night out",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "833f00e1-781f-4edd-90e4-e52712618862", "title": "Get Lucky", "artist": "Daft Punk feat. Pharrell Williams & Nile Rodgers"},
+      {"id": "d63f9a2c-aea5-4b77-875e-eee7ce1fd734", "title": "Hung Up", "artist": "Madonna"},
+      {"id": "9f381fef-7bbd-4f2a-be8b-2acd072bb7e1", "title": "Lose Yourself to Dance", "artist": "Daft Punk feat. Pharrell Williams"}
+    ]
   },
   {
-    "description": "",
+    "description": "Baladas de rock com solo de guitarra e piano",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "6b9a509f-6907-4a6e-9345-2f12da09ba4b", "title": "With or Without You", "artist": "U2"},
+      {"id": "0681520a-6499-4cb8-91aa-7df5dfafea2e", "title": "November Rain", "artist": "Guns N’ Roses"},
+      {"id": "1a8b5f7c-58ed-4757-a8d3-47bf7f77a32f", "title": "Sweet Child o’ Mine", "artist": "Guns N’ Roses"}
+    ]
   },
   {
-    "description": "",
+    "description": "Músicas com piano para relaxar e se emocionar",
     "source": "hand-written",
     "reviewed": true,
-    "songs": []
+    "songs": [
+      {"id": "d9642fee-939d-4357-b697-b55f9be3a17e", "title": "Hoppípolla", "artist": "Sigur Rós"},
+      {"id": "73b01cea-2dad-4fc2-9e61-02a31477c1b1", "title": "The Great Gig in the Sky", "artist": "Pink Floyd"},
+      {"id": "3e963c34-06d2-4a32-93d8-bd03e98d5e81", "title": "Clocks", "artist": "Coldplay"}
+    ]
   }
 ]
