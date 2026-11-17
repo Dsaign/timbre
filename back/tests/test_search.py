@@ -7,7 +7,8 @@ checked with Songs whose vectors are placed at a known Fit from the Description.
 import json
 import math
 import os
-from collections.abc import Iterator
+from collections.abc import Generator, Iterator
+from contextlib import contextmanager
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -16,11 +17,13 @@ import numpy as np
 import psycopg
 import pytest
 
-from timbre_back import benchmark, main
+from timbre_back import benchmark
 from timbre_back import model as models
 from timbre_back.db import conninfo, vector_literal
 from timbre_back.embed import embed_query
-from timbre_back.model import BASELINE, Model
+from timbre_back.feedback import normalize
+from timbre_back.model import Model
+from timbre_back.search import FIT_SQL, MATCHES_SQL, POPULARITY
 
 API_URL = os.environ.get("API_URL", "http://api:8000")
 AUTH = {
@@ -137,7 +140,7 @@ def test_order_is_fit_plus_a_small_popularity_weight(
     assert placed_songs["below_cutoff_popular"] not in ids
 
 
-# Search as it was before name matching: Matches by Fit alone, SEARCH_SQL's FIT_SQL.
+# Search by Fit alone (the seed Catalog has no tags), with SEARCH_SQL's FIT_SQL.
 FIT_RANKING_SQL = """
 WITH m AS (
   SELECT cutoff, popularity_weight AS w FROM catalog.model_versions WHERE promoted
@@ -148,11 +151,9 @@ WITH m AS (
 ), f AS (
   SELECT id, listens, {fit} AS fit FROM c
 )
-SELECT coalesce(array_agg(id ORDER BY fit + w * coalesce(
-  ln(1 + listens) / nullif(ln(1 + (SELECT max(listens) FROM catalog.songs)), 0), 0
-) DESC, id), '{}')
+SELECT coalesce(array_agg(id ORDER BY fit + w * {popularity} DESC, id), '{}')
 FROM f, m WHERE fit > cutoff
-""".replace("{fit}", main.FIT_SQL)
+""".replace("{fit}", FIT_SQL).replace("{popularity}", POPULARITY)
 
 
 def promoted_model() -> Model:
@@ -175,9 +176,16 @@ def ranking(params: dict[str, object]) -> list[UUID]:
     return list(row[0])
 
 
+ARTIST_SEARCHES = {"linkin park"}  # Benchmark Descriptions that name an artist
+
+
 def benchmark_descriptions() -> list[str]:
     entries = [e for f in benchmark.FILES for e in json.loads(f.read_text())]
-    return [e["description"] for e in entries if e["description"]]
+    return [
+        e["description"]
+        for e in entries
+        if e["description"] and e["description"] not in ARTIST_SEARCHES
+    ]
 
 
 @pytest.mark.parametrize("description", SAMPLES + benchmark_descriptions())
@@ -202,9 +210,15 @@ def related_vector() -> list[float]:
     return list(json.loads(vector))
 
 
-def related_ranking() -> list[UUID]:
-    """The Songs related to the named Songs, in order: cosine with their vector."""
-    return ranking(BASELINE.search_params(related_vector()))
+def related_ranking(q: str) -> list[UUID]:
+    """The Songs related to the named Songs, in order: Fit with the Description averaged
+    with their vector, so the Description's own meaning still counts."""
+    params = promoted_model().search_params(embed_query(q))
+    description = json.loads(str(params["vector"]))
+    params["vector"] = vector_literal(
+        ((np.array(description) + np.array(related_vector())) / 2).tolist()
+    )
+    return ranking(params)
 
 
 @pytest.fixture
@@ -237,24 +251,147 @@ def test_artist_songs_come_first_then_songs_like_them(
     named_songs: list[UUID], q: str
 ) -> None:
     ids = all_ids(q)
-    related = [i for i in related_ranking() if i not in named_songs]
+    related = [i for i in related_ranking(q) if i not in named_songs]
     assert related, "the related part should not be empty"
     assert ids == named_songs + related[:CAP]
 
 
 def test_song_title_comes_first(named_songs: list[UUID]) -> None:
     ids = all_ids("vellichor marmalade harbour")
-    related = [i for i in related_ranking() if i != named_songs[2]]
+    related = [
+        i for i in related_ranking("vellichor marmalade harbour") if i != named_songs[2]
+    ]
     assert ids == [named_songs[2], *related[:CAP]]
 
 
-def test_part_of_an_artist_name_with_a_typo_matches() -> None:
-    body = search(q="chilli peppers").json()
-    assert body["matches"][0]["artist"] == "Red Hot Chili Peppers"  # in the seed
+NAMED_SQL = "{matches} SELECT id FROM matches WHERE part = 0 ORDER BY id".replace(
+    "{matches}", MATCHES_SQL
+)
+
+
+def named(q: str) -> list[UUID]:
+    """The Songs the Description names (the name step alone), by the real search."""
+    params = promoted_model().search_params(embed_query(q))
+    with psycopg.connect(conninfo("ml_worker")) as conn:
+        rows = conn.execute(
+            NAMED_SQL,
+            {**params, "description": normalize(q), "cutoff": 1, "weight": 0},
+        ).fetchall()
+    return [row[0] for row in rows]
+
+
+@pytest.fixture
+def name_clashes() -> Iterator[dict[str, UUID]]:
+    """Names one word away from a mood or genre: "rock" in an artist's name, a guest
+    called "Love", a one-word title "Love"."""
+    songs = {
+        "rocky": ("Long Live", "Q$Q Rocky"),
+        "guest": ("Somebody Else", "Marlo Vint ft. Drew Love"),
+        "title": ("Love", "Quillon Barr"),
+    }
+    ids = {key: uuid4() for key in songs}
+    with psycopg.connect(conninfo("ml_worker"), autocommit=True) as conn:
+        try:
+            for key, (title, artist) in songs.items():
+                conn.execute(
+                    "INSERT INTO catalog.songs (id, title, artist) VALUES (%s, %s, %s)",
+                    (ids[key], title, artist),
+                )
+            yield ids
+        finally:
+            conn.execute(
+                "DELETE FROM catalog.songs WHERE id = ANY(%s)", (list(ids.values()),)
+            )
+
+
+@pytest.mark.parametrize("q", ["rock", "love", "drew love"])
+def test_one_word_of_a_name_names_nothing(
+    name_clashes: dict[str, UUID], q: str
+) -> None:
+    """Whole names only: "rock" is not "Q$Q Rocky", "love" is not the title "Love" or
+    the guest Drew Love, and guests never count."""
+    assert not set(named(q)) & set(name_clashes.values())
+
+
+@pytest.mark.parametrize(
+    ("q", "key"), [("q$q rocky", "rocky"), ("marlo vint", "guest")]
+)
+def test_a_whole_main_artist_name_names_its_songs(
+    name_clashes: dict[str, UUID], q: str, key: str
+) -> None:
+    assert name_clashes[key] in named(q)
+
+
+@contextmanager
+def tagged(q: str, songs: dict[str, list[str]]) -> Generator[dict[str, UUID]]:
+    """Songs with the given tags (most-voted first) and Fit 0 with the Description, so
+    only their tags can make them Matches. The seed Catalog has no tags."""
+    projected, _ = promoted_model().project(np.array([embed_query(q)]))
+    query = projected[0].astype(np.float64)
+    ids = {name: uuid4() for name in songs}
+    with psycopg.connect(conninfo("ml_worker"), autocommit=True) as conn:
+        try:
+            for n, (name, tags) in enumerate(songs.items()):
+                conn.execute(
+                    "INSERT INTO catalog.songs (id, title, artist, tags, vector)"
+                    " VALUES (%s, %s, 'Tag Test', %s, %s::vector)",
+                    (ids[name], name, tags, vector_literal(at_fit(query, 0.0, n))),
+                )
+            yield ids
+        finally:
+            conn.execute(
+                "DELETE FROM catalog.songs WHERE id = ANY(%s)", (list(ids.values()),)
+            )
+
+
+def test_a_tag_match_ranks_first_even_below_the_cutoff() -> None:
+    """A tag counts as a phrase of the Description, whatever its punctuation."""
+    with tagged("vorpal wave", {"tagged": ["Vorpal-Wave", "pop"]}) as ids:
+        body = search(q="vorpal wave").json()
+    assert body["matches"][0]["id"] == str(ids["tagged"])
+
+
+def test_more_votes_for_the_tag_rank_higher() -> None:
+    songs = {"first": ["zylofonk", "pop"], "third": ["pop", "rock", "zylofonk"]}
+    with tagged("zylofonk", songs) as ids:
+        body = search(q="zylofonk").json()
+    assert [m["id"] for m in body["matches"][:2]] == [
+        str(ids["first"]),
+        str(ids["third"]),
+    ]
+
+
+def test_a_tag_only_match_needs_one_of_the_3_most_voted_tags() -> None:
+    songs = {"strong": ["pop", "rock", "zylofonk"], "weak": ["a", "b", "c", "zylofonk"]}
+    with tagged("zylofonk", songs) as ids:
+        found = {m["id"] for m in search(q="zylofonk", n=60).json()["matches"]}
+    assert str(ids["strong"]) in found
+    assert str(ids["weak"]) not in found
+
+
+def test_a_one_word_tag_does_not_take_over_a_longer_description() -> None:
+    """The tag ranking weighs by the share of the Description the tag covers (1 of 6
+    words here), so the model's best Matches stay first."""
+    q = "sad piano ballad, slow and quiet"
+    expected = fit_ranking(q)[:5]
+    assert expected, "the Description should have Fit Matches"
+    with tagged(q, {"piano": ["piano"]}) as ids:
+        body = search(q=q, n=60).json()
+    found = [UUID(m["id"]) for m in body["matches"]]
+    assert found[: len(expected)] == expected
+    assert ids["piano"] in found  # still a Match, by its tag
+
+
+def test_love_returns_its_tagged_songs() -> None:
+    songs = {"love": ["love", "pop"], "romantic love": ["pop", "romantic", "love"]}
+    with tagged("love", songs) as ids:
+        body = search(q="love").json()
+    assert {m["id"] for m in body["matches"][:2]} == {str(i) for i in ids.values()}
 
 
 def test_name_matches_without_vectors_get_no_related_songs() -> None:
-    """Fit against the typed name would be noise, so there is nothing to relate to."""
+    """With nothing to average the name with, related Songs follow the Description
+    alone, and a made-up name means nothing."""
     id_ = uuid4()
     with psycopg.connect(conninfo("ml_worker"), autocommit=True) as conn:
         try:

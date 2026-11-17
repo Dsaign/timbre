@@ -142,7 +142,7 @@ export interface components {
             spotify_track_id: string | null;
             /**
              * Album Image Url
-             * @description Spotify album cover (at least 64 px), or null when there is none
+             * @description Spotify album cover (at least 80 px), or null when there is none
              */
             album_image_url: string | null;
         };

@@ -242,8 +242,8 @@ async def train(conn: psycopg.AsyncConnection) -> None:
     promoted = await cur.fetchone()
     if promoted is None:
         raise ValueError("no promoted model version to compare with")
-    current, *_ = await benchmark.tuned(models.load(promoted[1]), bench)
-    score, cutoff, weight = await benchmark.tuned(candidate, bench)
+    current, *_ = await benchmark.tuned(conn, models.load(promoted[1]), bench)
+    score, cutoff, weight = await benchmark.tuned(conn, candidate, bench)
     promote = score >= current
 
     # A sequence: two runs never share an id, so never a file either.
