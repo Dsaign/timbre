@@ -17,3 +17,5 @@
 ## Comments
 
 - From ticket 09: decide whether HSTS gets `preload` (hard to undo).
+- Owner (2026-11-17): no `preload` for now, on either domain; can be revisited once both have run on HTTPS for a while.
+- Review (Carl): Standards: 0 hard violations, 5 security/correctness findings (worst: FRONT_TOKEN printed to terminal and passed in curl argv), 5 smells. Spec: 3 gaps (worst: Vercel env vars set for Production only, so Preview deploys fail), minor scope creep, nothing implemented wrong.

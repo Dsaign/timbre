@@ -135,6 +135,10 @@ To go back to an earlier version, move `promoted` in one transaction (`UPDATE ca
 
 First run (2026-11-16, 96 Descriptions after excluding 34 near the Benchmark, 10,000-Song Catalog): version 2 scores 0.125 at cutoff 0.905 and weight 0.050, against the baseline's 0.112. Promoted. A re-run with the hinge (version 17; ids skipped by tests) scores the same 0.125 and, not being worse, is promoted.
 
+## Deploy
+
+Front on Vercel (root directory `front`), back on one VPS: `back/compose.prod.yaml` adds Caddy (TLS for `API_DOMAIN`, HTTP→HTTPS, HSTS) in front of the API, publishes only ports 80 and 443, and forces `APP_ENV=production` (no API docs). `scripts/deploy-wizard.sh` walks through the first setup (VPS, DNS, `back/.env`, Vercel, GitHub secrets, header checks). Update the back with `cd /opt/timbre && git pull && cd back && docker compose up -d --wait --build` on the VPS (its `back/.env` sets `COMPOSE_FILE`).
+
 ## Change the API
 
 After changing request or response models, regenerate and commit both files:
