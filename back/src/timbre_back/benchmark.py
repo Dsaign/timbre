@@ -1,9 +1,10 @@
 """The Benchmark and the evaluate job: `python -m timbre_back.benchmark`.
 
-Loads the committed Benchmark files into catalog and queues evaluate. The job scores the
-promoted model version on the Benchmark, tunes its cutoff and Popularity weight, and
-records the three on it. The train job uses it only to evaluate and to keep Benchmark
-Descriptions out of training (train.may_train_on).
+Loads the committed Benchmark files into catalog and queues evaluate. The job tunes the
+promoted model version's cutoff and Popularity weight on the model's own Fit ranking
+(fast, in numpy), scores the result through the real search (search.MATCHES_SQL:
+name step, tags and model), and records the three on it. The train job uses it only
+to evaluate and to keep Benchmark Descriptions out of training (train.may_train_on).
 """
 
 import asyncio
@@ -18,7 +19,9 @@ import psycopg
 from timbre_back import model as models
 from timbre_back.db import conninfo
 from timbre_back.embed import embed_query
+from timbre_back.feedback import normalize
 from timbre_back.model import DIMS, LABELS, Floats, Model
+from timbre_back.search import MATCHES_SQL
 
 log = logging.getLogger("timbre.benchmark")
 FILES = [
@@ -61,10 +64,12 @@ def score(
     cutoff: float,
     weight: float,
 ) -> float:
-    """Share of expected Songs among the top Matches, averaged over Descriptions.
+    """Share of expected Songs among the top Matches by Fit alone, averaged over
+    Descriptions: search_score's fast stand-in for tuning.
 
-    Mirrors main.SEARCH_SQL: Matches have Fit above the cutoff, ranked by Fit plus the
-    weighted Popularity. An expected Song without a vector is never found (index -1).
+    Mirrors search.MATCHES_SQL's model ranking: Fit above the cutoff, ranked by Fit
+    plus the weighted Popularity. An expected Song without a vector is never found
+    (index -1).
     """
     rank = np.where(fit > cutoff, fit + weight * popularity, -np.inf)
     k = min(TOP, rank.shape[1])
@@ -104,7 +109,7 @@ class Catalog(NamedTuple):
 
 
 async def catalog_arrays(conn: psycopg.AsyncConnection) -> Catalog:
-    """The vectorized Songs, Popularity as in SEARCH_SQL."""
+    """The vectorized Songs, Popularity as in search.POPULARITY."""
     cur = await conn.execute(
         "SELECT id::text, vector::text, labels::text, listens,"
         " (SELECT max(listens) FROM catalog.songs)"
@@ -177,12 +182,50 @@ def fits(model: Model, bench: Benchmark) -> tuple[Floats, float]:
     return all_fit[:-1], float(all_fit[-1].max())
 
 
-async def tuned(model: Model, bench: Benchmark) -> tuple[float, float, float]:
-    """The model's (score, cutoff, weight), tuned on the Benchmark."""
+TOP_MATCHES_SQL = """{matches}
+SELECT id::text FROM matches ORDER BY part, rank DESC, id LIMIT %(top)s
+""".replace("{matches}", MATCHES_SQL)
+
+
+async def search_score(
+    conn: psycopg.AsyncConnection,
+    model: Model,
+    bench: Benchmark,
+    cutoff: float,
+    weight: float,
+) -> float:
+    """Share of expected Songs among the top Matches of the real search (the API's
+    ranking), averaged over Descriptions."""
+    index = {song_id: i for i, song_id in enumerate(bench.catalog.song_ids)}
+    shares = []
+    for description, vector, songs in zip(
+        bench.descriptions, bench.description_vectors, bench.expected, strict=True
+    ):
+        cur = await conn.execute(
+            TOP_MATCHES_SQL,
+            {
+                **model.search_params(vector.tolist()),
+                "description": normalize(description),
+                "cutoff": cutoff,
+                "weight": weight,
+                "top": TOP,
+            },
+        )
+        # A name match can be a Song without a vector: never an expected one.
+        found = {index[i] for (i,) in await cur.fetchall() if i in index}
+        shares.append(sum(i in found for i in songs) / len(songs))
+    return float(np.mean(shares))
+
+
+async def tuned(
+    conn: psycopg.AsyncConnection, model: Model, bench: Benchmark
+) -> tuple[float, float, float]:
+    """The model's (search score, cutoff, weight), tuned on the Benchmark."""
     fit, nonsense_fit = fits(model, bench)
-    return await asyncio.to_thread(
+    _, cutoff, weight = await asyncio.to_thread(
         tune, fit, bench.catalog.popularity, bench.expected, nonsense_fit
     )
+    return await search_score(conn, model, bench, cutoff, weight), cutoff, weight
 
 
 async def evaluate(conn: psycopg.AsyncConnection) -> None:
@@ -198,22 +241,18 @@ async def evaluate(conn: psycopg.AsyncConnection) -> None:
     if row is None:
         raise ValueError("no promoted model version to evaluate and record on")
     old_cutoff, old_weight, file = row
-    fit, nonsense_fit = fits(models.load(file), bench)
-    popularity = bench.catalog.popularity
-    before = score(fit, popularity, bench.expected, old_cutoff, old_weight)
-    best, cutoff, weight = await asyncio.to_thread(
-        tune, fit, popularity, bench.expected, nonsense_fit
-    )
+    model = models.load(file)
+    before = await search_score(conn, model, bench, old_cutoff, old_weight)
+    best, cutoff, weight = await tuned(conn, model, bench)
     await conn.execute(
         "UPDATE catalog.model_versions"
         " SET benchmark_score = %s, cutoff = %s, popularity_weight = %s WHERE promoted",
         (best, cutoff, weight),
     )
     log.info(
-        "evaluate: %d Benchmark Descriptions, %d Songs. Score (expected Songs in"
-        " the top %d) was %.3f at cutoff %.3f and weight %.3f; tuned %.3f at"
-        " cutoff %.3f and weight %.3f (nonsense best Fit %.3f), recorded on the"
-        " promoted model version",
+        "evaluate: %d Benchmark Descriptions, %d Songs. Search score (expected Songs"
+        " in the top %d) was %.3f at cutoff %.3f and weight %.3f; tuned %.3f at"
+        " cutoff %.3f and weight %.3f, recorded on the promoted model version",
         len(bench.descriptions),
         len(bench.catalog.song_ids),
         TOP,
@@ -223,7 +262,6 @@ async def evaluate(conn: psycopg.AsyncConnection) -> None:
         best,
         cutoff,
         weight,
-        nonsense_fit,
     )
 
 

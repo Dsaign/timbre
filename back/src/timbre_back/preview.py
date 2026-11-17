@@ -26,7 +26,7 @@ BACKOFF = 0.5  # seconds before the first retry; doubles each time
 MAX_RETRY_AFTER = 10.0  # a longer Retry-After gives up instead of holding the grid
 TRACK_ID = re.compile(r"[0-9A-Za-z]{22}")  # Spotify base-62 ID
 IMAGE_URL = re.compile(r"https://i\.scdn\.co/image/[0-9a-f]+")  # Spotify's image CDN
-MIN_COVER = 64  # px: the card shows the cover at 64 px
+MIN_COVER = 80  # px: the card shows the cover at 80 px
 sleep = asyncio.sleep  # tests swap this to skip and record the waits
 
 

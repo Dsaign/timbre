@@ -1,8 +1,8 @@
 import type { CSSProperties } from 'react'
 
 // The one source for the results layout: app/layout.tsx sets these as CSS variables on <body>,
-// and app/page.tsx, globals.css, GRID, the cards and the dock size themselves from those
-// variables, so N below always matches what CSS draws.
+// and components/searched-layout.tsx, globals.css, GRID, the cards and the dock size themselves
+// from those variables, so N below always matches what CSS draws.
 // After a search the page is a fixed 100dvh shell, top to bottom: the search bar (barHeight),
 // the scrolling cards area, the open Preview dock (dock), the footer (footer). Inside the cards
 // area: main's padding (mainPadY), the panel's padding (panel), the "N músicas encontradas" line
@@ -20,7 +20,7 @@ export const LAYOUT = {
   footer: { regular: 48, narrow: 56 },
   dock: { height: 80, gap: 8 }, // Spotify's smallest embed, and the space above it
   statusHeight: 24,
-  cardMinWidth: 288, // cover, title + thumbs, Preview + Spotify icon side by side
+  cardMinWidth: 320, // 80 px cover, title + thumbs, Preview + Spotify icon side by side
   cardHeight: 128,
   regular: { mainPadY: 16, panel: 24, gap: 16 },
   tight: { mainPadY: 8, panel: 12, gap: 12 }, // narrow or short screens
@@ -99,10 +99,11 @@ export function nextPageSize(offset: number, columns: number, rows: number) {
 
 /** The screen right now (browser only). The dock's state comes from PreviewPlayer. */
 export function currentScreen(dockOpen: boolean): Screen {
-  // Classic scrollbars take width; overlay ones (phones, macOS) measure 0.
+  // Classic scrollbars take width; overlay ones (phones, macOS) measure 0. Thin, like the
+  // cards area's (globals.css).
   const probe = document.createElement('div')
   probe.style.cssText =
-    'position:absolute;visibility:hidden;overflow:scroll;width:100px'
+    'position:absolute;visibility:hidden;overflow:scroll;width:100px;scrollbar-width:thin'
   document.body.append(probe)
   const scrollbar = probe.offsetWidth - probe.clientWidth
   probe.remove()

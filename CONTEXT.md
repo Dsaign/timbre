@@ -17,12 +17,20 @@ The full set of Songs timbre can return, built only from open music data, never 
 _Avoid_: Library, database, dataset
 
 **Fit**:
-How closely a Song suits a Description, as judged by timbre's model.
+How closely a Song suits a Description, as judged by timbre's model. After a name match, Fit is measured against the Description averaged with the named Songs, so the Description's own meaning always counts.
 _Avoid_: Similarity, score, relevance
 
 **Match**:
-A Song returned for a Description, for one of two reasons: its artist or title matches the Description by name, or its Fit passes the cutoff. When there are name matches, they come first and Fit is measured against them instead of the Description. After name matches, only the first 60 related Songs are Matches. The number of Matches is the count shown for a search.
+A Song returned for a Description, for one of three reasons: a name match, a Fit that passes the cutoff, or a tag that matches the Description and is among the Song's 3 most-voted tags. Name matches come first. The rest are ordered by fusing two rankings, by Fit and by tag, with the tag ranking counting more the more of the Description its tag covers. After name matches, only the first 60 related Songs are Matches. The number of Matches is the count shown for a search.
 _Avoid_: Result, recommendation, hit
+
+**Name match**:
+A Song whose whole main artist name (guests after "feat."/"ft." don't count), or whole title of two words or more, matches the Description, typos and accents allowed. One word of a longer name never matches.
+_Avoid_: Artist search, title search
+
+**Tag**:
+A genre or mood label on a Song, from open music data, most-voted first. A tag matches a Description when it appears in it as a phrase.
+_Avoid_: Genre, label, category
 
 **Popularity**:
 How widely a Song is listened to, taken from open listening data.
@@ -33,7 +41,7 @@ A visitor's vote that one Match does or does not fit the Description it was retu
 _Avoid_: Rating, review, like
 
 **Benchmark**:
-The fixed set of 100 Descriptions, each with the Songs that should be Matches, used to score the model. It is never used for training.
+The fixed set of 105 Descriptions, each with the Songs that should be Matches, used to score the model through the same search visitors get (name matches, tags and Fit). It is never used for training.
 _Avoid_: Test set, eval set, golden set
 
 **Preview**:

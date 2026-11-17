@@ -161,6 +161,30 @@ async def test_evaluate_scores_tunes_and_records_on_the_baseline(
 
 
 @pytest.mark.anyio
+async def test_a_name_match_without_a_vector_scores_as_not_found(
+    conn: psycopg.AsyncConnection,
+) -> None:
+    """The real search can name a Song that has no vector (so no Catalog index)."""
+    write_benchmark(benchmark.FILES[0], EXPECTED)
+    await benchmark.load(conn)
+    bench = await benchmark.read(conn)
+    assert bench is not None
+    await conn.execute(
+        "INSERT INTO catalog.songs (id, title, artist)"
+        " VALUES (%s, 'Untold', 'Quorvath Ensemble')",
+        ("00000000-0000-0000-0013-999999999998",),
+    )
+    named = benchmark.Benchmark(
+        ["Quorvath Ensemble"],
+        np.array([unit(0), unit(3)], dtype=np.float32),
+        [[bench.catalog.song_ids.index(song_id("X"))]],
+        bench.catalog,
+    )
+    # TOP is 1: the named Song fills it, so X is not found.
+    assert await benchmark.search_score(conn, BASELINE, named, 0.0, 0.0) == 0.0
+
+
+@pytest.mark.anyio
 async def test_load_refuses_a_description_with_fewer_than_3_songs(
     conn: psycopg.AsyncConnection,
 ) -> None:
@@ -245,14 +269,16 @@ async def search_sql(
     conn: psycopg.AsyncConnection, model: Model, query: list[float], n: int
 ) -> list[str]:
     """The IDs of SEARCH_SQL's first n Matches, with the promoted cutoff and weight."""
-    (model_id,) = await one(
-        conn, "SELECT id FROM catalog.model_versions WHERE promoted"
+    cutoff, weight = await one(
+        conn,
+        "SELECT cutoff, popularity_weight FROM catalog.model_versions WHERE promoted",
     )
     cur = await conn.execute(
         main.SEARCH_SQL,
         {
             **model.search_params(query),
-            "model": model_id,
+            "cutoff": cutoff,
+            "weight": weight,
             "n": n,
             "offset": 0,
             "description": "parity",

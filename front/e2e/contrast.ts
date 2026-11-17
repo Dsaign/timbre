@@ -78,19 +78,27 @@ export async function lowContrastText(page: Page) {
       for (const r of range.getClientRects())
         add(node.textContent, el, getComputedStyle(el).color, r)
     }
-    // Input text is no text node; its background is the padding box, not the (non-text) border.
+    // Input text is no text node. Its background is the content box, where the text is drawn:
+    // a rounded input's padding-box corners show its non-text gradient border.
     for (const input of document.querySelectorAll('input'))
       if ((input.value || input.placeholder) && input.checkVisibility()) {
         const border = input.getBoundingClientRect()
+        const cs = getComputedStyle(input)
+        const [top, right, bottom, left] = [
+          cs.paddingTop,
+          cs.paddingRight,
+          cs.paddingBottom,
+          cs.paddingLeft,
+        ].map(parseFloat)
         add(
           input.value || input.placeholder,
           input,
           getComputedStyle(input, input.value ? null : '::placeholder').color,
           new DOMRect(
-            border.left + input.clientLeft,
-            border.top + input.clientTop,
-            input.clientWidth,
-            input.clientHeight
+            border.left + input.clientLeft + left,
+            border.top + input.clientTop + top,
+            input.clientWidth - left - right,
+            input.clientHeight - top - bottom
           )
         )
       }

@@ -9,7 +9,7 @@ describe('pageSizeFor', () => {
     [390, 844, 1, 4],
     [768, 1024, 2, 10],
     [1440, 900, 4, 16],
-    [1280, 600, 4, 12], // short: tight padding and gaps
+    [1280, 600, 3, 9], // short: tight padding and gaps
   ])('%i×%i → %i columns, N = %i', (width, height, columns, n) => {
     expect(gridColumns({ width, height })).toBe(columns)
     expect(pageSizeFor({ width, height })).toBe(n)
@@ -26,12 +26,12 @@ describe('pageSizeFor', () => {
   })
 
   it("leaves room for the cards area's scrollbar", () => {
-    expect(gridColumns({ width: 1576, height: 900 })).toBe(5)
-    expect(gridColumns({ width: 1576, height: 900, scrollbar: 15 })).toBe(4)
+    expect(gridColumns({ width: 1736, height: 900 })).toBe(5)
+    expect(gridColumns({ width: 1736, height: 900, scrollbar: 15 })).toBe(4)
   })
 
   it('keeps adding columns on wide screens (no max width)', () => {
-    expect(gridColumns({ width: 2560, height: 1440 })).toBe(8)
+    expect(gridColumns({ width: 2560, height: 1440 })).toBe(7)
   })
 
   it('caps N at 60', () => {

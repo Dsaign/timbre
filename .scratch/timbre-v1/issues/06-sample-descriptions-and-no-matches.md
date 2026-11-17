@@ -4,7 +4,7 @@
 
 **Blocked by:** 04
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 - [x] The six owner-approved sample Descriptions, shown as clickable chips on the empty home page:
   1. violão calmo para estudar

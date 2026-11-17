@@ -169,8 +169,8 @@ export function ClosePreview() {
   return null
 }
 
-/** The 64 px box of a card's cover, its placeholder and its skeleton. */
-export const COVER_BOX = 'size-16 shrink-0 rounded-[4px]'
+/** The 80 px box of a card's cover, its placeholder and its skeleton. */
+export const COVER_BOX = 'size-20 shrink-0 rounded-[4px]'
 
 /** The Song's album cover from Spotify (shown as is: Spotify's artwork rules), or a placeholder. */
 export function PreviewCover({
@@ -188,8 +188,8 @@ export function PreviewCover({
       <Image
         src={src}
         alt=""
-        width={64}
-        height={64}
+        width={80}
+        height={80}
         unoptimized
         className={`${COVER_BOX} object-contain`}
       />
@@ -202,7 +202,7 @@ export function CoverPlaceholder() {
     <div
       className={`${COVER_BOX} grid place-items-center border border-zinc-300 bg-zinc-100 text-zinc-900 dark:border-zinc-600 dark:bg-zinc-900 dark:text-white`}
     >
-      <Music aria-hidden className="size-6" />
+      <Music aria-hidden className="size-7" />
     </div>
   )
 }
@@ -227,13 +227,14 @@ export function PreviewControls({
     playing.uri === `spotify:track:${trackId}` && !playing.paused
   return (
     <div className="flex items-center justify-between gap-2">
-      {/* The name starts with the visible text (WCAG 2.5.3), so it follows the state. */}
+      {/* The name starts with the visible text (WCAG 2.5.3), so it follows the state.
+          The card's main action: the brand gradient at rest too. after: a 44 px touch target. */}
       <Button
         type="button"
-        variant="secondary"
+        variant="brand"
         aria-label={`${playingThis ? 'Tocando' : 'Prévia de'} ${title}`}
         onClick={() => play(trackId)}
-        className="cursor-pointer rounded-md transition-colors hover:brand-gradient hover:text-zinc-900"
+        className="relative after:absolute after:-inset-y-1.5 after:inset-x-0"
       >
         {playingThis ? <Pause aria-hidden /> : <Play aria-hidden />}
         {playingThis ? 'Tocando' : 'Prévia'}

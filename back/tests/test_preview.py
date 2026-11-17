@@ -24,8 +24,8 @@ from timbre_back.db import conninfo
 API_URL = os.environ.get("API_URL", "http://api:8000")
 AUTH = {"Authorization": f"Bearer {os.environ['FRONT_TOKEN']}"}
 RECORDED = Path(__file__).with_name("spotify")
-# The smallest image of at least 64 px in the recorded album.images (640, 300, 64).
-COVER = "https://i.scdn.co/image/ab67616d00004851c07d5d2fdc02ae252fcd07e5"
+# The smallest image of at least 80 px in the recorded album.images (640, 300, 64).
+COVER = "https://i.scdn.co/image/ab67616d00001e02c07d5d2fdc02ae252fcd07e5"
 DYNAMITE = preview.Track("5QDLhrAOJJdNAmCTJ8xMyW", COVER)
 
 
@@ -244,21 +244,21 @@ async def test_cleanup_deletes_only_expired_rows() -> None:
     ("images", "expected"),
     [
         ([], None),
-        ([{"width": 32, "height": 32, "url": COVER}], None),  # too small
+        ([{"width": 64, "height": 64, "url": COVER}], None),  # too small
         ([{"width": None, "height": None, "url": COVER}], None),  # unknown size
         (
             [
                 {"width": 640, "height": 640, "url": COVER + "0"},
-                {"width": 64, "height": 64, "url": COVER},
-                {"width": 300, "height": 300, "url": COVER + "1"},
+                {"width": 64, "height": 64, "url": COVER + "1"},
+                {"width": 300, "height": 300, "url": COVER},
             ],
             COVER,
         ),
-        ([{"width": 64, "height": 64, "url": "https://evil.example/x.jpg"}], None),
+        ([{"width": 300, "height": 300, "url": "https://evil.example/x.jpg"}], None),
     ],
-    ids=["none", "too-small", "no-size", "smallest-64", "other-host"],
+    ids=["none", "too-small", "no-size", "smallest-80", "other-host"],
 )
-def test_album_image_is_the_smallest_trusted_cover_of_64_px(
+def test_album_image_is_the_smallest_trusted_cover_of_80_px(
     images: list[dict[str, object]], expected: str | None
 ) -> None:
     assert preview.album_image({"images": images}) == expected

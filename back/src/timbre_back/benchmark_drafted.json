@@ -644,5 +644,84 @@
       {"id": "7121c3e9-a122-4347-9780-041ae1fd14c4", "title": "Run Away With Me", "artist": "Carly Rae Jepsen"},
       {"id": "cac5b2b9-5fda-4856-b71a-31c94bb5da9d", "title": "Call Me Maybe", "artist": "Carly Rae Jepsen"}
     ]
+  },
+  {
+    "description": "rock",
+    "source": "drafted",
+    "reviewed": false,
+    "songs": [
+      {"id": "24cc8311-98fd-423a-bed1-97728f5eabc5", "title": "Seven Nation Army", "artist": "The White Stripes"},
+      {"id": "26bc1124-b228-401e-8f38-5cea1625d8c2", "title": "Misery Business", "artist": "Paramore"},
+      {"id": "a5741d3d-c925-4070-8a83-910d23eb33d4", "title": "I Will Follow You Into the Dark", "artist": "Death Cab for Cutie"},
+      {"id": "ffb3f2b6-460d-4334-8221-c4912df88972", "title": "The Pretender", "artist": "Foo Fighters"},
+      {"id": "b38f9ded-8ac3-409e-82c3-187495e4da47", "title": "When You Were Young", "artist": "The Killers"},
+      {"id": "60bd9d53-01ff-4562-8058-eb44b3940317", "title": "Everything in Its Right Place", "artist": "Radiohead"},
+      {"id": "29a9d792-151b-4dd4-99ae-25bc853d8895", "title": "House of Cards", "artist": "Radiohead"},
+      {"id": "0e11c0fd-a1da-4b88-a438-7ef55c5809ec", "title": "Time", "artist": "Pink Floyd"},
+      {"id": "b1a9c0e9-d987-4042-ae91-78d6a3267d69", "title": "Bohemian Rhapsody", "artist": "Queen"},
+      {"id": "0315c5fc-260e-48b9-a0d8-bc51c950b594", "title": "Plug In Baby", "artist": "Muse"}
+    ]
+  },
+  {
+    "description": "rap",
+    "source": "drafted",
+    "reviewed": false,
+    "songs": [
+      {"id": "94d26147-3932-4309-9995-3b5b49a91b70", "title": "Almost Famous", "artist": "Eminem"},
+      {"id": "f86e9809-9e3f-4fd7-90aa-9d4a9c57e6db", "title": "We Don’t Care", "artist": "Kanye West"},
+      {"id": "b4fda909-f3a7-4067-b259-1117622bf7e9", "title": "On Fire", "artist": "Eminem"},
+      {"id": "d3f9a8fa-e42a-4f70-94ce-17dc2c53e407", "title": "Seduction", "artist": "Eminem"},
+      {"id": "78bb8565-586f-401f-b999-092406e31e23", "title": "So Bad", "artist": "Eminem"},
+      {"id": "4016a862-db11-4a3f-8670-b630f86d88ec", "title": "The New Workout Plan", "artist": "Kanye West"},
+      {"id": "f08d57e0-1fb0-46d4-b6af-6de65377a6d0", "title": "Family Business", "artist": "Kanye West"},
+      {"id": "bf91133f-e0cd-4b0f-a940-ba7be12b75b9", "title": "Roses", "artist": "Kanye West"},
+      {"id": "9c911198-5d1f-421a-aa38-6463461051a3", "title": "You’re Never Over", "artist": "Eminem"},
+      {"id": "87e97751-df44-4669-8db9-8c20825e0775", "title": "Man on the Moon (The Anthem)", "artist": "Kid Cudi"}
+    ]
+  },
+  {
+    "description": "jazz",
+    "source": "drafted",
+    "reviewed": false,
+    "songs": [
+      {"id": "c24ca90a-314b-4cea-8345-bd65624ee776", "title": "In the Wee Small Hours of the Morning", "artist": "Frank Sinatra"},
+      {"id": "6b99030d-f06c-496e-9a0f-d6d009154690", "title": "I’ve Got the World on a String", "artist": "Frank Sinatra"},
+      {"id": "acada303-4727-4e89-911a-56a546be535e", "title": "My Kind of Town", "artist": "Frank Sinatra"},
+      {"id": "7aa5821b-4dea-46d3-b6bf-fdac0171be73", "title": "My Favorite Things", "artist": "OutKast"}
+    ]
+  },
+  {
+    "description": "love",
+    "source": "drafted",
+    "reviewed": false,
+    "songs": [
+      {"id": "40f04250-6d23-4f88-902c-94ef1a1dd3ed", "title": "Time Is Running Out", "artist": "Muse"},
+      {"id": "cf6af080-1bc0-4a82-90c9-0ecb7e9e4ec4", "title": "Undisclosed Desires", "artist": "Muse"},
+      {"id": "c1014fda-63d0-4496-8695-18d325cf3387", "title": "Unintended", "artist": "Muse"},
+      {"id": "eea564f4-4dc5-4115-adad-d03edb631e8c", "title": "Myth", "artist": "Beach House"},
+      {"id": "ff53b338-2e3d-4f2d-aa9e-5c100c79be3f", "title": "Bad Religion", "artist": "Frank Ocean"},
+      {"id": "29d6a30b-b911-475c-808c-8b289844ca75", "title": "Love the Way You Lie", "artist": "Eminem feat. Rihanna"},
+      {"id": "f1054d79-dcd6-4db0-9e2b-7d650dc51b28", "title": "That Should Be Me", "artist": "Justin Bieber"},
+      {"id": "4d7642a0-c36c-433f-9709-f6ff9a83eb11", "title": "Woman", "artist": "Doja Cat"},
+      {"id": "cc3f3c3d-aa63-4bad-9f4e-adfc1127d7fd", "title": "Love Yourself", "artist": "Justin Bieber"},
+      {"id": "032fe649-9177-48b0-9e14-08789a06bbc8", "title": "Bad Liar", "artist": "Imagine Dragons"}
+    ]
+  },
+  {
+    "description": "linkin park",
+    "source": "drafted",
+    "reviewed": false,
+    "songs": [
+      {"id": "9d70086c-5d7a-4e7f-b1ed-c53c4b11310f", "title": "In the End", "artist": "Linkin Park"},
+      {"id": "352dd518-23cd-4c5a-9551-ba02097b177b", "title": "Numb", "artist": "Linkin Park"},
+      {"id": "54a3c21c-5395-44a2-b90b-b7fab8095c20", "title": "Faint", "artist": "Linkin Park"},
+      {"id": "50347f42-2a40-4df6-b358-07f994af7a3f", "title": "What I’ve Done", "artist": "Linkin Park"},
+      {"id": "c46464b2-ee6e-448c-8d22-871b139a0e38", "title": "Breaking the Habit", "artist": "Linkin Park"},
+      {"id": "c6111171-bb92-4401-9053-f165863547f2", "title": "One Step Closer", "artist": "Linkin Park"},
+      {"id": "d342506d-8f07-4ed7-a06f-cfebd44be1dc", "title": "Somewhere I Belong", "artist": "Linkin Park"},
+      {"id": "9aa621e1-46f2-4c91-8111-741583985612", "title": "Papercut", "artist": "Linkin Park"},
+      {"id": "f401a492-38ed-4117-a294-2cedc7ab5189", "title": "Crawling", "artist": "Linkin Park"},
+      {"id": "36ae7941-b60f-4eb1-8391-d1e3e1eda72d", "title": "Leave Out All the Rest", "artist": "Linkin Park"}
+    ]
   }
 ]

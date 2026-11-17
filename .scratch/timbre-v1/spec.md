@@ -10,7 +10,7 @@ The project owner also has a second goal: to learn full-stack development and an
 
 ## Solution
 
-timbre is a single page. It shows a frosted-glass search panel over a subtle animated waveform made of particles. Before any search, it offers clickable sample Descriptions that show what it can do. The visitor types a Description and submits it. timbre shows how many Matches it found and a grid of Songs, sized to fill the visitor's screen, with "carregar mais" for the next page. Each card shows the title and artist, plus 👍/👎 Feedback. Songs that are available on Spotify also get a Preview button and a "LISTEN ON SPOTIFY" link. Preview plays in a single Spotify player docked at the bottom. The background responds to the visitor's own actions: typing, submitting, and starting or stopping a Preview. Light and Dark themes are available.
+timbre is a single page. It shows a frosted-glass search panel over a subtle animated waveform made of particles. Before any search, it offers clickable sample Descriptions that show what it can do. The visitor types a Description and submits it. timbre shows how many Matches it found and a grid of Songs, sized to fill the visitor's screen, with "carregar mais" for the next page. Each card shows the title and artist, plus 👍/👎 Feedback. Songs that are available on Spotify also get a Preview button and a Spotify icon link. Preview plays in a single Spotify player docked at the bottom. The background responds to the visitor's own actions: typing, submitting, and starting or stopping a Preview. Light and Dark themes are available.
 
 Behind the page, a Catalog of about 10k well-known Songs is built only from open data (MusicBrainz, AcousticBrainz, ListenBrainz). A pretrained multilingual text model gives the baseline Fit. The project's own model, a small layer trained on top of it, improves Fit using visitor Feedback. A new model goes live only if it does no worse on a fixed Benchmark of 100 Descriptions. Spotify is used for Preview only and never reaches any model (ADR 0001).
 
@@ -52,7 +52,7 @@ Behind the page, a Catalog of about 10k well-known Songs is built only from open
 26. As a visitor, I want a Preview button on a card only when that Song is available on Spotify, so that I'm never offered something that doesn't work.
 27. As a visitor, I want clicking Preview to play the Song in a single player docked at the bottom of the page, so that I can keep browsing while listening.
 28. As a visitor, I want starting a Preview on another card to switch the docked player to that Song, so that only one Song plays at a time.
-29. As a visitor, I want a "LISTEN ON SPOTIFY" link on cards whose Song is on Spotify, so that I can open the full track in Spotify.
+29. As a visitor, I want a Spotify icon link on cards whose Song is on Spotify, so that I can open the full track in Spotify.
 30. As a visitor, I want cards whose Song is not on Spotify to show neither Preview nor the Spotify link, so that the card stays honest.
 31. As a visitor, I want a temporary Spotify problem to simply hide the Preview button (and work again on a later search), so that one failure doesn't break the page.
 
@@ -179,7 +179,7 @@ Behind the page, a Catalog of about 10k well-known Songs is built only from open
 - Lookups happen for the Matches shown on each page of the grid: by ISRC first, then title plus artist, using the Client Credentials flow (no user login).
 - At most 4 lookups run at a time. On HTTP 429, honor `Retry-After` when present, otherwise exponential backoff with jitter (about 0.5 s, 1 s, 2 s), with at most 3 retries. After that the Song is "not available" for this request and is not cached.
 - Preview uses the Spotify Embed through the iFrame API, as one shared player docked at the bottom. The page listens only for its play and pause events. Playback position, duration, artwork and audio are never used to drive visuals.
-- The Spotify app stays in development mode. Branding follows Spotify's guidelines: the full logo at a minimum of 70 px, the wording "LISTEN ON SPOTIFY", and metadata shown unchanged.
+- The Spotify app stays in development mode. Branding follows Spotify's guidelines: cards have no room for the full logo, so they show the official Spotify icon at 21 px or larger, on a link to the track with the accessible name "Listen on Spotify: <title>" (allowed when there isn't room for the full logo, `docs/research/spotify-platform-terms.md`). Metadata is shown unchanged.
 
 ### Front end
 

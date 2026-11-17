@@ -4,7 +4,7 @@
 
 **Blocked by:** 04
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 - [ ] `next-themes` follows the system by default and has a Lucide sun/moon toggle. The choice is stored in local storage (no cookie), and there is no wrong-theme flash on load.
 - [ ] Real backdrop blur only on the search panel, the docked player surface (styled when ticket 07's player exists) and one shared panel behind the grid. Cards use a more opaque tint with little or no blur.

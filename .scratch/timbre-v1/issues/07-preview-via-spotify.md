@@ -4,7 +4,7 @@
 
 **Blocked by:** 04
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 - [x] The Spotify cache lives in the `preview` schema and is reached only through the API's `api_preview` connection pool. It stores the Song ID as a plain value with no foreign key.
 - [x] The Preview lookup endpoint takes up to 60 Song IDs and reports, for each one, a Spotify track reference or "not available".

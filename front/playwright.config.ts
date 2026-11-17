@@ -25,7 +25,7 @@ export default defineConfig({
   // CI runner: 4 vCPUs (default would be 2); one is left for next-server and the Compose stack.
   workers: process.env.CI ? 3 : undefined,
   reporter: process.env.CI ? 'github' : 'list',
-  // Reduced motion: no entrance fades or card stagger, so axe and the contrast check never
+  // Reduced motion: no entrance fades, so axe and the contrast check never
   // measure a half-faded element.
   use: { baseURL: 'http://localhost:3000', reducedMotion: 'reduce' },
   projects: [
