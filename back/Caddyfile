@@ -1,0 +1,8 @@
+# Production only (compose.prod.yaml). Caddy gets the TLS certificate for API_DOMAIN and
+# redirects HTTP to HTTPS by itself.
+{$API_DOMAIN} {
+	# No preload yet: hard to undo (ticket 16).
+	header Strict-Transport-Security "max-age=63072000; includeSubDomains"
+	header X-Content-Type-Options nosniff
+	reverse_proxy api:8000
+}
