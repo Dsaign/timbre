@@ -91,7 +91,7 @@ An interrupted import resumes after the last finished artist (or seed tag batch)
 
 ### Re-check the cutoff
 
-A Song is a Match when its Fit is above the promoted model's cutoff, in `catalog.model_versions` (row 1). It started at 0.835, picked on the seed in `back/migrations/20261029160000_vectors_jobs_model_versions.sql`; the evaluate job (see Benchmark) now tunes it. Check it again on the full Catalog. Wait until the import and build-vectors are done (`SELECT kind, status FROM jobs.queue WHERE status = 'queued'` returns nothing), then from `back/`:
+A Song is a Match when its Fit is above the promoted model's cutoff, in `catalog.model_versions` (the row with `promoted`). It started at 0.835, picked on the seed in `back/migrations/20261029160000_vectors_jobs_model_versions.sql`; the evaluate job (see Benchmark) now tunes it. Check it again on the full Catalog. Wait until the import and build-vectors are done (`SELECT kind, status FROM jobs.queue WHERE status = 'queued'` returns nothing), then from `back/`:
 
 ```bash
 docker compose -f compose.yaml -f compose.test.yaml run --rm tests \
@@ -115,9 +115,25 @@ docker compose exec worker python -m timbre_back.benchmark   # loads the files, 
 docker compose logs worker | grep evaluate                   # the report
 ```
 
-The score is the share of expected Songs in the top 24 Matches, averaged over Descriptions. The job also tunes the cutoff (0.005 grid, only cutoffs at least 0.005 above the best Fit of the nonsense string `xkqzv wplmr tjhgf`, so it keeps 0 Matches; ties to the highest) and the Popularity weight (0 to 0.05 in 0.005 steps, ties to the lowest), and records the score, cutoff and weight on the promoted model version (today version 1, the baseline). With no Song vectorized yet it logs that it skipped and changes nothing. The new cutoff and weight are live at once. A Song ID missing from the Catalog, or a Description with fewer than 3 Songs, stops the load with an error. Training must never read the Benchmark (ticket 15).
+The score is the share of expected Songs in the top 24 Matches, averaged over Descriptions. The job also tunes the cutoff (0.005 grid, only cutoffs at least 0.005 above the best Fit of the nonsense string `xkqzv wplmr tjhgf`, so it keeps 0 Matches; ties to the highest) and the Popularity weight (0 to 0.05 in 0.005 steps, ties to the lowest), and records the score, cutoff and weight on the promoted model version. With no Song vectorized yet it logs that it skipped and changes nothing. The new cutoff and weight are live at once. A Song ID missing from the Catalog, or a Description with fewer than 3 Songs, stops the load with an error. Training never learns from it (see Own model).
 
 Baseline (multilingual-e5-small) on the full Benchmark of 100, on the 10,000-Song Catalog (2026-11-16): score 0.112, cutoff 0.830, Popularity weight 0.050.
+
+## Own model
+
+The train job trains a model version on top of the frozen multilingual-e5-small, on CPU: a projection of the Description vector, and a head that predicts the Song's AcousticBrainz labels (`catalog.songs.labels`). Fit is 0.8 × the cosine of the projected Description with the Song vector + 0.2 × (1 − mean label difference); see `back/src/timbre_back/model.py`. Both layers are ridge regressions, then a hinge loss on CPU moves each 👎 Song's Fit at least 0.05 below the 👍 Songs of the same Description; a run takes seconds.
+
+It learns from `back/src/timbre_back/training_drafted.json` (Descriptions with Songs drafted by Bob from Catalog tags and labels, same format as the Benchmark files without `source`/`reviewed`) and from Feedback: 👍 Songs are positives, 👎 Songs are hard negatives. Any Description that is a Benchmark Description, or within e5 cosine 0.92 of one, is left out. Then it scores the new version on the Benchmark (tuning cutoff and weight as evaluate does), scores the promoted version the same way, records the new version with its file on the `models` volume, and promotes it if its score is not lower. Version ids come from a sequence, so two runs never share a file. The API reads the promoted version on every search, so a promotion is live at once, without a restart; if its file is missing, the API logs it once and searches with the baseline (version 1: plain e5, its cutoff and weight).
+
+```bash
+docker compose up -d --build worker                       # picks up an edited training file
+docker compose exec worker python -m timbre_back.train    # queues the train job
+docker compose logs worker | grep train:                  # the report
+```
+
+To go back to an earlier version, move `promoted` in one transaction (`UPDATE catalog.model_versions SET promoted = false; UPDATE catalog.model_versions SET promoted = true WHERE id = <id>;`).
+
+First run (2026-11-16, 96 Descriptions after excluding 34 near the Benchmark, 10,000-Song Catalog): version 2 scores 0.125 at cutoff 0.905 and weight 0.050, against the baseline's 0.112. Promoted. A re-run with the hinge (version 17; ids skipped by tests) scores the same 0.125 and, not being worse, is promoted.
 
 ## Change the API
 

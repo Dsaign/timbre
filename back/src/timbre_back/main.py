@@ -1,9 +1,11 @@
 import asyncio
+import logging
 import os
 import secrets
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from datetime import timedelta
+from functools import lru_cache
 from ipaddress import IPv4Address, IPv6Address
 from typing import Annotated, Any, Literal
 from uuid import UUID
@@ -26,7 +28,7 @@ from psycopg_pool import AsyncConnectionPool
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
-from timbre_back.db import conninfo, vector_literal
+from timbre_back.db import conninfo
 from timbre_back.embed import embed_query
 from timbre_back.feedback import (
     Vote,
@@ -36,6 +38,8 @@ from timbre_back.feedback import (
     normalize,
     record,
 )
+from timbre_back.model import BASELINE, Model
+from timbre_back.model import load as load_model
 from timbre_back.preview import Spotify, delete_expired_daily, lookup
 from timbre_back.ratelimit import forget_old_hits_daily, over_limit
 
@@ -47,6 +51,7 @@ VOTE_LIMIT_PER_HOUR = int(os.environ.get("VOTE_LIMIT_PER_HOUR") or 60)
 MAX_BODY_BYTES = 16 * 1024
 
 bearer = HTTPBearer(auto_error=False)
+log = logging.getLogger("timbre.api")
 
 
 async def require_front_token(
@@ -148,25 +153,40 @@ class SearchResult(BaseModel):
     matches: list[Match]
 
 
+# Fit from a row's cosine, labels and target_labels, as model.Model.fit: the head
+# counts only when both label vectors exist.
+FIT_SQL = """coalesce(
+    (1 - %(head_weight)s) * cosine
+      + %(head_weight)s * (1 - (labels <+> target_labels) / vector_dims(labels)),
+    cosine
+  )"""
+
 # Titles need a whole-string match: they are everyday words. Related Songs are capped
 # at 60: Song-to-Song Fit passes the cutoff for almost the whole Catalog.
 SEARCH_SQL = """
 WITH model AS (
-  SELECT cutoff, popularity_weight FROM catalog.model_versions WHERE promoted
+  SELECT cutoff, popularity_weight FROM catalog.model_versions WHERE id = %(model)s
 ), named AS (
-  SELECT id, title, artist, listens, vector
+  SELECT id, title, artist, listens, vector, labels
   FROM catalog.songs, (SELECT catalog.unaccented(%(description)s) AS q) d
   WHERE q <<%% catalog.unaccented(artist)
       AND strict_word_similarity(q, catalog.unaccented(artist)) >= 0.55
     OR catalog.unaccented(title) %% q
       AND similarity(catalog.unaccented(title), q) >= 0.7
-), fit AS (
-  SELECT id, title, artist, listens,
+), cosine AS (
+  SELECT id, title, artist, listens, labels,
     1 - (vector <=> CASE WHEN EXISTS (SELECT FROM named)
       THEN (SELECT avg(vector) FROM named WHERE vector IS NOT NULL)
       ELSE %(vector)s::vector
-    END) AS fit
+    END) AS cosine,
+    CASE WHEN EXISTS (SELECT FROM named)
+      THEN (SELECT avg(labels) FROM named WHERE labels IS NOT NULL)
+      ELSE %(labels)s::vector
+    END AS target_labels
   FROM catalog.songs WHERE vector IS NOT NULL AND id NOT IN (SELECT id FROM named)
+), fit AS (
+  SELECT id, title, artist, listens, {fit} AS fit
+  FROM cosine
 ), matches AS (
   SELECT id, title, artist, 0 AS part, listens::float8 AS rank FROM named
   UNION ALL
@@ -191,7 +211,7 @@ SELECT
     LEFT JOIN feedback.votes v ON v.song_id = page.id
       AND v.description = %(description)s AND v.visitor_hash = %(visitor)s
   ), '[]')
-"""
+""".replace("{fit}", FIT_SQL)
 
 
 class FeedbackRequest(BaseModel):
@@ -231,6 +251,25 @@ TOO_MANY: dict[int | str, dict[str, Any]] = {
 }
 
 
+BASELINE_VERSION = 1  # the plain e5 model version, with no file
+
+
+def promoted_model(model_id: int | None, file: str | None) -> tuple[int | None, Model]:
+    """The version to search with and its model (cached after the first load). If
+    the promoted version's file is missing, the baseline version instead, cutoff
+    and weight included, so search keeps working; the error is logged."""
+    try:
+        return model_id, load_model(file)
+    except FileNotFoundError:
+        log_missing(file)
+        return BASELINE_VERSION, BASELINE
+
+
+@lru_cache(maxsize=8)  # logs each missing file once (bounded: at most 8 remembered)
+def log_missing(file: str | None) -> None:
+    log.error("promoted model file %s is missing: searching with the baseline", file)
+
+
 @router.get("/search", dependencies=[Depends(limit_searches)], responses=TOO_MANY)
 async def search(
     params: Annotated[SearchParams, Query()], visitor: Visitor, request: Request
@@ -239,10 +278,17 @@ async def search(
     pool: AsyncConnectionPool = request.app.state.search_pool
     async with pool.connection() as conn:
         await as_visitor(conn, visitor)
+        # Read per search, so a newly promoted version is live without a restart.
+        cur = await conn.execute(
+            "SELECT id, file FROM catalog.model_versions WHERE promoted"
+        )
+        model_id, file = await cur.fetchone() or (None, None)  # none: no Fit Matches
+        model_id, model = await run_in_threadpool(promoted_model, model_id, file)
         cur = await conn.execute(
             SEARCH_SQL,
             {
-                "vector": vector_literal(vector),
+                **model.search_params(vector),
+                "model": model_id,
                 "n": params.n,
                 "offset": params.offset,
                 "description": normalize(params.q),

@@ -16,9 +16,11 @@ import numpy as np
 import psycopg
 import pytest
 
-from timbre_back import benchmark
+from timbre_back import benchmark, main
+from timbre_back import model as models
 from timbre_back.db import conninfo, vector_literal
 from timbre_back.embed import embed_query
+from timbre_back.model import BASELINE, Model
 
 API_URL = os.environ.get("API_URL", "http://api:8000")
 AUTH = {
@@ -83,8 +85,10 @@ def at_fit(query: np.ndarray, fit: float, seed: int) -> list[float]:
 
 @pytest.fixture
 def placed_songs() -> Iterator[dict[str, UUID]]:
-    """Songs placed at a known Fit from DESCRIPTION, with no or the most listens."""
-    query = np.array(embed_query(DESCRIPTION))
+    """Songs placed at a known Fit from DESCRIPTION, with no or the most listens.
+    They have no labels, so their Fit is the cosine with the projected Description."""
+    projected, _ = promoted_model().project(np.array([embed_query(DESCRIPTION)]))
+    query = projected[0].astype(np.float64)
     with psycopg.connect(conninfo("ml_worker"), autocommit=True) as conn:
         model_row = conn.execute(
             "SELECT cutoff, popularity_weight FROM catalog.model_versions"
@@ -133,27 +137,40 @@ def test_order_is_fit_plus_a_small_popularity_weight(
     assert placed_songs["below_cutoff_popular"] not in ids
 
 
-# Search as it was before name matching: Matches by Fit alone.
+# Search as it was before name matching: Matches by Fit alone, SEARCH_SQL's FIT_SQL.
 FIT_RANKING_SQL = """
 WITH m AS (
   SELECT cutoff, popularity_weight AS w FROM catalog.model_versions WHERE promoted
-), f AS (
-  SELECT id, listens, 1 - (vector <=> %s::vector) AS fit
+), c AS (
+  SELECT id, listens, labels, 1 - (vector <=> %(vector)s::vector) AS cosine,
+    %(labels)s::vector AS target_labels
   FROM catalog.songs WHERE vector IS NOT NULL
+), f AS (
+  SELECT id, listens, {fit} AS fit FROM c
 )
 SELECT coalesce(array_agg(id ORDER BY fit + w * coalesce(
   ln(1 + listens) / nullif(ln(1 + (SELECT max(listens) FROM catalog.songs)), 0), 0
 ) DESC, id), '{}')
 FROM f, m WHERE fit > cutoff
-"""
+""".replace("{fit}", main.FIT_SQL)
+
+
+def promoted_model() -> Model:
+    with psycopg.connect(conninfo("ml_worker")) as conn:
+        (file,) = conn.execute(
+            "SELECT file FROM catalog.model_versions WHERE promoted"
+        ).fetchone() or (None,)
+    return models.load(file)
 
 
 def fit_ranking(description: str) -> list[UUID]:
-    """Every Fit-based Match for the Description, in order."""
+    """Every Fit-based Match for the Description, in order, by the promoted model."""
+    return ranking(promoted_model().search_params(embed_query(description)))
+
+
+def ranking(params: dict[str, object]) -> list[UUID]:
     with psycopg.connect(conninfo("ml_worker")) as conn:
-        row = conn.execute(
-            FIT_RANKING_SQL, (vector_literal(embed_query(description)),)
-        ).fetchone()
+        row = conn.execute(FIT_RANKING_SQL, params).fetchone()
     assert row is not None
     return list(row[0])
 
@@ -171,15 +188,29 @@ def test_feel_descriptions_pick_up_no_name_matches(description: str) -> None:
     assert [UUID(m["id"]) for m in body["matches"]] == expected[:60]
 
 
-# The named Songs sound like it, so their related Songs are its Matches.
-RELATED = SAMPLES[5]
 CAP = 60  # related Songs after name matches
+
+
+def related_vector() -> list[float]:
+    """The named Songs sound like a real Song, so its related Songs are their
+    Matches. A Song vector, as Song-to-Song Fit runs high across the Catalog."""
+    with psycopg.connect(conninfo("ml_worker")) as conn:
+        (vector,) = conn.execute(
+            "SELECT vector::text FROM catalog.songs WHERE vector IS NOT NULL"
+            " ORDER BY id LIMIT 1"
+        ).fetchone() or ("[]",)
+    return list(json.loads(vector))
+
+
+def related_ranking() -> list[UUID]:
+    """The Songs related to the named Songs, in order: cosine with their vector."""
+    return ranking(BASELINE.search_params(related_vector()))
 
 
 @pytest.fixture
 def named_songs() -> Iterator[list[UUID]]:
     """Songs by an accented, made-up artist, most listens first."""
-    vector = vector_literal(embed_query(RELATED))
+    vector = vector_literal(related_vector())
     songs = [
         ("Pelagic Hum", 500),
         ("Quiet Lantern", 50),
@@ -206,14 +237,14 @@ def test_artist_songs_come_first_then_songs_like_them(
     named_songs: list[UUID], q: str
 ) -> None:
     ids = all_ids(q)
-    related = [i for i in fit_ranking(RELATED) if i not in named_songs]
+    related = [i for i in related_ranking() if i not in named_songs]
     assert related, "the related part should not be empty"
     assert ids == named_songs + related[:CAP]
 
 
 def test_song_title_comes_first(named_songs: list[UUID]) -> None:
     ids = all_ids("vellichor marmalade harbour")
-    related = [i for i in fit_ranking(RELATED) if i != named_songs[2]]
+    related = [i for i in related_ranking() if i != named_songs[2]]
     assert ids == [named_songs[2], *related[:CAP]]
 
 

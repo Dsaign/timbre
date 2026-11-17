@@ -18,13 +18,16 @@ from collections.abc import AsyncIterator
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import psycopg
 import pytest
+from psycopg.types.json import Jsonb
 
 from timbre_back import benchmark, main, worker
 from timbre_back.db import conninfo, vector_literal
+from timbre_back.model import BASELINE, DIMS, LABELS, Model
+from timbre_back.profile import WORDS
 
-DIMS = 384
 AXES = {"A": 0, "B": 1, "C": 2, benchmark.NONSENSE: 3}
 # name: (axes, Fit with their sum, listens)
 SONGS = {
@@ -101,6 +104,11 @@ async def conn(
         async with conn.transaction(force_rollback=True):
             await conn.execute("DELETE FROM catalog.benchmark_descriptions")
             await conn.execute("DELETE FROM catalog.songs")
+            # The fixture's Fits are the baseline's (plain e5 cosine).
+            await conn.execute("UPDATE catalog.model_versions SET promoted = false")
+            await conn.execute(
+                "UPDATE catalog.model_versions SET promoted = true WHERE id = 1"
+            )
             async with conn.cursor() as cur:
                 await cur.executemany(
                     "INSERT INTO catalog.songs (id, title, artist, listens, vector)"
@@ -219,20 +227,9 @@ async def test_ranking_matches_search_sql(
         (cutoff, weight),
     )
     query = [(a + b) / math.sqrt(2) for a, b in zip(unit(0), unit(1), strict=True)]
-    cur = await conn.execute(
-        main.SEARCH_SQL,
-        {
-            "vector": vector_literal(query),
-            "n": n,
-            "offset": 0,
-            "description": "parity",
-            "visitor": "parity",
-        },
-    )
-    _, matches = await cur.fetchone() or (0, [])
-    sql_top = [m["id"] for m in matches]
+    sql_top = await search_sql(conn, BASELINE, query, n)
 
-    song_ids, vectors, popularity = await benchmark.catalog_arrays(conn)
+    song_ids, vectors, _, popularity = await benchmark.catalog_arrays(conn)
     fit = (vectors @ query)[None, :].astype("float32")
     monkeypatch.setattr(benchmark, "TOP", n)
     in_sql = [song_ids.index(i) for i in sql_top]
@@ -242,6 +239,67 @@ async def test_ranking_matches_search_sql(
     rows = fit.repeat(len(others), axis=0)  # one row per expected list
     assert benchmark.score(rows, popularity, others, cutoff, weight) == 0.0
     assert len(sql_top) == min(n, 5)
+
+
+async def search_sql(
+    conn: psycopg.AsyncConnection, model: Model, query: list[float], n: int
+) -> list[str]:
+    """The IDs of SEARCH_SQL's first n Matches, with the promoted cutoff and weight."""
+    (model_id,) = await one(
+        conn, "SELECT id FROM catalog.model_versions WHERE promoted"
+    )
+    cur = await conn.execute(
+        main.SEARCH_SQL,
+        {
+            **model.search_params(query),
+            "model": model_id,
+            "n": n,
+            "offset": 0,
+            "description": "parity",
+            "visitor": "parity",
+        },
+    )
+    _, matches = await cur.fetchone() or (0, [])
+    return [m["id"] for m in matches]
+
+
+@pytest.mark.anyio
+async def test_trained_model_fit_matches_search_sql(
+    conn: psycopg.AsyncConnection,
+) -> None:
+    """A model with a projection and a head ranks the same in Python and SEARCH_SQL,
+    a Song without labels (Z) included."""
+    rng = np.random.default_rng(15)
+    projection = np.eye(DIMS) + rng.normal(0, 0.05, (DIMS, DIMS))
+    head = rng.normal(0, 0.5, (DIMS, LABELS))
+    model = Model(
+        projection.astype(np.float32),
+        head.astype(np.float32),
+        np.full(LABELS, 0.5, dtype=np.float32),
+        0.3,
+    )
+    await conn.execute(
+        "UPDATE catalog.model_versions SET cutoff = 0, popularity_weight = 0.02"
+        " WHERE promoted"
+    )
+    for name in SONGS:
+        if name != "Z":
+            values = rng.uniform(0, 1, LABELS).round(3).tolist()
+            acousticbrainz: dict[str, dict[str, float]] = {}
+            for (classifier, label), value in zip(WORDS, values, strict=True):
+                acousticbrainz.setdefault(classifier, {})[label] = value
+            await conn.execute(
+                "UPDATE catalog.songs SET acousticbrainz = %s WHERE id = %s",
+                (Jsonb(acousticbrainz), song_id(name)),
+            )
+    query = [(a + b) / math.sqrt(2) for a, b in zip(unit(0), unit(1), strict=True)]
+    sql_top = await search_sql(conn, model, query, len(SONGS))
+
+    song_ids, vectors, labels, popularity = await benchmark.catalog_arrays(conn)
+    fit = model.fit(np.array([query], dtype=np.float32), vectors, labels)[0]
+    rank = fit + 0.02 * popularity
+    assert [song_ids[i] for i in np.argsort(-rank)] == sql_top
+    assert np.isnan(labels[song_ids.index(song_id("Z"))]).all()
 
 
 @pytest.mark.anyio
