@@ -29,7 +29,8 @@ export function SampleDescriptions() {
           <Button
             asChild
             variant="secondary"
-            className="h-auto rounded-full px-3 py-1.5 whitespace-normal"
+            // Tinted in the brand palette, opaque so the text stays AA over the waveform.
+            className="h-auto rounded-full border-indigo-200 bg-indigo-50 px-3 py-1.5 whitespace-normal text-indigo-950 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950 dark:text-indigo-50 dark:hover:bg-indigo-900"
           >
             {/* Without JavaScript the plain href still searches, with N = 24. */}
             <a

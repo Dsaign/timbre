@@ -4,7 +4,7 @@
 
 **Blocked by:** 14, 08
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 - [x] Bob drafts the initial training pairs (Description, Song) offline, as a committed file. Training also reads Feedback: 👍 are positives and 👎 are hard negatives.
 - [x] Training excludes every Benchmark Description and Benchmark expected pair, and any Description with e5 cosine ≥ 0.92 to a Benchmark Description.

@@ -39,6 +39,7 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  --font-display: var(--font-bricolage);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -150,22 +151,25 @@
   }
 }
 
-/* A 1px gradient border that leaves the panel's own background see-through. */
+/* A 1px gradient border that leaves the panel's own background see-through. The ring is a real
+   (transparent) border showing the gradient, so it is pixel-snapped like any border: a masked
+   1px padding is not, and on a box at a fractional position its edges come out uneven. */
 @utility gradient-border {
   position: relative;
   &::before {
     content: '';
     position: absolute;
     inset: 0;
-    padding: 1px;
+    border: 1px solid transparent;
     border-radius: inherit;
     background: linear-gradient(
-      var(--angle),
-      var(--color-indigo-800),
-      var(--color-mauve-500)
-    );
+        var(--angle),
+        var(--color-indigo-800),
+        var(--color-mauve-500)
+      )
+      border-box;
     mask:
-      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0) padding-box exclude,
       linear-gradient(#000 0 0);
     pointer-events: none;
     opacity: 0.5;
@@ -182,10 +186,11 @@
   );
 }
 
-/* With gradient-border: the border shows only on hover, turning slowly while hovered.
+/* With gradient-border: a 2px border that shows only on hover, turning slowly while hovered.
    It fades in quickly and out slowly; reduced motion keeps the fade, not the turn. */
 @utility gradient-border-hover {
   &&::before {
+    border-width: 2px;
     opacity: 0;
     transition: opacity 700ms ease-out;
     animation: border-turn 8s linear infinite paused;
@@ -202,26 +207,12 @@
   }
 }
 
-/* A card's cover appears at once when its card has finished entering (--card-entered, set in
-   match-grid.tsx): Spotify artwork is never animated. Reduced motion: no entrance, no wait. */
-@keyframes appear {
-  from {
-    visibility: hidden;
-  }
-}
-@utility after-card-enter {
-  @media (prefers-reduced-motion: no-preference) {
-    animation: appear 0s var(--card-entered, 0s) both;
-  }
-}
-
 /* Entrance: the UI waits for the waveform's first frame (html[data-ui=ready], set by
    waveform-background.tsx, which also gives up after ~1 s), then fades in top to bottom,
    one --enter-step apart, each over --enter-fade (lib/entrance.ts). Only with scripting, so
    the page is never blank without JavaScript; reduced motion shows everything at once.
-   data-ui=done: elements mounted later just appear. Animations inside a step (the cards'
-   stagger, a cover's wait) hold until the entrance starts, then start with their step
-   (--enter-offset, read by match-grid.tsx). */
+   data-ui=done: elements mounted later just appear. The result cards enter with their step,
+   all together. */
 @keyframes ui-enter {
   from {
     opacity: 0;
@@ -231,9 +222,6 @@
 @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
   html:not([data-ui]) [data-enter] {
     opacity: 0;
-  }
-  html:not([data-ui]) [data-enter] * {
-    animation-play-state: paused;
   }
   html[data-ui='ready'] [data-enter] {
     animation: ui-enter var(--enter-fade) cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -247,15 +235,22 @@
   html[data-ui='ready'] [data-enter='4'] {
     animation-delay: calc(3 * var(--enter-step));
   }
-  /* Kept once done too: changing a running animation's delay would make it jump. */
-  html[data-ui] [data-enter='2'] {
-    --enter-offset: var(--enter-step);
+  /* Spotify artwork is never animated: a cover shows once the entrance is over. */
+  html:not([data-ui='done']) [data-cover] {
+    visibility: hidden;
   }
 }
 
-/* The fixed app shell's footer (main[data-shell], app/page.tsx): no padding, one line of
-   credits (two when narrow) at the least heights lib/grid.ts counts (LAYOUT.footer). It grows
-   instead of clipping if the credits need more room; lib/grid.ts then measures it. */
+/* The cards area's scrollbar, from the theme tokens. lib/grid.ts measures the thin width. */
+main[data-shell] {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--field-start) 45%, transparent)
+    transparent;
+}
+
+/* The fixed app shell's footer (main[data-shell], components/searched-layout.tsx): no padding,
+   one line of credits (two when narrow) at the least heights lib/grid.ts counts (LAYOUT.footer).
+   It grows instead of clipping if the credits need more room; lib/grid.ts then measures it. */
 body:has(main[data-shell]) > footer {
   flex-shrink: 0;
   flex-wrap: nowrap;

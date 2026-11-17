@@ -4,7 +4,7 @@
 
 **Blocked by:** 04
 
-**Status:** ready-for-human
+**Status:** resolved
 
 - [x] On submit, client code measures how many cards fit (columns × visible rows) and adds `n` to the URL. Without JavaScript, `n` is 24. The server caps `n` at 60.
 - [x] The URL holds only `q` and `n`. "Carregar mais" adds the next page without changing the URL, and a reload or shared link shows page 1.

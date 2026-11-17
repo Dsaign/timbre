@@ -4,7 +4,7 @@
 
 **Blocked by:** 07, 10
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 - [ ] Raw WebGL2, with no 3D library. A ribbon of roughly 20–40k points is shaped by waves in a vertex shader. Depth of field is faked with point size and transparency by depth, plus a few drifting bokeh sprites. It stays low in contrast in both themes.
 - [ ] All colours come from one palette configuration, per theme and per state, derived from the app's theme colours (Light and Dark), not from the reference image. The reference image sets only the shape and feel. The look changes by editing that one place.

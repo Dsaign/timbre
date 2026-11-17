@@ -4,6 +4,7 @@ import { ThumbsDown, ThumbsUp } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { sendVote } from '@/app/actions'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { VOTE_FAILED } from '@/lib/feedback'
 
 type Vote = 'up' | 'down' | null
@@ -48,7 +49,7 @@ export function FeedbackButtons({
   }
 
   return (
-    <div className="relative flex shrink-0 gap-1">
+    <div className="relative flex shrink-0 gap-2">
       {(
         [
           ['up', ThumbsUp, `Combina: ${title}`],
@@ -65,9 +66,13 @@ export function FeedbackButtons({
           // aria-disabled, not disabled: the focused thumb keeps keyboard focus meanwhile
           aria-disabled={pending}
           onClick={() => press(thumb)}
-          className="cursor-pointer rounded-md text-muted-foreground hover:bg-foreground/10 hover:text-foreground aria-pressed:bg-foreground/15 aria-pressed:text-foreground aria-disabled:cursor-wait aria-disabled:opacity-50"
+          // Quiet: small muted icons. after: a 44 px touch target (36 + 2 × 4; gap-2 keeps them apart).
+          className="relative cursor-pointer rounded-md text-muted-foreground after:absolute after:-inset-1 hover:bg-foreground/10 hover:text-foreground aria-pressed:bg-foreground/15 aria-pressed:text-foreground aria-disabled:cursor-wait aria-disabled:opacity-50"
         >
-          <Icon aria-hidden className={vote === thumb ? 'fill-current' : ''} />
+          <Icon
+            aria-hidden
+            className={cn('size-3.5', vote === thumb && 'fill-current')}
+          />
         </Button>
       ))}
       {/* Always rendered, so screen readers announce the message when it appears. */}

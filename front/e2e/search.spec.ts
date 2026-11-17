@@ -80,7 +80,9 @@ test('no Matches offers sample Descriptions; a sample searches in one click', as
   page,
 }) => {
   await search(page, 'qzxjvkwpfhgtbnmlrd')
-  await expect(page.getByRole('status')).toHaveText('Nenhuma música encontrada')
+  await expect(page.getByRole('status')).toHaveText(
+    'Nenhuma música encontrada. Tente descrever o clima ou os instrumentos, ou use um exemplo:'
+  )
 
   await page
     .getByRole('link', { name: 'violão calmo para estudar', exact: true })
@@ -90,6 +92,52 @@ test('no Matches offers sample Descriptions; a sample searches in one click', as
     /^\d+ músicas? encontradas?$/
   )
   await expect(cardsOf(page).first()).toBeVisible()
+})
+
+test.describe('with motion', () => {
+  test.use({ reducedMotion: 'no-preference' })
+
+  test('from the home page the search is sent only once the morph has finished', async ({
+    page,
+  }) => {
+    // Records when each view transition finishes (performance.now(), like resource timings).
+    await page.addInitScript(() => {
+      const start = document.startViewTransition?.bind(document)
+      if (!start) return
+      document.startViewTransition = (update) => {
+        const transition = start(update)
+        transition.finished.finally(() => {
+          ;(window as unknown as { morphDone: number }).morphDone =
+            performance.now()
+        })
+        return transition
+      }
+    })
+    await page.goto('/', { waitUntil: 'networkidle' })
+    test.skip(
+      !(await page.evaluate(() => 'startViewTransition' in document)),
+      'no View Transitions: the search is sent at once'
+    )
+    await textbox(page).fill(DESCRIPTION)
+    await page.getByRole('button', { name: 'Pesquisar' }).click()
+    await expect(page.getByRole('status')).toHaveText(
+      /^\d+ músicas? encontradas?$/
+    )
+    // The results URL's request (its server render calls back's search). A resource timing
+    // appears once its streamed body ends, so wait for it.
+    const timings = () =>
+      page.evaluate(() => ({
+        morphDone: (window as unknown as { morphDone?: number }).morphDone,
+        searchSent: performance
+          .getEntriesByType('resource')
+          .find((entry) => new URL(entry.name).searchParams.has('q'))
+          ?.startTime,
+      }))
+    await expect.poll(async () => (await timings()).searchSent).toBeDefined()
+    const { morphDone, searchSent } = await timings()
+    expect(morphDone).toBeDefined()
+    expect(searchSent).toBeGreaterThanOrEqual(morphDone!)
+  })
 })
 
 test.describe('without JavaScript', () => {
