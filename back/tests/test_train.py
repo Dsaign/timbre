@@ -418,17 +418,23 @@ def test_the_api_switches_to_a_newly_promoted_version_without_a_restart() -> Non
     """A version that projects the Description onto one Song puts it first, on the
     running API, as soon as it is promoted; promoting the old one back undoes it."""
     with psycopg.connect(conninfo("ml_worker")) as conn:
-        target, target_vector = conn.execute(
-            "SELECT id::text, vector::text FROM catalog.songs"
-            " WHERE vector IS NOT NULL AND id <> %s ORDER BY id LIMIT 1",
+        # Songs with the same profile share a vector (Fit 1.0 too), so the target has
+        # its own; Popularity weight 0 below keeps a popular near-twin from winning.
+        target, target_vector, cutoff = conn.execute(
+            "SELECT s.id::text, s.vector::text, m.cutoff"
+            " FROM catalog.songs s, catalog.model_versions m"
+            " WHERE m.promoted AND s.vector IS NOT NULL AND s.id <> %s"
+            " AND NOT EXISTS (SELECT FROM catalog.songs o"
+            "   WHERE o.id <> s.id AND o.vector = s.vector)"
+            " ORDER BY s.id LIMIT 1",
             (first_match(),),
-        ).fetchone() or ("", "[]")
+        ).fetchone() or ("", "[]", 0.0)
     description = np.array(embed_query(SWAP), dtype=np.float32)
     projection = np.outer(description, json.loads(target_vector)).astype(np.float32)
     file = f"test-{uuid4().hex}.npz"  # new each run: the API caches by file name
     models.BASELINE._replace(projection=projection).save(file)
     try:
-        with promoted_version(file):
+        with promoted_version(file, (cutoff, 0.0)):
             assert first_match() == target
         assert first_match() != target
     finally:
