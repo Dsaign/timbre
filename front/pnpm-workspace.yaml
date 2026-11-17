@@ -7,3 +7,6 @@ auditConfig:
     # minimatch <11.0.1 ReDoS, dev tools only (eslint 9, redocly, shadcn) and no patched 3.x/5.x.
     # Remove once eslint and redocly depend on minimatch >=11.0.1.
     - GHSA-g3hv-75wg-m249
+    # picomatch <=4.0.7 ReDoS, dev tools only (eslint-config-next, shadcn via fast-glob/micromatch).
+    # No patched version yet: remove once a patched picomatch ships.
+    - GHSA-fc5q-39xc-vjpf
