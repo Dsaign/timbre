@@ -12,6 +12,7 @@ from timbre_back.db import conninfo, vector_literal
 from timbre_back.embed import embed_passages
 from timbre_back.jobs import JobDeferred
 from timbre_back.profile import profile_text
+from timbre_back.train import train
 
 log = logging.getLogger("timbre.worker")
 BATCH = 32
@@ -50,6 +51,7 @@ JOBS: dict[str, Callable[[psycopg.AsyncConnection], Awaitable[None]]] = {
     "build-vectors": build_vectors,
     "import-catalog": run_catalog_import,
     "evaluate": evaluate,
+    "train": train,
 }
 
 

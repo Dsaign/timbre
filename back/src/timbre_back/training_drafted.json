@@ -1,0 +1,1302 @@
+[
+  {
+    "description": "heavy distorted guitars and pounding drums",
+    "songs": [
+      {"id": "4d4adc26-a2d4-4590-8505-1f1d77b0d300", "title": "Moskau", "artist": "Rammstein"},
+      {"id": "b8bcd44d-b698-465f-a3ed-c38ca81418d6", "title": "Paradise City", "artist": "Guns N’ Roses"},
+      {"id": "7bea3d88-533d-4684-ad3a-8eee7b5079e8", "title": "Ohne dich", "artist": "Rammstein"},
+      {"id": "43e9c9c4-fe76-4b67-8825-471828ceb3e7", "title": "Whiskey in the Jar", "artist": "Metallica"},
+      {"id": "c2792105-627d-41ff-bb44-d5096795934c", "title": "Amerika", "artist": "Rammstein"}
+    ]
+  },
+  {
+    "description": "fast and furious thrash riffs",
+    "songs": [
+      {"id": "6d6efe2b-2905-4061-8fc7-94a8161e5e37", "title": "That Was Just Your Life", "artist": "Metallica"},
+      {"id": "e60d9dbc-70b6-4699-b1af-605db3244a07", "title": "The Unforgiven III", "artist": "Metallica"},
+      {"id": "1c167459-f083-4ff2-ae9d-b594d6eb5475", "title": "Hangar 18", "artist": "Megadeth"},
+      {"id": "43e9c9c4-fe76-4b67-8825-471828ceb3e7", "title": "Whiskey in the Jar", "artist": "Metallica"},
+      {"id": "2d9a5b40-f5e6-4499-ab7a-567fe3b42ab9", "title": "Leper Messiah", "artist": "Metallica"}
+    ]
+  },
+  {
+    "description": "brutal death metal growls",
+    "songs": [
+      {"id": "2fe5be9e-676d-4420-b5ac-b07ec6d84730", "title": "My Sweet Shadow", "artist": "In Flames"},
+      {"id": "2634965c-5299-4958-b0dc-47b166bb6898", "title": "Only for the Weak", "artist": "In Flames"},
+      {"id": "df6d9155-301d-4985-9f52-93803e1ef252", "title": "Evil in a Closet", "artist": "In Flames"},
+      {"id": "14448567-8a0e-404d-a3c5-0c441c2c4e0e", "title": "Colony", "artist": "In Flames"},
+      {"id": "2df3ae5b-a3d9-412d-8497-2793515d8916", "title": "Gyroscope", "artist": "In Flames"}
+    ]
+  },
+  {
+    "description": "doom metal, slow and crushing",
+    "songs": [
+      {"id": "a4c9a39c-ff20-41d6-adde-fce206e9137b", "title": "The Sky Is Fallin’", "artist": "Queens of the Stone Age"},
+      {"id": "5830a31d-c7d9-4ca9-b983-9471d95772a1", "title": "New Damage", "artist": "Soundgarden"},
+      {"id": "c825b3da-2573-4007-b042-90a4edb6acd1", "title": "Lord of This World", "artist": "Black Sabbath"},
+      {"id": "a15e2d0a-efcb-4f4f-ad54-22a4879bbcf9", "title": "Iron Man", "artist": "Black Sabbath"},
+      {"id": "cbcc02d0-c72f-446f-9c6d-9a313b742acc", "title": "Children of the Grave", "artist": "Black Sabbath"}
+    ]
+  },
+  {
+    "description": "epic symphonic metal with orchestra",
+    "songs": [
+      {"id": "24da9484-f122-4d76-9db8-0daed341cd9e", "title": "Dark Chest of Wonders", "artist": "Nightwish"},
+      {"id": "fea7ce79-a488-4fde-9f5a-ae9bdf7027b5", "title": "Ghost Love Score", "artist": "Nightwish"},
+      {"id": "0584e353-a06f-4c97-a6fb-3ee521e65625", "title": "Wanderlust", "artist": "Nightwish"},
+      {"id": "81e08e32-9f9c-4f1d-998a-b47aca74db42", "title": "Storytime", "artist": "Nightwish"},
+      {"id": "a4073b7b-9b6b-4138-b68d-c3f23b6bdae4", "title": "Meadows of Heaven", "artist": "Nightwish"}
+    ]
+  },
+  {
+    "description": "nu metal angst from the early 2000s",
+    "songs": [
+      {"id": "5f920e62-f2cc-4a89-a8a9-463d1c63ada7", "title": "Prison Song", "artist": "System of a Down"},
+      {"id": "9aa621e1-46f2-4c91-8111-741583985612", "title": "Papercut", "artist": "Linkin Park"},
+      {"id": "5bcd09ac-8a2e-4a12-a3cc-18341b7759c6", "title": "Bombtrack", "artist": "Rage Against the Machine"},
+      {"id": "5addac83-e296-4548-bf4d-7b03a8a079bc", "title": "Freak on a Leash", "artist": "Korn"},
+      {"id": "50021415-1a49-447b-8c86-805281b0da6c", "title": "Given Up", "artist": "Linkin Park"}
+    ]
+  },
+  {
+    "description": "metalcore breakdowns",
+    "songs": [
+      {"id": "4e09f60a-cc1e-4607-896f-d00f30ff3be1", "title": "Like the Angel", "artist": "Rise Against"},
+      {"id": "adda0d01-70de-4e4f-837a-11c3e26f9277", "title": "Paper Wings", "artist": "Rise Against"},
+      {"id": "17a5f4b1-ff79-4a78-b582-e352efbb764f", "title": "Rumors of My Demise Have Been Greatly Exaggerated", "artist": "Rise Against"},
+      {"id": "4850f8e7-8f21-413e-892b-fe9c56844ccc", "title": "All My Life", "artist": "Foo Fighters"},
+      {"id": "26a6a08d-1644-4b18-8a0a-923edc49e3a5", "title": "A Lot Like Vegas", "artist": "Bring Me the Horizon"}
+    ]
+  },
+  {
+    "description": "grungy 90s Seattle rock",
+    "songs": [
+      {"id": "3589823f-b494-4b2d-aab3-c2e500f81175", "title": "Something in the Way", "artist": "Nirvana"},
+      {"id": "9160e42b-8fae-402d-9cee-d6826c5cce33", "title": "Everlong", "artist": "Foo Fighters"},
+      {"id": "7c1f143a-f016-4cb0-be79-c4467dd800e0", "title": "Bullet With Butterfly Wings", "artist": "The Smashing Pumpkins"},
+      {"id": "aef0677b-93b4-4c66-be74-10120d0e6f5a", "title": "Lounge Act", "artist": "Nirvana"},
+      {"id": "ea61d42b-9a76-47fd-bcf7-df911640c309", "title": "On a Plain", "artist": "Nirvana"}
+    ]
+  },
+  {
+    "description": "dreamy shoegaze with walls of guitar",
+    "songs": [
+      {"id": "e83bc6ba-eff9-412c-8c11-5153672f25e7", "title": "Midnight City", "artist": "M83"},
+      {"id": "7c1f3ff0-47ca-47f2-8315-650dd2a40291", "title": "Claudia Lewis", "artist": "M83"},
+      {"id": "35caf354-44ca-4943-b192-eb5b938e86f8", "title": "Chained", "artist": "The xx"},
+      {"id": "a795fea0-dd17-41ac-98a9-1bf7f1a47f75", "title": "This Bright Flash", "artist": "M83"},
+      {"id": "c34c07fb-f20d-4251-bc29-4a97d1abbe60", "title": "Couleurs", "artist": "M83"}
+    ]
+  },
+  {
+    "description": "instrumental post-rock that builds slowly",
+    "songs": [
+      {"id": "a89e60dc-2516-4250-a94f-620f613810e5", "title": "Fljótavík", "artist": "Sigur Rós"},
+      {"id": "d9642fee-939d-4357-b697-b55f9be3a17e", "title": "Hoppípolla", "artist": "Sigur Rós"},
+      {"id": "8cf770ff-b93a-48b4-ba04-cb437bc52d36", "title": "Viðrar vel til loftárása", "artist": "Sigur Rós"},
+      {"id": "f99e5217-a7ae-4a7d-8314-7cd200299dfa", "title": "Sé lest", "artist": "Sigur Rós"},
+      {"id": "00101edd-3a4f-47eb-aac1-767584291e0a", "title": "Wasted Hours", "artist": "Arcade Fire"}
+    ]
+  },
+  {
+    "description": "snotty fast punk rock",
+    "songs": [
+      {"id": "0b6cea69-0935-415b-8d9c-981b3baef82d", "title": "The Kids Aren’t Alright", "artist": "The Offspring"},
+      {"id": "d37776ac-993f-4ca5-9592-7c0bb708798a", "title": "You’re Gonna Go Far, Kid", "artist": "The Offspring"},
+      {"id": "be5eb70e-8a4e-492d-8269-032e1b66d30d", "title": "Emergency", "artist": "Paramore"},
+      {"id": "8f7f788e-131e-406e-8276-84a0a9f04fa0", "title": "London Calling", "artist": "The Clash"},
+      {"id": "d615590b-1546-441d-9703-b3cf88487cbd", "title": "Buddy Holly", "artist": "Weezer"}
+    ]
+  },
+  {
+    "description": "pop punk for skating",
+    "songs": [
+      {"id": "0547edb2-3eea-4b90-9b18-26dcfc101521", "title": "Pressure", "artist": "Paramore"},
+      {"id": "06da224e-b00d-43d8-88d0-67d056030257", "title": "Careful", "artist": "Paramore"},
+      {"id": "0ba72f0d-70ae-4655-94d9-c1069b5abcfb", "title": "Boulevard of Broken Dreams", "artist": "Green Day"},
+      {"id": "d4a4c7ba-580f-4638-b9c9-1f2f29790c44", "title": "Miracle", "artist": "Paramore"},
+      {"id": "398c893c-29a8-4225-851c-1b530e64b5fd", "title": "Fences", "artist": "Paramore"}
+    ]
+  },
+  {
+    "description": "emo songs about heartbreak",
+    "songs": [
+      {"id": "51e56798-1613-48ed-a156-0a4f38bfae8c", "title": "Sugar, We’re Goin Down", "artist": "Fall Out Boy"},
+      {"id": "10175a71-2e47-4786-a60e-53dd1eb31821", "title": "I Write Sins Not Tragedies", "artist": "Panic! at the Disco"},
+      {"id": "bc25529c-ea16-46cb-8bb5-792b10ecf5a2", "title": "The Sharpest Lives", "artist": "My Chemical Romance"},
+      {"id": "8d77a4c9-100e-489b-9232-c708b39f4dbf", "title": "Brighter", "artist": "Paramore"},
+      {"id": "3e4d1d4e-b0d5-4a56-ac2c-88ed707c4752", "title": "The Only Difference Between Martyrdom and Suicide Is Press Coverage", "artist": "Panic! at the Disco"}
+    ]
+  },
+  {
+    "description": "classic rock radio anthems",
+    "songs": [
+      {"id": "a6081bc1-2a76-4984-b21f-38bc3dcca3a5", "title": "Baba O’Riley", "artist": "The Who"},
+      {"id": "d3528f95-1a3f-45d2-a569-826740c0adee", "title": "Comfortably Numb", "artist": "Pink Floyd"},
+      {"id": "0681520a-6499-4cb8-91aa-7df5dfafea2e", "title": "November Rain", "artist": "Guns N’ Roses"},
+      {"id": "9d9c8206-8b4c-45fc-8f12-ffc1940b2b7f", "title": "Whole Lotta Love", "artist": "Led Zeppelin"},
+      {"id": "c46641c1-fdbc-4401-8b1d-23a4062a207a", "title": "Eclipse", "artist": "Pink Floyd"}
+    ]
+  },
+  {
+    "description": "bluesy rock with slide guitar",
+    "songs": [
+      {"id": "f78b6609-0365-40ca-9f3e-53d3f183b653", "title": "Toys in the Attic", "artist": "Aerosmith"},
+      {"id": "84c487bc-7614-4c8f-87ec-a5a6e6903e8c", "title": "Walk This Way", "artist": "Aerosmith"},
+      {"id": "cd63a27a-1ecd-422a-97d3-183e9724f66a", "title": "Just Got to Be", "artist": "The Black Keys"},
+      {"id": "1569ed35-de56-4455-8fab-3dd0adb5860c", "title": "You’re the One", "artist": "The Black Keys"},
+      {"id": "ac8c46cb-d9b9-4e70-bda9-1ffc36e05eb6", "title": "Sweet Emotion", "artist": "Aerosmith"}
+    ]
+  },
+  {
+    "description": "psychedelic sixties rock trip",
+    "songs": [
+      {"id": "96734374-9968-40e2-ae97-a7632793dd82", "title": "Riders on the Storm", "artist": "The Doors"},
+      {"id": "af6fb155-b03c-46ea-a44e-22ce394b2a46", "title": "Twist and Shout", "artist": "The Beatles"},
+      {"id": "0e11c0fd-a1da-4b88-a438-7ef55c5809ec", "title": "Time", "artist": "Pink Floyd"},
+      {"id": "7fef22bd-76aa-4803-b56b-93a5d6e70662", "title": "Money", "artist": "Pink Floyd"},
+      {"id": "4e0d8649-1f89-44f3-91af-4c0dbee81f28", "title": "High Hopes", "artist": "Pink Floyd"}
+    ]
+  },
+  {
+    "description": "progressive rock with long solos",
+    "songs": [
+      {"id": "4e0d8649-1f89-44f3-91af-4c0dbee81f28", "title": "High Hopes", "artist": "Pink Floyd"},
+      {"id": "2d1201cf-59bb-4ffa-9f52-f5b3afa13346", "title": "Us and Them", "artist": "Pink Floyd"},
+      {"id": "19084069-642f-465f-9127-f71bcd800a05", "title": "On the Run", "artist": "Pink Floyd"},
+      {"id": "8a2fb0e1-1126-4237-9b8d-6f3359546b4b", "title": "The Grudge", "artist": "Tool"},
+      {"id": "e3fada81-0718-4807-b249-cf47dbf29a03", "title": "MK Ultra", "artist": "Muse"}
+    ]
+  },
+  {
+    "description": "stoner rock fuzz",
+    "songs": [
+      {"id": "a1b22b7c-8f03-44b6-89ca-50d7d3698f11", "title": "In the Fade", "artist": "Queens of the Stone Age"},
+      {"id": "bc171572-7d82-412e-a642-c8ab8e6c0603", "title": "Into the Hollow", "artist": "Queens of the Stone Age"},
+      {"id": "7e347f84-a0e7-48de-9277-06afd5f84d24", "title": "First It Giveth", "artist": "Queens of the Stone Age"},
+      {"id": "08d44803-d714-4f1a-85b6-8401cb48355a", "title": "Burn the Witch", "artist": "Queens of the Stone Age"},
+      {"id": "a6f3efbe-5f52-4837-aab4-97f88642c75f", "title": "Suture Up Your Future", "artist": "Queens of the Stone Age"}
+    ]
+  },
+  {
+    "description": "garage rock revival with raw guitars",
+    "songs": [
+      {"id": "0dcd21fc-fbd6-415f-a2f3-69c1bad432ab", "title": "We’re Going to Be Friends", "artist": "The White Stripes"},
+      {"id": "8f9dec01-c479-4ad4-96b5-0950a97c1a91", "title": "Reptilia", "artist": "The Strokes"},
+      {"id": "70b83cd0-f756-4370-ab3d-75da026bb86e", "title": "She’s Long Gone", "artist": "The Black Keys"},
+      {"id": "667c30cf-09c2-4ae3-8c3c-a3afc9edfc69", "title": "Sinister Kid", "artist": "The Black Keys"},
+      {"id": "104972d9-3789-41b8-bb81-a63b077449ef", "title": "The Hardest Button to Button", "artist": "The White Stripes"}
+    ]
+  },
+  {
+    "description": "post-punk with cold basslines",
+    "songs": [
+      {"id": "7eea0b53-9e19-4302-99d3-8c5cf8ac7ade", "title": "Mistaken for Strangers", "artist": "The National"},
+      {"id": "41746834-4a27-42f5-b651-61ef0ca59549", "title": "Love Will Tear Us Apart", "artist": "Joy Division"},
+      {"id": "da049a30-cba3-4923-a17f-00320f695e9d", "title": "For Reasons Unknown", "artist": "The Killers"},
+      {"id": "123e75e7-a26b-4685-814a-58b7106e425f", "title": "The View From the Afternoon", "artist": "Arctic Monkeys"},
+      {"id": "9a1aedc4-88ce-407e-a7d8-38f8556086fb", "title": "Keep the Car Running", "artist": "Arcade Fire"}
+    ]
+  },
+  {
+    "description": "gothic rock in black clothes",
+    "songs": [
+      {"id": "d92fcf81-9d88-43f7-9267-6c071daf7fe7", "title": "Colony", "artist": "Joy Division"},
+      {"id": "5b89687d-f8bd-40be-9e65-e69c9e2b6a66", "title": "Decades", "artist": "Joy Division"},
+      {"id": "0e03b90b-da75-471e-a9a4-38c0cd8a3131", "title": "The Eternal", "artist": "Joy Division"},
+      {"id": "c24eb26a-04d6-4f09-9449-9bc334f78ede", "title": "Bring Me to Life", "artist": "Evanescence"},
+      {"id": "9a21f281-e36d-4a49-ac58-07e04d36a12b", "title": "Streamline", "artist": "System of a Down"}
+    ]
+  },
+  {
+    "description": "britpop from the nineties",
+    "songs": [
+      {"id": "9cd3daca-eab7-4db8-8af8-21b3da550c28", "title": "Talk", "artist": "Coldplay"},
+      {"id": "60e94685-0481-4d3d-bd84-11c389d9b2a5", "title": "Starlight", "artist": "Muse"},
+      {"id": "49bb3701-1b75-4232-8999-ff5318adf676", "title": "Planet Telex", "artist": "Radiohead"},
+      {"id": "43cf19be-cdcf-48a9-beea-4d0b56887317", "title": "Live Forever", "artist": "Oasis"},
+      {"id": "cea6f31e-bc36-41e6-b37c-c2a6cdfe166a", "title": "Cornerstone", "artist": "Arctic Monkeys"}
+    ]
+  },
+  {
+    "description": "indie rock with jangly guitars",
+    "songs": [
+      {"id": "c2705dfc-83bf-4838-bdcb-07734e71c7d7", "title": "Mardy Bum", "artist": "Arctic Monkeys"},
+      {"id": "a5741d3d-c925-4070-8a83-910d23eb33d4", "title": "I Will Follow You Into the Dark", "artist": "Death Cab for Cutie"},
+      {"id": "4b95b3fb-3c50-4940-b8bf-d39f77a9691f", "title": "Islands", "artist": "The xx"},
+      {"id": "a1818245-54db-4881-86be-7ff3180c3e06", "title": "Take Me Out", "artist": "Franz Ferdinand"},
+      {"id": "987a88ef-6f47-479c-a0ad-1a17aa85e8ed", "title": "Electric Feel", "artist": "MGMT"}
+    ]
+  },
+  {
+    "description": "southern rock road trip",
+    "songs": [
+      {"id": "3ff453e3-dc5a-42ad-a9d5-862cf4550bd0", "title": "McFearless", "artist": "Kings of Leon"},
+      {"id": "2d2a64cc-6d06-4400-a82f-83f9d3d01c4a", "title": "Mary", "artist": "Kings of Leon"},
+      {"id": "7cafa219-936c-45d0-9673-af298ad1589e", "title": "Born in the U.S.A.", "artist": "Bruce Springsteen"},
+      {"id": "e5d0bb87-6e74-4ca7-8519-c2d4adb23b70", "title": "Radioactive", "artist": "Kings of Leon"},
+      {"id": "4bce035a-3956-4d28-82d9-2143ef230e3b", "title": "The End", "artist": "Kings of Leon"}
+    ]
+  },
+  {
+    "description": "glam rock with big hair",
+    "songs": [
+      {"id": "ef0cdd43-25fa-42c5-a6d3-00e286525c56", "title": "My List", "artist": "The Killers"},
+      {"id": "2b8363c3-511c-4816-934b-fef55fb1e5ac", "title": "Oh! You Pretty Things", "artist": "David Bowie"},
+      {"id": "11bd860a-4447-4140-813d-64834ae02ca8", "title": "Rebel Rebel", "artist": "David Bowie"},
+      {"id": "04c5d4a8-b6b7-4421-81ab-e5efb52d9197", "title": "Fame", "artist": "David Bowie"},
+      {"id": "13d3bf6a-63ff-449f-873c-dcf279801d36", "title": "Ashes to Ashes", "artist": "David Bowie"}
+    ]
+  },
+  {
+    "description": "surf rock beach guitars",
+    "songs": [
+      {"id": "e81abfb1-67c5-4594-98e8-5d40c633a559", "title": "Fun, Fun, Fun", "artist": "The Beach Boys"},
+      {"id": "869af0d1-12b6-46dd-8892-04c58b24d0c3", "title": "Little Deuce Coupe", "artist": "The Beach Boys"},
+      {"id": "09fa8bae-e17c-4866-85c2-7357937e7889", "title": "Surfin’ U.S.A.", "artist": "The Beach Boys"},
+      {"id": "8ac90f40-98e1-450d-8456-77d46ffd47fe", "title": "Kokomo", "artist": "The Beach Boys"},
+      {"id": "9b74da39-d26b-4cdb-9e49-546df634fd5d", "title": "Good Vibrations", "artist": "The Beach Boys"}
+    ]
+  },
+  {
+    "description": "fifties rock and roll",
+    "songs": [
+      {"id": "c5da2d84-c7d2-4bee-9416-a94394b11af1", "title": "Four Sticks", "artist": "Led Zeppelin"},
+      {"id": "d0381457-8c42-47df-8b76-626b788b424b", "title": "Burning Love", "artist": "Elvis Presley"},
+      {"id": "9c2b1e21-33f3-4482-813b-c9ea34094a3a", "title": "Eight Days a Week", "artist": "The Beatles"},
+      {"id": "a8821a61-412f-470e-bbee-f535fef4d376", "title": "Can’t Help Falling in Love", "artist": "Elvis Presley"},
+      {"id": "d528d647-cabf-4001-a8f1-78be5637d66b", "title": "Have a Drink on Me", "artist": "AC/DC"}
+    ]
+  },
+  {
+    "description": "upbeat synth-pop from the eighties",
+    "songs": [
+      {"id": "cbf0e52b-d15d-4506-a951-fd753bd9234f", "title": "Marry the Night", "artist": "Lady Gaga"},
+      {"id": "ef8320cc-d8c1-4e26-911c-8927f94b53ef", "title": "Scheiße", "artist": "Lady Gaga"},
+      {"id": "3e19df7a-3f9a-4d42-adbf-31867646f602", "title": "Every Breath You Take", "artist": "The Police"},
+      {"id": "661a883e-89b2-4b35-bac5-c8534ed9f39d", "title": "12:51", "artist": "The Strokes"},
+      {"id": "432dd61a-5d11-4795-8757-c690ef704d82", "title": "Future Reflections", "artist": "MGMT"}
+    ]
+  },
+  {
+    "description": "catchy dance pop for the club",
+    "songs": [
+      {"id": "22d90ef6-04dc-4ab6-9fd5-5ee8fa52e102", "title": "RUN", "artist": "BTS"},
+      {"id": "50623cbc-4f43-4143-b3f3-e48418a327e9", "title": "Weekend Wars", "artist": "MGMT"},
+      {"id": "e8b32cd0-f354-4956-8ffe-2f9675ba18a2", "title": "Lights", "artist": "Ellie Goulding"},
+      {"id": "327e3115-b909-410e-856a-977176392573", "title": "Disturbia", "artist": "Rihanna"},
+      {"id": "5a5056f9-1bec-426e-bc39-2ba1d22bb13b", "title": "S&M", "artist": "Rihanna"}
+    ]
+  },
+  {
+    "description": "teen pop hits",
+    "songs": [
+      {"id": "40e19d92-b212-4915-970a-2ce3b8169d7d", "title": "Waking Up in Vegas", "artist": "Katy Perry"},
+      {"id": "a309c7b6-c412-4bb4-9e38-dff293bd75b7", "title": "Runaway", "artist": "Avril Lavigne"},
+      {"id": "3891874d-82cd-4ca6-bbbb-984b4f9b881d", "title": "Boyfriend", "artist": "Justin Bieber"},
+      {"id": "f06649e9-056a-4e73-9e97-91cd96efb3ba", "title": "Sk8er Boi", "artist": "Avril Lavigne"},
+      {"id": "f03bb92a-baff-4f1c-aa97-fde18725d424", "title": "Stronger", "artist": "Britney Spears"}
+    ]
+  },
+  {
+    "description": "k-pop bops",
+    "songs": [
+      {"id": "7dfa2e4a-bc8b-4e8e-b8fb-221065e8de82", "title": "What do you think?", "artist": "Agust D"},
+      {"id": "f37a041b-5cf8-41cb-8fc9-e264c477e170", "title": "Interlude : Set me free", "artist": "Agust D"},
+      {"id": "f4e93f39-0bd1-4107-86a2-c1ac2bd36e85", "title": "Airplane pt.2", "artist": "BTS"},
+      {"id": "80fcae63-1b7b-41c5-9367-d27eed012e39", "title": "SUGA’s Interlude", "artist": "Halsey, SUGA & BTS"},
+      {"id": "c95f01d4-9ff1-4090-b4bc-cef02b756d73", "title": "00:00 (Zero O’Clock)", "artist": "BTS"}
+    ]
+  },
+  {
+    "description": "bedroom pop recorded at home",
+    "songs": [
+      {"id": "974f0d0a-a1f4-4b7b-8413-f87e0106947b", "title": "Why Won’t They Talk to Me?", "artist": "Tame Impala"},
+      {"id": "16994337-ca9f-42cc-8c5c-5f9a4a5ec657", "title": "Tropicalia", "artist": "Beck"},
+      {"id": "82cea5e7-1314-4be4-9fa2-5b52e5b70aba", "title": "Jack‐Ass", "artist": "Beck"},
+      {"id": "58470dfa-ebe7-48a0-a870-78766e91d1d3", "title": "Sissyneck", "artist": "Beck"},
+      {"id": "7b8fb58b-833b-4edc-9829-280dbd296b60", "title": "Symphonia IX (My Wait Is U)", "artist": "Grimes"}
+    ]
+  },
+  {
+    "description": "baroque chamber pop with strings",
+    "songs": [
+      {"id": "b91f88d8-5739-4564-9ce6-230970522bdd", "title": "Ocean of Noise", "artist": "Arcade Fire"},
+      {"id": "f874c752-65bc-4d50-ac7e-932243ae9f02", "title": "Rebellion (Lies)", "artist": "Arcade Fire"},
+      {"id": "10b3772d-e300-46a0-b456-415edaf60507", "title": "Bones", "artist": "Radiohead"},
+      {"id": "f6de5637-70a0-4a53-952b-410606c41114", "title": "Rococo", "artist": "Arcade Fire"},
+      {"id": "5551e780-656c-410f-91ff-03aed3af9b7a", "title": "Crown of Love", "artist": "Arcade Fire"}
+    ]
+  },
+  {
+    "description": "soft rock for a sunday morning",
+    "songs": [
+      {"id": "248cc9d1-97ea-493e-84d4-4c5ec718683b", "title": "Dreams", "artist": "Fleetwood Mac"},
+      {"id": "50d83ff0-6ffd-4a92-b353-c104bbb45b9e", "title": "I’m Still Standing", "artist": "Elton John"},
+      {"id": "af93a6ee-8b05-46dd-842e-9a58275a5beb", "title": "Mannequin", "artist": "Katy Perry"},
+      {"id": "3891874d-82cd-4ca6-bbbb-984b4f9b881d", "title": "Boyfriend", "artist": "Justin Bieber"},
+      {"id": "edafd61d-c502-4820-af7e-466e695fda26", "title": "Shiver", "artist": "Maroon 5"}
+    ]
+  },
+  {
+    "description": "boom bap hip hop with jazzy samples",
+    "songs": [
+      {"id": "57395e69-1cb9-4de0-987b-1915d7ae9977", "title": "Guilty Conscience", "artist": "Eminem"},
+      {"id": "5c1ee415-be84-4d23-a15d-5f568e8cea25", "title": "Memory Lane (Sittin’ in da Park)", "artist": "Nas"},
+      {"id": "4e4eb697-75b2-47a8-9a21-8c2cac73c547", "title": "Luck of Lucien", "artist": "A Tribe Called Quest"},
+      {"id": "edb2f3f1-9cfa-4d70-8be0-3c78da2c7b65", "title": "Scenario", "artist": "A Tribe Called Quest"},
+      {"id": "0eb8e20a-019a-4ac9-8bb5-dd430afacd83", "title": "Get It Together", "artist": "Beastie Boys"}
+    ]
+  },
+  {
+    "description": "gangsta rap from the west coast",
+    "songs": [
+      {"id": "a3c6af59-af56-4d61-beac-032df8fc4015", "title": "Backseat Freestyle", "artist": "Kendrick Lamar"},
+      {"id": "54494123-9670-4b2d-83ad-85c46c8f5200", "title": "Bitch, Don’t Kill My Vibe", "artist": "Kendrick Lamar"},
+      {"id": "c294757b-0430-4eb4-ae7a-6abcffb87405", "title": "Money Trees", "artist": "Kendrick Lamar featuring Jay Rock"},
+      {"id": "a0938536-3878-4f14-94a9-27c82e4241ec", "title": "Steve Berman (skit)", "artist": "Eminem"},
+      {"id": "0fbf43cf-1482-4177-b44e-7442390930a4", "title": "A Milli", "artist": "Lil Wayne"}
+    ]
+  },
+  {
+    "description": "east coast rap classics",
+    "songs": [
+      {"id": "03cc8612-0a03-416f-9b49-cde52cfd8762", "title": "Hey Ladies", "artist": "Beastie Boys"},
+      {"id": "f08d57e0-1fb0-46d4-b6af-6de65377a6d0", "title": "Family Business", "artist": "Kanye West"},
+      {"id": "078c6b81-8e6c-4403-accf-c634b742143c", "title": "Flashing Lights", "artist": "Kanye West feat. Dwele"},
+      {"id": "307ca877-7764-42cc-b77e-23f0a416e614", "title": "It Ain’t Hard to Tell", "artist": "Nas"},
+      {"id": "4016a862-db11-4a3f-8670-b630f86d88ec", "title": "The New Workout Plan", "artist": "Kanye West"}
+    ]
+  },
+  {
+    "description": "southern trap bangers",
+    "songs": [
+      {"id": "3353afb3-88f3-415f-925e-618e7e144199", "title": "Lollipop", "artist": "Lil Wayne feat. Static Major"},
+      {"id": "25986edb-cebf-4e19-bc49-131dfd7d1eed", "title": "Intro ; Dt sugA", "artist": "Agust D feat. DJ Friz"},
+      {"id": "cbab479e-3e2f-4c61-be2b-da81b0d1c2e7", "title": "Strange", "artist": "Agust D feat. RM"},
+      {"id": "2e29f9ae-2f7d-4a36-9535-b75b24d8f844", "title": "Dead and Gone", "artist": "T.I. feat. Justin Timberlake"},
+      {"id": "d2148af1-284e-45e5-a0a7-523d99453b95", "title": "How to Love", "artist": "Lil Wayne"}
+    ]
+  },
+  {
+    "description": "conscious hip hop with a message",
+    "songs": [
+      {"id": "2ed2b01e-1221-4165-b2c8-178c70fe2ae0", "title": "Nightmare", "artist": "Tyler, The Creator"},
+      {"id": "d7121779-9df6-4f8a-bd83-51744fe2b8c1", "title": "Celebration", "artist": "Kanye West"},
+      {"id": "99d22a5a-46e3-4aa4-86dd-3490a57a2ee8", "title": "Award Tour", "artist": "A Tribe Called Quest feat. Trugoy the Dove"},
+      {"id": "1a7e679a-260f-491f-b7f0-cf881af833c2", "title": "Goblin", "artist": "Tyler, The Creator"},
+      {"id": "3b36d1a3-848c-47ec-b03b-071f254912c7", "title": "Lights Please", "artist": "J Cole"}
+    ]
+  },
+  {
+    "description": "cloud rap, hazy and slow",
+    "songs": [
+      {"id": "55f22f73-7150-4579-919a-a77bf324e2e2", "title": "Hurt Me", "artist": "Juice WRLD"},
+      {"id": "9e60c4e6-0b05-4cfd-9a08-6c1aca1e471e", "title": "Used To", "artist": "Juice WRLD"},
+      {"id": "1d3b4f62-fdf3-416e-9a31-6d0a69d556fa", "title": "I’ll Be Fine", "artist": "Juice WRLD"},
+      {"id": "896f4238-02f2-43aa-93af-e06b09053ad7", "title": "Yah Mean", "artist": "Playboi Carti"},
+      {"id": "ad711509-9e5d-4735-aee5-d2c869cfa0d6", "title": "Purity", "artist": "A$AP Rocky feat. Frank Ocean"}
+    ]
+  },
+  {
+    "description": "smooth contemporary r&b slow jams",
+    "songs": [
+      {"id": "64f83227-6a8e-4f10-99b8-d39fab286807", "title": "Russian Roulette", "artist": "Rihanna"},
+      {"id": "87e161a9-8801-483d-8bb7-8d65973d9597", "title": "You da One", "artist": "Rihanna"},
+      {"id": "2ef0762b-b19d-4355-b19a-7af087497599", "title": "Grenade", "artist": "Bruno Mars"},
+      {"id": "26396706-52fa-4778-85c8-f358d2ad1330", "title": "My Love", "artist": "Justin Timberlake feat. T.I."},
+      {"id": "947dc1a5-cb9d-4a09-b97a-743cc1289b31", "title": "Rehab", "artist": "Rihanna"}
+    ]
+  },
+  {
+    "description": "motown soul classics",
+    "songs": [
+      {"id": "9bed2307-9a25-4960-be46-79bce5acc267", "title": "Turning Tables", "artist": "Adele"},
+      {"id": "86e9f489-d946-4ee9-8458-8ecbb7af0908", "title": "Hometown Glory (single version)", "artist": "Adele"},
+      {"id": "51f8c0d1-7562-41b0-b4f7-152a9b17abbc", "title": "Run the World (Girls)", "artist": "Beyoncé"},
+      {"id": "3d3314dc-1ce2-4625-bbfe-bb020d195d8b", "title": "Rude Boy", "artist": "Rihanna"},
+      {"id": "6663470e-57d7-450a-bbf5-be672640d14e", "title": "Pyramids", "artist": "Frank Ocean"}
+    ]
+  },
+  {
+    "description": "funky bass grooves",
+    "songs": [
+      {"id": "f3f6a5ee-f836-4492-8083-05d183c1f538", "title": "I Miss You", "artist": "Beyoncé"},
+      {"id": "ff1e3e1a-f6e8-4692-b426-355880383bb6", "title": "Supermassive Black Hole", "artist": "Muse"},
+      {"id": "04ea96b6-f5b7-49a5-98b1-97f4ae55dee7", "title": "Can’t Stop", "artist": "Red Hot Chili Peppers"},
+      {"id": "9c6551a7-de65-46f3-b433-30c80286ad27", "title": "Leave Me Alone", "artist": "Michael Jackson"},
+      {"id": "8ebb47f5-d7d5-4c72-ba7d-cd09eb10ef94", "title": "Dani California", "artist": "Red Hot Chili Peppers"}
+    ]
+  },
+  {
+    "description": "seventies disco dance floor",
+    "songs": [
+      {"id": "774e840c-164b-434c-8f2e-359eab5b050d", "title": "Smooth Criminal", "artist": "Michael Jackson"},
+      {"id": "bb6aaa59-82ff-475f-a708-09722d772c60", "title": "Home", "artist": "LCD Soundsystem"},
+      {"id": "ff3a450a-6f95-44f9-8763-05070d89c19c", "title": "Heal the World", "artist": "Michael Jackson"},
+      {"id": "2351cd90-50cc-4862-bba0-6fa8b807b4e3", "title": "Dance Yrself Clean", "artist": "LCD Soundsystem"},
+      {"id": "5e0aa7e4-01cb-441c-9fc2-d89e890cb981", "title": "Mamma Mia", "artist": "ABBA"}
+    ]
+  },
+  {
+    "description": "deep house for late night",
+    "songs": [
+      {"id": "438f8fb2-6d24-4f15-a538-9de6315628c4", "title": "Dirty Harry", "artist": "Gorillaz featuring Bootie Brown"},
+      {"id": "e0bc2ebe-3ee2-4ee1-8bcb-9e95c0547b1f", "title": "Phantom", "artist": "Justice"},
+      {"id": "a405352d-6f33-482c-a1be-0b5b2c966b63", "title": "Genesis", "artist": "Justice"},
+      {"id": "6528ab6c-74ca-41d8-8eb8-9bb61c82a78f", "title": "Levels", "artist": "Avicii"},
+      {"id": "2dc7e79c-43e2-4195-9283-eb72ca6454d8", "title": "Girl Gone Wild", "artist": "Madonna"}
+    ]
+  },
+  {
+    "description": "pounding techno",
+    "songs": [
+      {"id": "213757f0-41cd-4daa-bc6a-4d990fa5d5ab", "title": "Tha", "artist": "Aphex Twin"},
+      {"id": "c00382c2-5c52-4c14-85d2-d7438a4b1fa2", "title": "Narayan", "artist": "Prodigy"},
+      {"id": "3b40aaa8-4604-4eab-9914-622b372555a2", "title": "The Fame", "artist": "Lady Gaga"},
+      {"id": "e5e5e3c9-8515-4abf-aebb-7529b4e9aa0b", "title": "Xtal", "artist": "Aphex Twin"},
+      {"id": "3c46ef5e-1d29-44e0-b340-53582483b86c", "title": "Robot Rock / Oh Yeah", "artist": "Daft Punk"}
+    ]
+  },
+  {
+    "description": "euphoric trance anthems",
+    "songs": [
+      {"id": "65bf94b8-6d5d-4254-aa5f-a939b1794303", "title": "Hyper‐Ballad", "artist": "Björk"},
+      {"id": "93411521-d7b4-4c87-9bce-a4ba5e6b95fa", "title": "Star Guitar", "artist": "The Chemical Brothers"},
+      {"id": "d17472ef-2be0-4898-850c-d7e2527f04fa", "title": "Until the End of the World", "artist": "U2"},
+      {"id": "66f340f5-ccaa-4b63-a6ec-dcf67c6982df", "title": "Derezzed", "artist": "Daft Punk"},
+      {"id": "8b7bfe87-e12e-47c8-9508-963939a9663f", "title": "Violently Happy", "artist": "Björk"}
+    ]
+  },
+  {
+    "description": "drum and bass at high speed",
+    "songs": [
+      {"id": "652b8539-3f3f-4b3a-94b9-3ec4ddcd3af4", "title": "First of the Year (Equinox)", "artist": "Skrillex"},
+      {"id": "09f6bbe2-f7ea-4330-a2f5-fdf0d283154f", "title": "Different", "artist": "Pendulum"},
+      {"id": "a84e3ccd-079d-4295-ac1f-f8fe6eb55700", "title": "Out Here", "artist": "Pendulum"},
+      {"id": "1b8a0feb-6761-4e7b-894d-082461771194", "title": "9,000 Miles", "artist": "Pendulum"},
+      {"id": "44aa786e-4ba2-44f8-bc99-f0e92f2d975c", "title": "Visions", "artist": "Pendulum"}
+    ]
+  },
+  {
+    "description": "wobbly dubstep drops",
+    "songs": [
+      {"id": "c9b97cf9-3c9a-442b-8f88-ff65d181db59", "title": "Lights (Bassnectar remix)", "artist": "Ellie Goulding"},
+      {"id": "75822bfb-4835-4405-aee1-31daef74fdbe", "title": "Ruffneck (Flex)", "artist": "Skrillex"},
+      {"id": "935db662-04fd-4979-a298-d3a5146a5284", "title": "Hanging On (edit)", "artist": "Ellie Goulding"},
+      {"id": "43643631-5350-4c38-9468-68b7c4ab2105", "title": "Madness", "artist": "Muse"},
+      {"id": "5ba05ba2-66c6-4f28-b492-8c1e1c24779a", "title": "Ruffneck (FULL Flex)", "artist": "Skrillex"}
+    ]
+  },
+  {
+    "description": "big beat breakbeats",
+    "songs": [
+      {"id": "0579363a-cad9-4da7-97a8-2bec12aacff9", "title": "Thunder", "artist": "The Prodigy"},
+      {"id": "b266b537-a246-4053-9217-4b275a8d1c2b", "title": "Black‐Eyed", "artist": "Placebo"},
+      {"id": "c00382c2-5c52-4c14-85d2-d7438a4b1fa2", "title": "Narayan", "artist": "Prodigy"},
+      {"id": "81add81c-b2de-4966-9ef3-23dbf9b15c48", "title": "Voodoo People", "artist": "The Prodigy"},
+      {"id": "78cd7d37-a5ec-44a9-a4b0-6f83938b6970", "title": "Teenage Angst", "artist": "Placebo"}
+    ]
+  },
+  {
+    "description": "glitchy idm for headphones",
+    "songs": [
+      {"id": "a4ec6700-5ddb-4d4f-98b0-f82a480c50e0", "title": "Turquoise Hexagon Sun", "artist": "Boards of Canada"},
+      {"id": "4ee6fd6f-48a1-4f80-a813-ca37857e6841", "title": "Days Before You Came", "artist": "Placebo"},
+      {"id": "178fecd4-d5c2-4ea7-ae18-d7f6192c284c", "title": "Remain Nameless", "artist": "Florence + the Machine"},
+      {"id": "0bab8882-1f1d-4d36-a40a-caaad7a0195c", "title": "Taste in Men", "artist": "Placebo"},
+      {"id": "65bf94b8-6d5d-4254-aa5f-a939b1794303", "title": "Hyper‐Ballad", "artist": "Björk"}
+    ]
+  },
+  {
+    "description": "ambient soundscapes to fall asleep",
+    "songs": [
+      {"id": "4a234158-148e-44bb-961b-ce9302027269", "title": "Why Does My Heart Feel So Bad?", "artist": "Moby"},
+      {"id": "856d081d-320b-4b6b-8dac-4427e308296d", "title": "Avril 14th", "artist": "Aphex Twin"},
+      {"id": "325735b0-a7a7-4193-83a7-25ec0c856c06", "title": "Kong", "artist": "Bonobo"},
+      {"id": "d3d846fd-3ac9-4313-81d4-6a7006286ffc", "title": "Festival", "artist": "Sigur Rós"},
+      {"id": "1618b28c-2de2-428a-a460-fbe451b5fbde", "title": "Honey", "artist": "Moby"}
+    ]
+  },
+  {
+    "description": "trip hop, dark and smoky",
+    "songs": [
+      {"id": "df53e8c6-3665-43fb-8324-a9306cb88c20", "title": "Eple", "artist": "Röyksopp"},
+      {"id": "806d8ff3-d1d4-4178-a524-623b87ca0c62", "title": "Kids With Guns", "artist": "Gorillaz"},
+      {"id": "cb704029-adf6-408f-b91b-6883df02540a", "title": "Inertia Creeps", "artist": "Massive Attack"},
+      {"id": "9ab4b741-1953-48cd-9cea-8539edaf11bb", "title": "What Else Is There?", "artist": "Röyksopp"},
+      {"id": "b766a7b6-5b8f-4805-ae83-420231c0ec76", "title": "19-2000", "artist": "Gorillaz"}
+    ]
+  },
+  {
+    "description": "downtempo chillout lounge",
+    "songs": [
+      {"id": "c837f888-d471-4b07-bcbc-1b9f7406ec1a", "title": "It Could Be Sweet", "artist": "Portishead"},
+      {"id": "e2e98345-f26a-446a-a95f-8a1741ac2d01", "title": "Last Living Souls", "artist": "Gorillaz"},
+      {"id": "a4eaf9db-a183-4b55-8ea0-05a18f18368f", "title": "Machine Gun", "artist": "Portishead"},
+      {"id": "b5d7d380-f43a-4c1f-a5de-694150b093ac", "title": "Mysterons", "artist": "Portishead"},
+      {"id": "a7ed3365-affa-4331-8bd9-1ececaf9ae77", "title": "The Rip", "artist": "Portishead"}
+    ]
+  },
+  {
+    "description": "industrial noise and machines",
+    "songs": [
+      {"id": "4d4adc26-a2d4-4590-8505-1f1d77b0d300", "title": "Moskau", "artist": "Rammstein"},
+      {"id": "7e87ef92-a0f2-4580-a4b3-758a8651926a", "title": "The Day the World Went Away", "artist": "Nine Inch Nails"},
+      {"id": "5617df28-f125-4ec0-81b3-9e36071152a4", "title": "Benzin", "artist": "Rammstein"},
+      {"id": "7cd3782d-86dc-4dd1-8d9b-e37f9cbe6b94", "title": "Tainted Love", "artist": "Marilyn Manson"},
+      {"id": "6608e919-872c-4065-9f77-bfdb4abbb454", "title": "mOBSCENE", "artist": "Marilyn Manson"}
+    ]
+  },
+  {
+    "description": "retro synthwave driving at night",
+    "songs": [
+      {"id": "fc8f80ef-55f7-48b9-b68e-8ad52308aa21", "title": "Magic Spells", "artist": "Crystal Castles"},
+      {"id": "8a98614f-0533-44ef-890a-639cab407a2d", "title": "Superheroes", "artist": "Daft Punk"},
+      {"id": "f92e924f-e795-433b-95ce-b256098abfd6", "title": "Robot Rock", "artist": "Daft Punk"},
+      {"id": "358f0172-3efe-4b09-84aa-7c0b060c9941", "title": "Waters of Nazareth", "artist": "Justice"},
+      {"id": "e5f39207-57fe-49f7-a96d-060fe42ffb53", "title": "Run With the Wolves", "artist": "The Prodigy"}
+    ]
+  },
+  {
+    "description": "chiptune video game sounds",
+    "songs": [
+      {"id": "68c1b5ad-73be-491e-8ee5-8a8d01fad208", "title": "Fallen Down", "artist": "Toby Fox"},
+      {"id": "4a5f371d-8fb4-46e5-94c3-ca775b2a2a24", "title": "Droopy Likes Ricochet", "artist": "C418"},
+      {"id": "215a909e-97c1-4c1d-a19a-7c43b44b0909", "title": "Spider Dance", "artist": "Toby Fox"},
+      {"id": "1bea9fc6-a5b3-4320-9089-31b910dcbc1e", "title": "1991", "artist": "Crystal Castles"},
+      {"id": "fdb3c5d5-8db3-4cc5-8c4c-8e06ecaf4b4e", "title": "Danny", "artist": "C418"}
+    ]
+  },
+  {
+    "description": "epic movie soundtrack music",
+    "songs": [
+      {"id": "ecef4cec-8c3e-42ec-af55-1fd05d6a33af", "title": "Move Away", "artist": "The Killers"},
+      {"id": "858f5d53-4cf9-42b1-b1c5-81420a032e2c", "title": "Overture", "artist": "Daft Punk"},
+      {"id": "cfb1205b-3c58-4a3d-a29f-73f8ccb0c557", "title": "Heavy in Your Arms", "artist": "Florence + the Machine"},
+      {"id": "091d56e4-8e2e-4b13-bac8-6be189377fdb", "title": "This Is Halloween", "artist": "Marilyn Manson"},
+      {"id": "af7f2f8b-68ce-47fd-a088-ed3a29edd96f", "title": "Change (In the House of Flies)", "artist": "Deftones"}
+    ]
+  },
+  {
+    "description": "cool jazz with saxophone",
+    "songs": [
+      {"id": "5ff58ef1-73af-4acf-aeb3-d451e57a198f", "title": "Moonlight Serenade", "artist": "Frank Sinatra"},
+      {"id": "6ce06749-c9c6-4cd0-b016-81eae122dd9e", "title": "Summer Wind", "artist": "Frank Sinatra"},
+      {"id": "1d9a8f3b-e7b7-44b0-a004-04bc62f9755b", "title": "Superstition", "artist": "Stevie Wonder"},
+      {"id": "14a51da3-751e-4d5b-85ac-a3a9b1807144", "title": "You Make Me Feel So Young", "artist": "Frank Sinatra"},
+      {"id": "893a301c-b2c7-4a2a-af3e-67c2e7601137", "title": "They Can’t Take That Away From Me", "artist": "Frank Sinatra"}
+    ]
+  },
+  {
+    "description": "roots reggae with offbeat guitar",
+    "songs": [
+      {"id": "44f78249-8f06-42b4-adb7-31573a463e30", "title": "Redemption Song", "artist": "Bob Marley & The Wailers"},
+      {"id": "33b9b9fd-15a1-4e1f-a10a-3d15df5e58f0", "title": "Three Little Birds", "artist": "Bob Marley & The Wailers"},
+      {"id": "22b1e2a1-ceb1-4e88-a212-f0e248099ba9", "title": "Easy Skanking", "artist": "Bob Marley & The Wailers"},
+      {"id": "ef7d7372-a250-4103-a0bf-3427766bb615", "title": "Sun Is Shining", "artist": "Bob Marley & The Wailers"},
+      {"id": "266272ca-3a00-4364-b974-1aef7f1cc76d", "title": "Should I Stay or Should I Go", "artist": "The Clash"}
+    ]
+  },
+  {
+    "description": "dancehall riddims",
+    "songs": [
+      {"id": "4573ac4e-6d31-4d29-8374-22428dad0c36", "title": "Party", "artist": "Bad Bunny & Rauw Alejandro"},
+      {"id": "55fd05ea-0067-41cb-a2e9-e4e264a1d51b", "title": "Remote Control", "artist": "The Clash"},
+      {"id": "3f288b3a-3270-4984-9638-201c4d6754d3", "title": "Callaíta", "artist": "Bad Bunny & Tainy"},
+      {"id": "de9eb1df-07a2-41b2-9e40-32d78f2b9c09", "title": "Slide", "artist": "Calvin Harris feat. Frank Ocean & Migos"},
+      {"id": "10a868c7-67b1-4d4d-9040-0e706bdc6850", "title": "Everytime We Touch", "artist": "David Guetta & Chris Willis with Sebastian Ingrosso & Steve Angello"}
+    ]
+  },
+  {
+    "description": "afrobeat horns and grooves",
+    "songs": [
+      {"id": "0c6104c5-6669-480f-a534-96dadc3f462f", "title": "Hannah Hunt", "artist": "Vampire Weekend"},
+      {"id": "2760c03b-fc27-4783-89cc-fc69c3622b2f", "title": "Finger Back", "artist": "Vampire Weekend"},
+      {"id": "09f75557-a240-43d2-925d-da37fe901ee8", "title": "Diplomat’s Son", "artist": "Vampire Weekend"},
+      {"id": "cf156478-6f64-4194-9fd5-3659e4f2603c", "title": "Cousinz (Toy Selectah Mex-More remix)", "artist": "Vampire Weekend meets Toy Selectah"},
+      {"id": "507ecc4d-e166-41e5-a833-3378f189dba8", "title": "Step", "artist": "Vampire Weekend"}
+    ]
+  },
+  {
+    "description": "americana with banjo and fiddle",
+    "songs": [
+      {"id": "e5b2941b-5f13-44d0-9118-bd30f2080270", "title": "Danny Boy", "artist": "Johnny Cash"},
+      {"id": "353677c1-9bbd-46fb-908c-8638cd0e3660", "title": "Hey Porter", "artist": "Johnny Cash with The Earl Scruggs Revue"},
+      {"id": "b26cc47d-979b-4246-82cb-fdcd9ed0d0df", "title": "Daddy Sang Bass", "artist": "Johnny Cash"},
+      {"id": "25d8de5e-3662-4ffd-8dea-511a696ac3e7", "title": "Hurt", "artist": "Johnny Cash"},
+      {"id": "2b14524e-053d-4f01-98e1-79827ac0b242", "title": "Orange Blossom Special", "artist": "Johnny Cash"}
+    ]
+  },
+  {
+    "description": "modern country pop",
+    "songs": [
+      {"id": "5ea9a39e-feda-4a3f-87b2-b04662845576", "title": "Enchanted", "artist": "Taylor Swift"},
+      {"id": "b9e8436a-ef5d-4949-af67-f95ce1667f50", "title": "I Walk the Line", "artist": "Johnny Cash and Tennessee Two"},
+      {"id": "acedac8b-dc8a-4a0c-9a07-36298239bd6d", "title": "22", "artist": "Taylor Swift"},
+      {"id": "80b42b24-c7d3-4126-b8d9-923fe2b39d6f", "title": "Cry! Cry! Cry!", "artist": "Johnny Cash"},
+      {"id": "c46a220b-32be-4094-b38c-78b84d76ec0a", "title": "White Horse", "artist": "Taylor Swift"}
+    ]
+  },
+  {
+    "description": "indie folk with acoustic guitar",
+    "songs": [
+      {"id": "827e21e9-6734-4037-9b6a-e37bd2bc8872", "title": "I’m Still Remembering", "artist": "The Cranberries"},
+      {"id": "bd045f9d-573c-4ff4-8091-9a26b387c25e", "title": "The Needle and the Damage Done", "artist": "Neil Young"},
+      {"id": "5857b092-93ae-434d-b3f1-3f959396732b", "title": "Girl From the North Country", "artist": "Bob Dylan"},
+      {"id": "e3e2e4c1-209b-45dd-833d-fba8fc0f5f25", "title": "Stoned at the Nail Salon", "artist": "Lorde"},
+      {"id": "2bd02152-fa74-46a0-96e6-50705ab8f5fe", "title": "Buckets of Rain", "artist": "Bob Dylan"}
+    ]
+  },
+  {
+    "description": "singer-songwriter confessional songs",
+    "songs": [
+      {"id": "b5c91153-8ca6-48a7-b01d-cbb7741d07ef", "title": "And Dream of Sheep", "artist": "Kate Bush"},
+      {"id": "c67191d6-96b2-46ff-8c45-803c3a527b81", "title": "Mother Stands for Comfort", "artist": "Kate Bush"},
+      {"id": "d400a788-9f83-4c6c-b5ad-23da77885158", "title": "Romulus", "artist": "Sufjan Stevens"},
+      {"id": "46c37906-e7a2-4b9c-8ded-358b831a3570", "title": "Baby Britain", "artist": "Elliott Smith"},
+      {"id": "52a95423-20c2-4530-85be-5a90d065de67", "title": "New York State of Mind", "artist": "Billy Joel"}
+    ]
+  },
+  {
+    "description": "christmas songs",
+    "songs": [
+      {"id": "6861e803-5e73-4ee9-ba4e-2f7883920ec5", "title": "It Came Upon a Midnight Clear", "artist": "Frank Sinatra"},
+      {"id": "23b8b7c9-79fd-48c9-85d0-ea82e2b0718b", "title": "Santa Tell Me", "artist": "Ariana Grande"},
+      {"id": "d9644376-25f1-4ab1-a006-405061be6041", "title": "Have Yourself a Merry Little Christmas", "artist": "Frank Sinatra"},
+      {"id": "d3b36a38-d51e-4a15-a699-1252100d07e0", "title": "O Come O Come Emmanuel", "artist": "Sufjan Stevens"},
+      {"id": "5c8fad86-bd8a-4b98-920a-99d54e2533c6", "title": "The Christmas Song", "artist": "Frank Sinatra"}
+    ]
+  },
+  {
+    "description": "harmonica-driven tunes",
+    "songs": [
+      {"id": "ca51dca9-58e1-4a94-9ad9-fed58af17c13", "title": "What Difference Does It Make?", "artist": "The Smiths"},
+      {"id": "8fb07b65-3d0a-45b5-9d05-7d9953fe5801", "title": "Still Ill", "artist": "The Smiths"},
+      {"id": "176968ab-6750-4efe-af72-a64366ceea50", "title": "Jaded", "artist": "Aerosmith"},
+      {"id": "bbe7328d-e03f-4a3f-98ea-320789302ed3", "title": "Roadhouse Blues", "artist": "The Doors"},
+      {"id": "84c487bc-7614-4c8f-87ec-a5a6e6903e8c", "title": "Walk This Way", "artist": "Aerosmith"}
+    ]
+  },
+  {
+    "description": "upbeat happy songs for a road trip",
+    "songs": [
+      {"id": "627dc4fa-e98f-4a5d-8f49-60b5da68e182", "title": "Going Mobile", "artist": "The Who"},
+      {"id": "bb7bf5ae-59bb-4035-a67e-683dfcd50e80", "title": "I’m Not in Your Mind", "artist": "King Gizzard & the Lizard Wizard"},
+      {"id": "9420e8c4-2ff5-4092-a31c-38aacc5d42d0", "title": "Wouldn’t It Be Nice", "artist": "The Beach Boys"},
+      {"id": "abce6106-6fd1-47f0-b44b-046c4620f463", "title": "Warning Call (Theme from Mirror’s Edge Catalyst)", "artist": "CHVRCHES"},
+      {"id": "efdd86af-12fb-44fa-8e34-e0e67e5b58be", "title": "Big Fig Wasp", "artist": "King Gizzard & the Lizard Wizard"}
+    ]
+  },
+  {
+    "description": "sad songs to cry to",
+    "songs": [
+      {"id": "24de5592-9e9d-406e-ba52-cc658b5ec13e", "title": "Solar Power", "artist": "Lorde"},
+      {"id": "da13c70b-4a99-44f7-920f-febcc64e6f7b", "title": "Dominoes", "artist": "Lorde"},
+      {"id": "d853e25f-068c-47d5-a70a-9ccc71f2227e", "title": "GOLDWING", "artist": "Billie Eilish"},
+      {"id": "b0e60b9a-a636-4ac8-91d3-822823741f8b", "title": "Chemtrails Over the Country Club", "artist": "Lana Del Rey"},
+      {"id": "603f0c19-cf20-4243-8d2d-cbddd5b0082e", "title": "Young and Beautiful (DH orchestral version)", "artist": "Lana Del Rey"}
+    ]
+  },
+  {
+    "description": "party anthems to dance all night",
+    "songs": [
+      {"id": "b77ff595-2817-45a1-b91c-cfa81a28e558", "title": "Yeah (crass version)", "artist": "LCD Soundsystem"},
+      {"id": "2ab98d4f-9e7b-4dd5-8489-55f4516a2f3d", "title": "Liberty Walk", "artist": "Miley Cyrus"},
+      {"id": "60b13097-f5e5-4ee8-8933-7dc0f3e6bf92", "title": "Somebody to Love", "artist": "Justin Bieber"},
+      {"id": "d1178dfe-1c46-4199-9899-b65627ef6cc1", "title": "Homemade Dynamite", "artist": "Lorde"},
+      {"id": "adb991c6-a90f-4025-9ddd-256fd92b698a", "title": "Two More Lonely People", "artist": "Miley Cyrus"}
+    ]
+  },
+  {
+    "description": "dark and intense",
+    "songs": [
+      {"id": "5388ce74-a4b1-4d19-b6cc-75b1c706748b", "title": "hostage", "artist": "Billie Eilish"},
+      {"id": "b91642fb-d137-4601-90de-a38aae2de648", "title": "All Alright", "artist": "Sigur Rós"},
+      {"id": "fa518c6d-3a74-42cb-bf63-842bf85b7344", "title": "Robot Stop", "artist": "King Gizzard & the Lizard Wizard"},
+      {"id": "1556b0af-2222-47b5-8a0f-0c65a8ee8f74", "title": "The Vulture", "artist": "Pendulum"},
+      {"id": "2fbd5b7f-bd31-4149-84c3-4949f450bf21", "title": "Oxytocin", "artist": "Billie Eilish"}
+    ]
+  },
+  {
+    "description": "mellow and relaxed background music",
+    "songs": [
+      {"id": "ea42a36a-ced7-4326-a7d3-c91456b49d0b", "title": "Snow ((Hey Oh))", "artist": "Red Hot Chili Peppers"},
+      {"id": "8697746c-61eb-4081-aac8-618d739739d0", "title": "The Smallest Weird Number", "artist": "Boards of Canada"},
+      {"id": "11a79554-a2ce-421a-bd06-2ea8c94bdc13", "title": "In the Annexe", "artist": "Boards of Canada"},
+      {"id": "18828062-8b1e-4b1c-84b9-a3472798789f", "title": "Gyroscope", "artist": "Boards of Canada"},
+      {"id": "cf47bcb6-9fd9-4b56-b6b8-e89bbb96178f", "title": "You’ve Changed", "artist": "Sia"}
+    ]
+  },
+  {
+    "description": "dreamy hazy pop",
+    "songs": [
+      {"id": "8eca111a-7fdc-4e37-89ed-3482fd73a98f", "title": "Andvari", "artist": "Sigur Rós"},
+      {"id": "20af32c5-38f3-4717-a65b-8dcb26ce53b8", "title": "Unravel", "artist": "Björk"},
+      {"id": "6ebddcb2-46e0-4604-b6f3-2ae8641def7d", "title": "Playground Love", "artist": "Air sung by Gordon Tracks"},
+      {"id": "5640e03c-af18-4d9c-8d68-60e2e99b16d4", "title": "Oblivion", "artist": "Grimes"},
+      {"id": "9420e8c4-2ff5-4092-a31c-38aacc5d42d0", "title": "Wouldn’t It Be Nice", "artist": "The Beach Boys"}
+    ]
+  },
+  {
+    "description": "female voice over electronic beats",
+    "songs": [
+      {"id": "defbfcb2-7a5c-4456-be28-b7e5ccf92cc2", "title": "Something About Us", "artist": "Daft Punk"},
+      {"id": "2b31b99b-3018-4ba3-831b-47d9e7f7f41d", "title": "Close to Me", "artist": "The Cure"},
+      {"id": "59038571-03ea-4ca4-965c-a57eae2aa138", "title": "Face to Face", "artist": "Daft Punk"},
+      {"id": "c3ace904-a6bd-4e70-b550-c88785610ef9", "title": "Dissolved Girl", "artist": "Massive Attack"},
+      {"id": "66f340f5-ccaa-4b63-a6ec-dcf67c6982df", "title": "Derezzed", "artist": "Daft Punk"}
+    ]
+  },
+  {
+    "description": "male vocals and acoustic guitar",
+    "songs": [
+      {"id": "b50318df-f7ce-4a30-9612-d990757ee58c", "title": "Nightswimming", "artist": "R.E.M."},
+      {"id": "8612df62-c231-48bc-b907-e5fe8120a13f", "title": "Wash.", "artist": "Bon Iver"},
+      {"id": "040b6c83-6e68-4821-8a58-9ae2ebfefa89", "title": "America", "artist": "Simon & Garfunkel"},
+      {"id": "78885bda-3724-47eb-8cfc-b6f24d4a3965", "title": "April Come She Will", "artist": "Simon & Garfunkel"},
+      {"id": "183b0586-b8dc-4bd4-9abb-17e98fb3f29f", "title": "Half a World Away", "artist": "R.E.M."}
+    ]
+  },
+  {
+    "description": "aggressive rap with heavy bass",
+    "songs": [
+      {"id": "3962ed20-1e44-4ab6-9eca-13e04e466249", "title": "D.O.A. (Death of Auto‐Tune)", "artist": "Jay‐Z"},
+      {"id": "36b316fd-3198-441b-adb2-650fc1449972", "title": "Insane", "artist": "Eminem"},
+      {"id": "2e7be724-e3c8-4340-bf19-5d6c1b612fee", "title": "Marshall Mathers", "artist": "Eminem"},
+      {"id": "c66c1a38-0ba8-4ec9-be68-6221c9160530", "title": "Criminal", "artist": "Eminem"},
+      {"id": "ada798cb-ba04-48f4-b553-135438fe3f6c", "title": "Cold Wind Blows", "artist": "Eminem"}
+    ]
+  },
+  {
+    "description": "noise rock feedback",
+    "songs": [
+      {"id": "b9f26196-37c4-4ab9-96c2-37a346e2ace6", "title": "Kissability", "artist": "Sonic Youth"},
+      {"id": "c638c62f-7919-417f-a339-541a9392da63", "title": "Sugar Kane", "artist": "Sonic Youth"},
+      {"id": "62b1eff7-b615-46a2-9a6c-1501bfe7d4af", "title": "I’m Amazed", "artist": "Pixies"},
+      {"id": "2f5cc9f9-723b-459e-bbd2-b0ad0a751137", "title": "Gigantic", "artist": "Pixies"},
+      {"id": "2be4c661-6c75-4455-93f5-f2b6e2cd7b9e", "title": "Mary‐Christ", "artist": "Sonic Youth"}
+    ]
+  },
+  {
+    "description": "witch house, creepy and slow",
+    "songs": [
+      {"id": "2ed98963-2b03-46ec-aba0-7ce2bd6f4e8f", "title": "Swan Song", "artist": "Grimes"},
+      {"id": "2e1c7c0c-c0a5-4cf0-8195-26b29bb3d299", "title": "xxzxcuzx me", "artist": "Crystal Castles"},
+      {"id": "73acdb9c-31a5-436d-bb33-b83ea778dfbb", "title": "Courtship Dating", "artist": "Crystal Castles"},
+      {"id": "51999b1f-b26a-4e06-bfa9-c69c4b92c092", "title": "∆∆∆∆Rasik∆∆∆∆", "artist": "Grimes"},
+      {"id": "8269f7f4-5222-4f9f-9a58-afd861424926", "title": "Weregild", "artist": "Grimes"}
+    ]
+  },
+  {
+    "description": "latin pop rhythms",
+    "songs": [
+      {"id": "24565488-77fe-458d-9e57-8c06e16338ce", "title": "Body Language", "artist": "Kali Uchis"},
+      {"id": "1e6fa869-de1a-4669-8582-8b7b697d5886", "title": "vaya con dios", "artist": "Kali Uchis"},
+      {"id": "ae147939-6276-4539-8009-712de91bf379", "title": "no eres tu(soy yo)", "artist": "Kali Uchis"},
+      {"id": "a6d46856-0b20-4324-aac8-d2efd7f45aa5", "title": "quiero sentirme bien", "artist": "Kali Uchis"},
+      {"id": "f094b32c-d8ec-46a0-a1b6-b4f3a9fc8d83", "title": "Tití me preguntó", "artist": "Bad Bunny"}
+    ]
+  },
+  {
+    "description": "rock pesado com guitarras distorcidas",
+    "songs": [
+      {"id": "877c7bff-2485-4a6d-b831-e251e6eeefa0", "title": "You Shook Me All Night Long", "artist": "AC/DC"},
+      {"id": "a8009036-b13e-4cb8-b2c7-2c3f9735b735", "title": "Down With the Sickness", "artist": "Disturbed"},
+      {"id": "b96f272b-3370-4a6b-ba53-1e905374a451", "title": "Engel", "artist": "Rammstein"},
+      {"id": "87802163-248b-4766-a051-ac5fcd5dd548", "title": "The Fallen", "artist": "Franz Ferdinand"},
+      {"id": "c2792105-627d-41ff-bb44-d5096795934c", "title": "Amerika", "artist": "Rammstein"}
+    ]
+  },
+  {
+    "description": "metal rápido e barulhento",
+    "songs": [
+      {"id": "865f015e-0ecf-4af5-b019-9edf16ea21c5", "title": "Schism", "artist": "Tool"},
+      {"id": "cf8d54e9-7db0-40e9-8d51-342268447e51", "title": "ATWA", "artist": "System of a Down"},
+      {"id": "a20860e9-7636-422b-a9cd-2da671b242a8", "title": "Welcome Home (Sanitarium)", "artist": "Metallica"},
+      {"id": "0151d8a4-50c8-4036-b824-4a4f4b140e8e", "title": "Master of Puppets", "artist": "Metallica"},
+      {"id": "50052fc5-7a97-479a-8563-299844846ad8", "title": "Duality", "artist": "Slipknot"}
+    ]
+  },
+  {
+    "description": "músicas tristes para chorar no quarto",
+    "songs": [
+      {"id": "3431818f-7925-4071-b618-4c50f0509520", "title": "Neon Gravestones", "artist": "twenty one pilots"},
+      {"id": "5e68b5c8-b16a-4105-b595-1438a4fce58b", "title": "Mariners Apartment Complex", "artist": "Lana Del Rey"},
+      {"id": "a79c748a-f38a-465e-85b7-ac20934c506b", "title": "Radical Notion", "artist": "Hans Zimmer"},
+      {"id": "7ed0e283-55dc-4832-90c1-ec014c9a5feb", "title": "Cancer", "artist": "My Chemical Romance"},
+      {"id": "603f0c19-cf20-4243-8d2d-cbddd5b0082e", "title": "Young and Beautiful (DH orchestral version)", "artist": "Lana Del Rey"}
+    ]
+  },
+  {
+    "description": "música animada para dançar na festa",
+    "songs": [
+      {"id": "36119119-c128-4c87-bdc8-83af13021534", "title": "The Edge of Glory", "artist": "Lady Gaga"},
+      {"id": "e1fe1d12-dac2-4325-ae1b-25e0ef06b998", "title": "Voyager", "artist": "Daft Punk"},
+      {"id": "4c0566be-d3d9-42b2-964d-cf349972123b", "title": "Don’t Stop the Music", "artist": "Rihanna"},
+      {"id": "df5218ab-8453-4061-ab0c-f991c1afc59b", "title": "I Like It Rough", "artist": "Lady Gaga"},
+      {"id": "47eaab1a-667b-490d-8094-168e7d0d9ad1", "title": "Bad", "artist": "Michael Jackson"}
+    ]
+  },
+  {
+    "description": "som calmo para relaxar depois do trabalho",
+    "songs": [
+      {"id": "824ec953-d221-4488-8c11-aff83ee7646e", "title": "Is This It", "artist": "The Strokes"},
+      {"id": "048e135c-204d-4d77-8e6a-203920768e4f", "title": "Black Milk", "artist": "Massive Attack"},
+      {"id": "cb704029-adf6-408f-b91b-6883df02540a", "title": "Inertia Creeps", "artist": "Massive Attack"},
+      {"id": "e25061c8-2b07-46f5-88b7-4d7b9a31b2a6", "title": "Kiara", "artist": "Bonobo"},
+      {"id": "e2e98345-f26a-446a-a95f-8a1741ac2d01", "title": "Last Living Souls", "artist": "Gorillaz"}
+    ]
+  },
+  {
+    "description": "rap pesado da costa oeste",
+    "songs": [
+      {"id": "fd83178d-c064-4689-9c09-bef8f1c4cad9", "title": "The Art of Peer Pressure", "artist": "Kendrick Lamar"},
+      {"id": "54494123-9670-4b2d-83ad-85c46c8f5200", "title": "Bitch, Don’t Kill My Vibe", "artist": "Kendrick Lamar"},
+      {"id": "898059a0-753c-4943-9604-d3c0e2929d81", "title": "DNA.", "artist": "Kendrick Lamar"},
+      {"id": "b5e1e12f-8832-4ba4-b772-de15e2db2009", "title": "Alright", "artist": "Kendrick Lamar"},
+      {"id": "85fd26d3-c92f-40c1-8d9d-169ddc7ca1ab", "title": "Nuthin’ but a “G” Thang", "artist": "Dr. Dre"}
+    ]
+  },
+  {
+    "description": "hip hop dos anos noventa com batida de boom bap",
+    "songs": [
+      {"id": "baa41267-29bf-4c88-a5f1-635e73b6f964", "title": "Gotta Have It", "artist": "Jay‐Z & Kanye West"},
+      {"id": "54f6b49f-8806-42e4-aba8-a65d356d2584", "title": "Superfast Jellyfish", "artist": "Gorillaz feat. Gruff Rhys and De La Soul"},
+      {"id": "35cd7342-74d2-4fe5-8e03-88edfa1cb1e1", "title": "The Genesis", "artist": "Nas"},
+      {"id": "9d4c57fe-ba72-40d5-8bf0-c9c85825bee0", "title": "Dirt Off Your Shoulder", "artist": "Jay‐Z"},
+      {"id": "d8295780-b92e-44ec-bff1-fe0eded8e1a0", "title": "So What’cha Want", "artist": "Beastie Boys"}
+    ]
+  },
+  {
+    "description": "pop dos anos oitenta com sintetizador",
+    "songs": [
+      {"id": "e2209423-291a-46ea-b3e9-935be1a5b41f", "title": "Life During Wartime", "artist": "Talking Heads"},
+      {"id": "d4708b79-62e7-4ce4-a6ca-247237d4ef4e", "title": "Holiday", "artist": "Madonna"},
+      {"id": "ce14eb9a-d279-4dc4-98b6-96d2d58949b2", "title": "I Dare You", "artist": "The xx"},
+      {"id": "d39e5e84-0395-4d25-9b27-685fd6282cca", "title": "Future Nostalgia", "artist": "Dua Lipa"},
+      {"id": "bca28527-18ca-45b2-a208-33a413733830", "title": "Canary in a Coalmine", "artist": "The Police"}
+    ]
+  },
+  {
+    "description": "rock clássico dos anos setenta",
+    "songs": [
+      {"id": "c46641c1-fdbc-4401-8b1d-23a4062a207a", "title": "Eclipse", "artist": "Pink Floyd"},
+      {"id": "84649f3b-6da6-4da6-8e33-a7a990b69516", "title": "Space Oddity", "artist": "David Bowie"},
+      {"id": "7c278a16-ae04-460c-88ea-39155cadcd09", "title": "Any Colour You Like", "artist": "Pink Floyd"},
+      {"id": "2cfad207-3f55-4aec-8120-86cf66e34d59", "title": "Immigrant Song", "artist": "Led Zeppelin"},
+      {"id": "a52c2553-1670-4262-9193-6ecd6713741a", "title": "Get Back", "artist": "The Beatles"}
+    ]
+  },
+  {
+    "description": "punk rápido e rebelde",
+    "songs": [
+      {"id": "0b6cea69-0935-415b-8d9c-981b3baef82d", "title": "The Kids Aren’t Alright", "artist": "The Offspring"},
+      {"id": "0ba72f0d-70ae-4655-94d9-c1069b5abcfb", "title": "Boulevard of Broken Dreams", "artist": "Green Day"},
+      {"id": "a23f107f-36cd-4a4c-b8d5-6dd73b9148c7", "title": "Wake Me Up When September Ends", "artist": "Green Day"},
+      {"id": "266272ca-3a00-4364-b974-1aef7f1cc76d", "title": "Should I Stay or Should I Go", "artist": "The Clash"},
+      {"id": "ada26bf1-1a82-4815-9c32-cd7e0efee913", "title": "Thnks fr th Mmrs", "artist": "Fall Out Boy"}
+    ]
+  },
+  {
+    "description": "grunge sujo dos anos noventa",
+    "songs": [
+      {"id": "26502c24-e08c-45a0-a7b6-44f7471d7054", "title": "Monkey Wrench", "artist": "Foo Fighters"},
+      {"id": "35cbb45d-0b40-415e-9301-f43fec4e1497", "title": "Black", "artist": "Pearl Jam"},
+      {"id": "9160e42b-8fae-402d-9cee-d6826c5cce33", "title": "Everlong", "artist": "Foo Fighters"},
+      {"id": "d141baa5-ad5d-4893-aa9e-ae50d6c117bf", "title": "Jeremy", "artist": "Pearl Jam"},
+      {"id": "ea61d42b-9a76-47fd-bcf7-df911640c309", "title": "On a Plain", "artist": "Nirvana"}
+    ]
+  },
+  {
+    "description": "rock alternativo com guitarra",
+    "songs": [
+      {"id": "4850f8e7-8f21-413e-892b-fe9c56844ccc", "title": "All My Life", "artist": "Foo Fighters"},
+      {"id": "2e78b900-7cbc-48a9-ad66-da19e51d16f0", "title": "Every Teardrop Is a Waterfall", "artist": "Coldplay"},
+      {"id": "f920f155-0864-4e7d-b310-6fe88ddfa8aa", "title": "Debaser", "artist": "Pixies"},
+      {"id": "5cb861d0-cccc-4355-a370-52675bd7dc24", "title": "Fuel", "artist": "Metallica"},
+      {"id": "22d49305-4e35-4a69-8638-05ac5f734065", "title": "Sparks", "artist": "Coldplay"}
+    ]
+  },
+  {
+    "description": "indie com clima melancólico",
+    "songs": [
+      {"id": "0feac813-1548-425b-b643-00cc52ab31a7", "title": "National Anthem", "artist": "Lana Del Rey"},
+      {"id": "9292cc80-2875-4efa-b7f8-ec2e25525d15", "title": "For Emma", "artist": "Bon Iver"},
+      {"id": "dd86c6c0-aefb-4cd1-a4d7-3843d5efc902", "title": "Towers", "artist": "Bon Iver"},
+      {"id": "bcc63ec2-f2c3-4635-a408-47f6efdd589b", "title": "No Light, No Light", "artist": "Florence + the Machine"},
+      {"id": "3b2d8c3a-ca92-4cfb-bd40-1e629008ec70", "title": "Stars", "artist": "The xx"}
+    ]
+  },
+  {
+    "description": "música eletrônica para a pista",
+    "songs": [
+      {"id": "438f8fb2-6d24-4f15-a538-9de6315628c4", "title": "Dirty Harry", "artist": "Gorillaz featuring Bootie Brown"},
+      {"id": "d63ad586-1124-4df1-9a2b-c014d7b7cb02", "title": "Crescendolls", "artist": "Daft Punk"},
+      {"id": "358f0172-3efe-4b09-84aa-7c0b060c9941", "title": "Waters of Nazareth", "artist": "Justice"},
+      {"id": "f1a6a40f-78f5-4918-968d-f64363bae94c", "title": "Harder, Better, Faster, Stronger", "artist": "Daft Punk"},
+      {"id": "8a98614f-0533-44ef-890a-639cab407a2d", "title": "Superheroes", "artist": "Daft Punk"}
+    ]
+  },
+  {
+    "description": "techno escuro e repetitivo",
+    "songs": [
+      {"id": "96535a95-fc0d-4eaf-a1ac-51a39fede629", "title": "Television Rules the Nation / Crescendolls", "artist": "Daft Punk"},
+      {"id": "e5e5e3c9-8515-4abf-aebb-7529b4e9aa0b", "title": "Xtal", "artist": "Aphex Twin"},
+      {"id": "003304eb-5bb9-498e-8185-c6b220e75692", "title": "Run On", "artist": "Moby"},
+      {"id": "632e9ad4-5f69-4c1a-9d8a-64aacede00b2", "title": "Funky Shit", "artist": "Prodigy"},
+      {"id": "bf5197ab-31f0-4861-b81b-91372145dc8e", "title": "Mindfields", "artist": "Prodigy"}
+    ]
+  },
+  {
+    "description": "drum and bass acelerado",
+    "songs": [
+      {"id": "652b8539-3f3f-4b3a-94b9-3ec4ddcd3af4", "title": "First of the Year (Equinox)", "artist": "Skrillex"},
+      {"id": "7f3c98ae-815b-4d86-87c1-be24bdbe5e8d", "title": "The Tempest", "artist": "Pendulum"},
+      {"id": "cc3f0192-6fc5-489e-a330-f5b52c3ab128", "title": "Granite", "artist": "Pendulum"},
+      {"id": "a3c325ce-fac4-42b9-85da-b3c9e0f243af", "title": "Comprachicos", "artist": "Pendulum"},
+      {"id": "63094111-98c6-4ca8-863d-edd165f5175d", "title": "Tarantula", "artist": "Pendulum feat. DJ Fresh, Spyda & Tenor Fly"}
+    ]
+  },
+  {
+    "description": "trilha sonora de filme épica",
+    "songs": [
+      {"id": "767825e6-72a9-4488-8f70-1ebb3e88365b", "title": "The World Is Yours", "artist": "Nas"},
+      {"id": "a4c4457b-577e-4fac-b820-713bb91dbb6c", "title": "All of the Lights", "artist": "Kanye West"},
+      {"id": "56346b16-32ce-482c-ad13-ff5f28714cc7", "title": "C.L.U.", "artist": "Daft Punk"},
+      {"id": "ecef4cec-8c3e-42ec-af55-1fd05d6a33af", "title": "Move Away", "artist": "The Killers"},
+      {"id": "917f2be3-065e-4d1e-8a76-1b50abd1ad95", "title": "And I Love Her", "artist": "The Beatles"}
+    ]
+  },
+  {
+    "description": "música ambiente para dormir",
+    "songs": [
+      {"id": "007e7a6d-944d-4046-96f8-615aad34837c", "title": "The Son of Flynn", "artist": "Daft Punk"},
+      {"id": "e9759a5a-5efc-4030-8168-f08790ae4ddc", "title": "All I Need", "artist": "Air feat. Beth Hirsch"},
+      {"id": "325735b0-a7a7-4193-83a7-25ec0c856c06", "title": "Kong", "artist": "Bonobo"},
+      {"id": "712edd8d-b413-4e4e-aca4-9b91fce2e65c", "title": "Nightvision", "artist": "Daft Punk"},
+      {"id": "7f527f79-3303-4f30-add1-3b58b65181d9", "title": "All Is Full of Love", "artist": "Björk"}
+    ]
+  },
+  {
+    "description": "trip hop escuro e lento",
+    "songs": [
+      {"id": "df53e8c6-3665-43fb-8324-a9306cb88c20", "title": "Eple", "artist": "Röyksopp"},
+      {"id": "cb704029-adf6-408f-b91b-6883df02540a", "title": "Inertia Creeps", "artist": "Massive Attack"},
+      {"id": "8e74dd9d-e5a3-4acd-918a-c36a0f8cda84", "title": "Angel", "artist": "Massive Attack"},
+      {"id": "e97f805a-ab48-4c52-855e-07049142113d", "title": "Strangers", "artist": "Portishead"},
+      {"id": "f3bba4cd-8018-468b-902e-bc8f029593e5", "title": "Teardrop", "artist": "Massive Attack"}
+    ]
+  },
+  {
+    "description": "soul e r&b romântico",
+    "songs": [
+      {"id": "e5aa0386-15cc-43a8-a059-b14fc39b8301", "title": "Right as Rain", "artist": "Adele"},
+      {"id": "453f8ecf-e853-45ec-8335-d240a15cd75f", "title": "Chasing Pavements", "artist": "Adele"},
+      {"id": "26396706-52fa-4778-85c8-f358d2ad1330", "title": "My Love", "artist": "Justin Timberlake feat. T.I."},
+      {"id": "fbcd0a63-2565-4610-a1e8-612d59851df7", "title": "Love on Top", "artist": "Beyoncé"},
+      {"id": "51f8c0d1-7562-41b0-b4f7-152a9b17abbc", "title": "Run the World (Girls)", "artist": "Beyoncé"}
+    ]
+  },
+  {
+    "description": "funk americano com baixo marcante",
+    "songs": [
+      {"id": "00f22db1-817b-44e0-bf14-54cfda874e1e", "title": "For Once in My Life", "artist": "Stevie Wonder"},
+      {"id": "85a752f8-cbad-42e6-8828-bd81318e3c7d", "title": "Purple Rain", "artist": "Prince and The Revolution"},
+      {"id": "d2c83920-6066-48f4-88d6-2ad6f469ecf4", "title": "1999", "artist": "Prince"},
+      {"id": "34c7b483-7ac5-4528-9561-76bb1d8d965d", "title": "My Cherie Amour", "artist": "Stevie Wonder"},
+      {"id": "8403caf8-3714-46da-934c-1fe91a049540", "title": "Thriller", "artist": "Michael Jackson"}
+    ]
+  },
+  {
+    "description": "disco dos anos setenta",
+    "songs": [
+      {"id": "9dbd4c26-c4ad-4abe-ba3e-88bfe6750518", "title": "Locked Out of Heaven", "artist": "Bruno Mars"},
+      {"id": "2351cd90-50cc-4862-bba0-6fa8b807b4e3", "title": "Dance Yrself Clean", "artist": "LCD Soundsystem"},
+      {"id": "a52309e7-7471-43d7-876e-b198fa6c3a20", "title": "Man in the Mirror", "artist": "Michael Jackson"},
+      {"id": "e097e9bc-8263-4e24-a6e6-8fa326b506c3", "title": "The Winner Takes It All", "artist": "ABBA"},
+      {"id": "10cdacde-e54a-412a-863b-81d9ea6b3df2", "title": "Daftendirekt", "artist": "Daft Punk"}
+    ]
+  },
+  {
+    "description": "reggae de raiz",
+    "songs": [
+      {"id": "623cc3b4-2e9c-4a88-b10e-466035f546f4", "title": "Redemption Song (band version)", "artist": "Bob Marley & The Wailers"},
+      {"id": "dcb62832-8fe5-4f8e-a4f9-c59ab73bfe25", "title": "Stir It Up", "artist": "Bob Marley & The Wailers"},
+      {"id": "32e3027e-772c-455d-921d-a280f7afff0e", "title": "Know Your Rights", "artist": "The Clash"},
+      {"id": "755ea925-c364-4e59-b21f-8d0f4f73f821", "title": "Jamming", "artist": "Bob Marley & The Wailers"},
+      {"id": "1dc2cb5f-5521-426d-a312-6b80c4f1a17b", "title": "Turn Your Lights Down Low", "artist": "Bob Marley & The Wailers"}
+    ]
+  },
+  {
+    "description": "country com violão e gaita",
+    "songs": [
+      {"id": "d22dab1f-b74a-44e6-ba33-bc5286506871", "title": "Treacherous", "artist": "Taylor Swift"},
+      {"id": "7fad175c-f7dd-4b1a-b338-d60bff61afce", "title": "All Too Well", "artist": "Taylor Swift"},
+      {"id": "0740f3ee-346d-4788-b14d-c81a74e06f7c", "title": "Stay Stay Stay", "artist": "Taylor Swift"},
+      {"id": "08f535c5-b651-4cc2-a8a8-349aa6060b16", "title": "Our Song", "artist": "Taylor Swift"},
+      {"id": "3c28eb47-edbe-49fe-ae24-7102dbda9b96", "title": "Personal Jesus", "artist": "Johnny Cash"}
+    ]
+  },
+  {
+    "description": "folk acústico com voz suave",
+    "songs": [
+      {"id": "eea94bda-e867-422b-a768-accde0abb075", "title": "For the Widows in Paradise, for the Fatherless in Ypsilanti", "artist": "Sufjan Stevens"},
+      {"id": "84e50f81-4cd5-4586-ba7b-dc8ee4a97e43", "title": "Perth", "artist": "Bon Iver"},
+      {"id": "32285fa5-fc18-4262-85f6-6c07a3bf9347", "title": "Babys", "artist": "Bon Iver"},
+      {"id": "c218b538-538d-4d71-9f6d-d063f5c57188", "title": "Holocene", "artist": "Bon Iver"},
+      {"id": "6199daf3-1d69-4a27-84bf-c456ccf521fe", "title": "If Not for You", "artist": "Bob Dylan"}
+    ]
+  },
+  {
+    "description": "jazz com saxofone",
+    "songs": [
+      {"id": "1d9a8f3b-e7b7-44b0-a004-04bc62f9755b", "title": "Superstition", "artist": "Stevie Wonder"},
+      {"id": "893a301c-b2c7-4a2a-af3e-67c2e7601137", "title": "They Can’t Take That Away From Me", "artist": "Frank Sinatra"},
+      {"id": "6ce06749-c9c6-4cd0-b016-81eae122dd9e", "title": "Summer Wind", "artist": "Frank Sinatra"},
+      {"id": "5ff58ef1-73af-4acf-aeb3-d451e57a198f", "title": "Moonlight Serenade", "artist": "Frank Sinatra"},
+      {"id": "7aa5821b-4dea-46d3-b6bf-fdac0171be73", "title": "My Favorite Things", "artist": "OutKast"}
+    ]
+  },
+  {
+    "description": "música com violino e violoncelo",
+    "songs": [
+      {"id": "52587f93-2a1d-45fb-a8ba-97aafa2c1f28", "title": "Dog Days Are Over", "artist": "Florence + the Machine"},
+      {"id": "e05c89f5-2976-4f7c-8033-553126bf4440", "title": "I’m Not Calling You a Liar", "artist": "Florence + the Machine"},
+      {"id": "e234705a-d068-43d5-a122-cef8f056588e", "title": "Just", "artist": "Radiohead"},
+      {"id": "1e73e7a6-7378-46e5-97a7-2c299c656a29", "title": "Fake Plastic Trees", "artist": "Radiohead"},
+      {"id": "0ca789c6-3618-48f1-8ee0-977f70a621d6", "title": "Uprising", "artist": "Muse"}
+    ]
+  },
+  {
+    "description": "rock progressivo com solos longos",
+    "songs": [
+      {"id": "bd5a8e36-b012-4eec-ba89-e435a8f6c58c", "title": "Unnatural Selection", "artist": "Muse"},
+      {"id": "d3528f95-1a3f-45d2-a569-826740c0adee", "title": "Comfortably Numb", "artist": "Pink Floyd"},
+      {"id": "7c278a16-ae04-460c-88ea-39155cadcd09", "title": "Any Colour You Like", "artist": "Pink Floyd"},
+      {"id": "b1a9c0e9-d987-4042-ae91-78d6a3267d69", "title": "Bohemian Rhapsody", "artist": "Queen"},
+      {"id": "60631778-1829-48c3-8752-701240b7f01f", "title": "Judith", "artist": "A Perfect Circle"}
+    ]
+  },
+  {
+    "description": "shoegaze sonhador",
+    "songs": [
+      {"id": "c4423a70-1e8e-45c8-98ad-c51bb25de925", "title": "Reunion", "artist": "M83"},
+      {"id": "35caf354-44ca-4943-b192-eb5b938e86f8", "title": "Chained", "artist": "The xx"},
+      {"id": "c72e9930-4cbc-4f69-aece-de2d966dc108", "title": "Unfold", "artist": "The xx"},
+      {"id": "e44d57a6-bdf4-4957-ba34-4d679842dd1b", "title": "New Map", "artist": "M83"},
+      {"id": "68accb1b-7681-4548-abae-2b66acb7cac1", "title": "This Is a Low", "artist": "Blur"}
+    ]
+  },
+  {
+    "description": "pós-punk sombrio",
+    "songs": [
+      {"id": "254a8e81-5661-42c8-9a60-7ed82ec102c1", "title": "Not Even Jail", "artist": "Interpol"},
+      {"id": "1c4eab85-b124-45f4-b953-c90a7340aaea", "title": "PDA", "artist": "Interpol"},
+      {"id": "6a17a1a8-a70e-4cd7-93c6-d9a54820c354", "title": "Bloodbuzz Ohio", "artist": "The National"},
+      {"id": "c67abe29-533f-4354-b818-c20168d215d0", "title": "Insight", "artist": "Joy Division"},
+      {"id": "f3cc9057-405f-4647-8837-ddcbf72649cc", "title": "Leif Erikson", "artist": "Interpol"}
+    ]
+  },
+  {
+    "description": "música alegre para começar o dia",
+    "songs": [
+      {"id": "0810268f-2e52-4f89-86be-42762ea3f6d4", "title": "Just Dance", "artist": "Lady Gaga featuring Colby O’Donis"},
+      {"id": "6587d91b-007f-47d6-aad0-0b22754c31a4", "title": "Howl", "artist": "Florence + the Machine"},
+      {"id": "36119119-c128-4c87-bdc8-83af13021534", "title": "The Edge of Glory", "artist": "Lady Gaga"},
+      {"id": "9420e8c4-2ff5-4092-a31c-38aacc5d42d0", "title": "Wouldn’t It Be Nice", "artist": "The Beach Boys"},
+      {"id": "f6b0d094-f2c3-476c-b4cc-f354cb377929", "title": "In My Place", "artist": "Coldplay"}
+    ]
+  },
+  {
+    "description": "som agressivo para treinar na academia",
+    "songs": [
+      {"id": "c5d402d0-feea-4a0c-bfb9-4235c91ae621", "title": "Eyeless", "artist": "Slipknot"},
+      {"id": "50021415-1a49-447b-8c86-805281b0da6c", "title": "Given Up", "artist": "Linkin Park"},
+      {"id": "c24eb26a-04d6-4f09-9449-9bc334f78ede", "title": "Bring Me to Life", "artist": "Evanescence"},
+      {"id": "a8009036-b13e-4cb8-b2c7-2c3f9735b735", "title": "Down With the Sickness", "artist": "Disturbed"},
+      {"id": "0ce3ae0e-8c21-4da6-9015-22c57359a703", "title": "(sic)", "artist": "Slipknot"}
+    ]
+  },
+  {
+    "description": "trap com batida pesada",
+    "songs": [
+      {"id": "801bd3db-df0c-474a-97b3-3e93701eadaa", "title": "Burn It", "artist": "Agust D feat. MAX"},
+      {"id": "cbab479e-3e2f-4c61-be2b-da81b0d1c2e7", "title": "Strange", "artist": "Agust D feat. RM"},
+      {"id": "2d6b5409-0a74-4ff7-a6e2-ed01fb6d30d6", "title": "28", "artist": "Agust D feat. NiiHWA"},
+      {"id": "509d7ad8-eb0e-47c4-a42a-2b93d54257e6", "title": "Sky", "artist": "Playboi Carti"},
+      {"id": "73784600-a665-4a6c-9687-187dbefc556d", "title": "SICKO MODE", "artist": "Travis Scott"}
+    ]
+  },
+  {
+    "description": "pop adolescente chiclete",
+    "songs": [
+      {"id": "258bc802-8111-4d16-b081-fae0ea6aecba", "title": "If U Seek Amy", "artist": "Britney Spears"},
+      {"id": "ffb6e773-2d24-420c-90ce-36b6025f31e2", "title": "Toxic", "artist": "Britney Spears"},
+      {"id": "e9687ebc-3b8f-4490-a804-94e605c25eec", "title": "Beautiful, Dirty, Rich", "artist": "Lady Gaga"},
+      {"id": "3d409b8b-7161-4787-8c89-ccee7b232d5d", "title": "Where Have You Been?", "artist": "Rihanna"},
+      {"id": "cbf0e52b-d15d-4506-a951-fd753bd9234f", "title": "Marry the Night", "artist": "Lady Gaga"}
+    ]
+  },
+  {
+    "description": "britpop dos anos noventa",
+    "songs": [
+      {"id": "ad922fb0-f2ac-4d47-803f-a61cfa69117e", "title": "The Bends", "artist": "Radiohead"},
+      {"id": "3a898c20-75f6-42ac-84d8-51ff5d33e324", "title": "Black Treacle", "artist": "Arctic Monkeys"},
+      {"id": "22d49305-4e35-4a69-8638-05ac5f734065", "title": "Sparks", "artist": "Coldplay"},
+      {"id": "cb0892d9-e2fc-46d8-a40a-616bea78c52a", "title": "Champagne Supernova", "artist": "Oasis"},
+      {"id": "b271dd19-ecee-4f87-b98a-a26b724f00e9", "title": "(Nice Dream)", "artist": "Radiohead"}
+    ]
+  },
+  {
+    "description": "rock psicodélico viajante",
+    "songs": [
+      {"id": "791c68c1-5e44-4ce9-8393-68832477ee3a", "title": "The End", "artist": "The Doors"},
+      {"id": "901e8dd7-3859-4243-a999-c7bc359c9984", "title": "Supersonic", "artist": "Oasis"},
+      {"id": "526bd613-fddd-4bd6-9137-ab709ac74cab", "title": "While My Guitar Gently Weeps", "artist": "The Beatles"},
+      {"id": "4b460bcc-b651-4270-90dc-3ca4e879bc5e", "title": "Morning Glory", "artist": "Oasis"},
+      {"id": "c46641c1-fdbc-4401-8b1d-23a4062a207a", "title": "Eclipse", "artist": "Pink Floyd"}
+    ]
+  },
+  {
+    "description": "synthwave retrô para dirigir à noite",
+    "songs": [
+      {"id": "b8b70c30-7730-46bf-a95e-e55e363dc6f0", "title": "Suffocation", "artist": "Crystal Castles"},
+      {"id": "5a5056f9-1bec-426e-bc39-2ba1d22bb13b", "title": "S&M", "artist": "Rihanna"},
+      {"id": "e11b7b45-8bb1-4cdf-8c2e-f30abc73d5b5", "title": "Flash Delirium", "artist": "MGMT"},
+      {"id": "47974dfd-f37d-4f41-b952-18a86af009d2", "title": "Scary Monsters and Nice Sprites", "artist": "Skrillex"},
+      {"id": "ac7d4117-8037-4efe-880e-56656343941a", "title": "Radar", "artist": "Britney Spears"}
+    ]
+  },
+  {
+    "description": "música de videogame",
+    "songs": [
+      {"id": "52fefe9d-7f68-486e-b88e-b3d8edd66a5c", "title": "Haggstrom", "artist": "C418"},
+      {"id": "0f5e528d-72f6-443e-919e-6f9b3c1b09a4", "title": "Death", "artist": "C418"},
+      {"id": "3946373d-8d40-4a16-8af9-acec5e2001c7", "title": "Hip Shop", "artist": "Toby Fox"},
+      {"id": "1b84ff5d-22c1-40eb-9adb-39962740944f", "title": "Moog City", "artist": "C418"},
+      {"id": "73acdb9c-31a5-436d-bb33-b83ea778dfbb", "title": "Courtship Dating", "artist": "Crystal Castles"}
+    ]
+  },
+  {
+    "description": "som industrial e mecânico",
+    "songs": [
+      {"id": "f6df8d3c-a61d-4373-90c3-d6cdecfd711f", "title": "The Dope Show", "artist": "Marilyn Manson"},
+      {"id": "55844e7e-eed5-4533-b429-681da9c81616", "title": "Only", "artist": "Nine Inch Nails"},
+      {"id": "7e87ef92-a0f2-4580-a4b3-758a8651926a", "title": "The Day the World Went Away", "artist": "Nine Inch Nails"},
+      {"id": "66d2a89b-0a02-452f-8332-03e12d28ffee", "title": "Feuer frei", "artist": "Rammstein"},
+      {"id": "7d4afa1f-cdd4-4b8d-b783-becba69fb903", "title": "Every Day Is Exactly the Same", "artist": "Nine Inch Nails"}
+    ]
+  },
+  {
+    "description": "voz feminina suave e acústica",
+    "songs": [
+      {"id": "573e2874-a9c2-438b-a735-969d17a38214", "title": "Old Friends", "artist": "Simon & Garfunkel"},
+      {"id": "88a09f24-bda0-417f-9f21-fe15f662fdec", "title": "Twilight", "artist": "Elliott Smith"},
+      {"id": "3dff9afa-7883-4030-9055-353e16135ee8", "title": "Little Black Sandals", "artist": "Sia"},
+      {"id": "c67191d6-96b2-46ff-8c45-803c3a527b81", "title": "Mother Stands for Comfort", "artist": "Kate Bush"},
+      {"id": "9a80acb2-67cb-4638-b82d-f5e42ea018ec", "title": "Maggie’s Farm", "artist": "Bob Dylan"}
+    ]
+  },
+  {
+    "description": "instrumental sem voz para concentrar",
+    "songs": [
+      {"id": "ef756a43-0905-4e59-8f05-a6b2bd977aa8", "title": "Dayvan Cowboy", "artist": "Boards of Canada"},
+      {"id": "af21eaa4-45a5-4868-a924-26042cc9bf78", "title": "Glósóli", "artist": "Sigur Rós"},
+      {"id": "2333884e-0aa5-44a3-8a0f-80563adbb735", "title": "Með blóðnasir", "artist": "Sigur Rós"},
+      {"id": "e5e5e3c9-8515-4abf-aebb-7529b4e9aa0b", "title": "Xtal", "artist": "Aphex Twin"},
+      {"id": "45864691-1ce9-46d2-bc36-1bb606640b10", "title": "Extreme Ways", "artist": "Moby"}
+    ]
+  },
+  {
+    "description": "dancehall e reggaeton para mexer",
+    "songs": [
+      {"id": "f094b32c-d8ec-46a0-a1b6-b4f3a9fc8d83", "title": "Tití me preguntó", "artist": "Bad Bunny"},
+      {"id": "b0279b65-7c3a-4ee5-8b3e-e59ce9b6b78d", "title": "Dispear", "artist": "Nas & Damian Marley"},
+      {"id": "87a71ec0-b829-4f83-9ca2-5478429fe21a", "title": "I’m Into You", "artist": "Jennifer Lopez feat. Lil Wayne"},
+      {"id": "de9a9be9-002b-4aa8-8753-41eeab044333", "title": "Strong Will Continue", "artist": "Nas & Damian Marley"},
+      {"id": "41530d86-2eeb-40dc-b041-28f990611a11", "title": "Melting", "artist": "Kali Uchis"}
+    ]
+  },
+  {
+    "description": "música natalina",
+    "songs": [
+      {"id": "08ae0a43-7af9-42b5-b943-ef31b2ac8fd7", "title": "What Christmas Means to Me", "artist": "Stevie Wonder"},
+      {"id": "5c8fad86-bd8a-4b98-920a-99d54e2533c6", "title": "The Christmas Song", "artist": "Frank Sinatra"},
+      {"id": "23b8b7c9-79fd-48c9-85d0-ea82e2b0718b", "title": "Santa Tell Me", "artist": "Ariana Grande"},
+      {"id": "bf44a8cd-8539-4430-949b-b6fe3201b014", "title": "Pray", "artist": "Justin Bieber"},
+      {"id": "272770ae-6eef-4e03-85f7-e69ea3cdd9e7", "title": "Let It Snow! Let It Snow! Let It Snow!", "artist": "Frank Sinatra"}
+    ]
+  },
+  {
+    "description": "emo dos anos 2000",
+    "songs": [
+      {"id": "bbc1a87b-2ca1-4c28-b8d0-ba7f9420719c", "title": "Playing God", "artist": "Paramore"},
+      {"id": "1c398e28-a63d-4c25-813b-ef9a96aadacb", "title": "Basket Case", "artist": "Green Day"},
+      {"id": "ff1b9745-11e6-4e65-ba05-81b8ee1f5555", "title": "crushcrushcrush", "artist": "Paramore"},
+      {"id": "786e1009-2663-49e0-873d-f0cf06f51a25", "title": "Dance, Dance", "artist": "Fall Out Boy"},
+      {"id": "3035c372-44d5-401f-ad96-155fd89f8de5", "title": "But It’s Better If You Do", "artist": "Panic! at the Disco"}
+    ]
+  },
+  {
+    "description": "metal sinfônico com coral",
+    "songs": [
+      {"id": "24da9484-f122-4d76-9db8-0daed341cd9e", "title": "Dark Chest of Wonders", "artist": "Nightwish"},
+      {"id": "099ea0c4-9c97-4a71-b886-ca1aff557be3", "title": "Elvenpath", "artist": "Nightwish"},
+      {"id": "4246bace-0765-4715-84cb-fbb1e4247f2a", "title": "Nemo", "artist": "Nightwish"},
+      {"id": "9793fd25-469c-41b5-aabd-c04fa3ab0984", "title": "Eva", "artist": "Nightwish"},
+      {"id": "39aaa2f7-383b-443e-8c31-534df2b55845", "title": "Come Cover Me", "artist": "Nightwish"}
+    ]
+  },
+  {
+    "description": "rap consciente com letra forte",
+    "songs": [
+      {"id": "13f19cf6-3a5e-46ce-83c5-4c8f76f4eb1e", "title": "Soundtrack 2 My Life", "artist": "Kid Cudi"},
+      {"id": "edb2f3f1-9cfa-4d70-8be0-3c78da2c7b65", "title": "Scenario", "artist": "A Tribe Called Quest"},
+      {"id": "ea858394-fd9d-41dc-aaef-59e9f94c3dbf", "title": "REVOFEV", "artist": "Kid Cudi"},
+      {"id": "0f530514-9275-45f4-a5d5-0264374c1261", "title": "Mockingbird", "artist": "Eminem"},
+      {"id": "7a84cef9-dc6c-4db2-80e8-3bfc78853093", "title": "Can I Kick It?", "artist": "A Tribe Called Quest"}
+    ]
+  },
+  {
+    "description": "lo-fi caseiro e tranquilo",
+    "songs": [
+      {"id": "2022eb60-8f11-4e43-bfa1-bda62fca5d82", "title": "Vanessa", "artist": "Grimes"},
+      {"id": "2aefd14e-d8b5-4c7f-88a6-b14698827ed4", "title": "Genesis", "artist": "Grimes"},
+      {"id": "7b8fb58b-833b-4edc-9829-280dbd296b60", "title": "Symphonia IX (My Wait Is U)", "artist": "Grimes"},
+      {"id": "d2524bb1-4817-46b0-ad34-681651735a1d", "title": "Saltwater", "artist": "Beach House"},
+      {"id": "16994337-ca9f-42cc-8c5c-5f9a4a5ec657", "title": "Tropicalia", "artist": "Beck"}
+    ]
+  },
+  {
+    "description": "rock sulista de estrada",
+    "songs": [
+      {"id": "1e873fa6-9821-4abf-bf37-6a0c4a19cfc2", "title": "Fans", "artist": "Kings of Leon"},
+      {"id": "e832b734-62e9-4eb7-84f8-0951f39e719e", "title": "Heart of Gold", "artist": "Neil Young"},
+      {"id": "962dc1be-6d73-4c4b-990e-01193319e34b", "title": "Lookin’ out My Back Door", "artist": "Creedence Clearwater Revival"},
+      {"id": "1632ee2b-4f4b-42eb-909f-8279e66dc1ce", "title": "Proud Mary", "artist": "Creedence Clearwater Revival"},
+      {"id": "882a8c40-b184-446d-8510-88460a6a6f11", "title": "Fearless", "artist": "Taylor Swift"}
+    ]
+  },
+  {
+    "description": "música sombria e intensa",
+    "songs": [
+      {"id": "23caec99-7f8d-4c26-90d7-04d3750c5970", "title": "8", "artist": "Billie Eilish"},
+      {"id": "5c258c60-1314-44f4-903b-19060eb6f714", "title": "Control", "artist": "Halsey"},
+      {"id": "1556b0af-2222-47b5-8a0f-0c65a8ee8f74", "title": "The Vulture", "artist": "Pendulum"},
+      {"id": "efdd86af-12fb-44fa-8e34-e0e67e5b58be", "title": "Big Fig Wasp", "artist": "King Gizzard & the Lizard Wizard"},
+      {"id": "95fa629b-fada-4c7e-b4e3-ea9d0f66a2e6", "title": "Rattlesnake", "artist": "King Gizzard & the Lizard Wizard"}
+    ]
+  },
+  {
+    "description": "rock dos anos cinquenta",
+    "songs": [
+      {"id": "60d495a8-2a6e-46fa-94c7-7cce05b945ed", "title": "Cotton Fields", "artist": "Creedence Clearwater Revival"},
+      {"id": "9aa8bd61-65cd-4252-8634-8bdc1b97c20c", "title": "All Shook Up", "artist": "Elvis Presley"},
+      {"id": "25541f45-253c-4fba-bbf1-9d3882cf8ae0", "title": "Not Fade Away", "artist": "The Rolling Stones"},
+      {"id": "9c2b1e21-33f3-4482-813b-c9ea34094a3a", "title": "Eight Days a Week", "artist": "The Beatles"},
+      {"id": "09fa8bae-e17c-4866-85c2-7357937e7889", "title": "Surfin’ U.S.A.", "artist": "The Beach Boys"}
+    ]
+  }
+]

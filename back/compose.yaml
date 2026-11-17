@@ -87,6 +87,8 @@ services:
       # Optional: without them every Song is "not available" for Preview.
       SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID:-}
       SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET:-}
+    volumes:
+      - models:/models/own:ro # trained model versions, written by the worker
     ports:
       - "127.0.0.1:8000:8000"
     healthcheck:
@@ -123,6 +125,8 @@ services:
       target: api
     command: ["python", "-m", "timbre_back.worker"]
     restart: unless-stopped
+    volumes:
+      - models:/models/own # the train job writes model versions here
     environment:
       ML_WORKER_PASSWORD: ${ML_WORKER_PASSWORD}
       # Empty is allowed: only the import job needs them, and it fails without them.
@@ -139,6 +143,8 @@ services:
     build:
       context: .
       target: tests
+    volumes:
+      - models:/models/own # test_train.py swaps the live model through it
     environment:
       API_URL: http://api:8000
       FRONT_TOKEN: ${FRONT_TOKEN}
@@ -154,3 +160,4 @@ services:
 
 volumes:
   db-data:
+  models:

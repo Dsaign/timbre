@@ -1,22 +1,24 @@
 """The Benchmark and the evaluate job: `python -m timbre_back.benchmark`.
 
 Loads the committed Benchmark files into catalog and queues evaluate. The job scores the
-promoted model version (the baseline, version 1) on the Benchmark, tunes its cutoff and
-Popularity weight, and records the three on it. Never imported by training code
-(ticket 15).
+promoted model version on the Benchmark, tunes its cutoff and Popularity weight, and
+records the three on it. The train job uses it only to evaluate and to keep Benchmark
+Descriptions out of training (train.may_train_on).
 """
 
 import asyncio
 import json
 import logging
 from pathlib import Path
+from typing import NamedTuple
 
 import numpy as np
-import numpy.typing as npt
 import psycopg
 
+from timbre_back import model as models
 from timbre_back.db import conninfo
 from timbre_back.embed import embed_query
+from timbre_back.model import DIMS, LABELS, Floats, Model
 
 log = logging.getLogger("timbre.benchmark")
 FILES = [
@@ -30,8 +32,6 @@ CUTOFFS = np.round(np.arange(0.5, 1.0, 0.005), 3)
 WEIGHTS = np.round(np.arange(0.0, 0.055, 0.005), 3)
 NONSENSE = "xkqzv wplmr tjhgf"  # must get 0 Matches, as in tests/test_search.py
 NONSENSE_MARGIN = 0.005  # the cutoff stays this far above the nonsense best Fit
-
-Floats = npt.NDArray[np.float32]
 
 
 async def load(conn: psycopg.AsyncConnection) -> None:
@@ -94,58 +94,115 @@ def tune(
     return best[0], best[1], -best[2]
 
 
-async def catalog_arrays(
-    conn: psycopg.AsyncConnection,
-) -> tuple[list[str], Floats, Floats]:
-    """IDs, vectors and Popularity (as in SEARCH_SQL) of the vectorized Songs."""
+class Catalog(NamedTuple):
+    """The vectorized Songs: IDs, vectors, labels (NaN without) and Popularity."""
+
+    song_ids: list[str]
+    vectors: Floats
+    labels: Floats
+    popularity: Floats
+
+
+async def catalog_arrays(conn: psycopg.AsyncConnection) -> Catalog:
+    """The vectorized Songs, Popularity as in SEARCH_SQL."""
     cur = await conn.execute(
-        "SELECT id::text, vector::text, listens,"
+        "SELECT id::text, vector::text, labels::text, listens,"
         " (SELECT max(listens) FROM catalog.songs)"
         " FROM catalog.songs WHERE vector IS NOT NULL"
     )
     songs = await cur.fetchall()
-    vectors = np.array([json.loads(v) for _, v, _, _ in songs], dtype=np.float32)
-    popularity = np.array(
-        [
-            np.log1p(listens) / np.log1p(max_listens) if max_listens else 0.0
-            for _, _, listens, max_listens in songs
-        ],
-        dtype=np.float32,
+    nan = [float("nan")] * LABELS
+    return Catalog(
+        [song_id for song_id, *_ in songs],
+        np.array([json.loads(v) for _, v, *_ in songs], dtype=np.float32).reshape(
+            -1, DIMS
+        ),
+        np.array(
+            [json.loads(labels) if labels else nan for _, _, labels, *_ in songs],
+            dtype=np.float32,
+        ).reshape(-1, LABELS),
+        np.array(
+            [
+                np.log1p(listens) / np.log1p(max_listens) if max_listens else 0.0
+                for *_, listens, max_listens in songs
+            ],
+            dtype=np.float32,
+        ),
     )
-    return [song_id for song_id, *_ in songs], vectors, popularity
 
 
-async def evaluate(conn: psycopg.AsyncConnection) -> None:
+class Benchmark(NamedTuple):
+    descriptions: list[str]
+    vectors: Floats  # e5 vectors of the Descriptions, then of NONSENSE
+    expected: list[list[int]]  # per Description, its Songs' Catalog indexes
+    catalog: Catalog
+
+    @property
+    def description_vectors(self) -> Floats:
+        """The e5 vectors of the Benchmark Descriptions alone, without NONSENSE."""
+        return self.vectors[:-1]
+
+
+async def read(conn: psycopg.AsyncConnection) -> Benchmark | None:
+    """The Benchmark against the Catalog, or None when no Song has a vector yet."""
     cur = await conn.execute(
         "SELECT d.description, array_agg(s.song_id::text)"
         " FROM catalog.benchmark_descriptions d"
         " JOIN catalog.benchmark_songs s ON s.description_id = d.id"
         " GROUP BY d.id ORDER BY d.id"
     )
-    benchmark = await cur.fetchall()
-    if not benchmark:
+    rows = await cur.fetchall()
+    if not rows:
         raise ValueError("the Benchmark is empty: run python -m timbre_back.benchmark")
-    song_ids, vectors, popularity = await catalog_arrays(conn)
-    if not song_ids:
+    catalog = await catalog_arrays(conn)
+    if not catalog.song_ids:
+        return None
+    index = {song_id: i for i, song_id in enumerate(catalog.song_ids)}
+    descriptions = [d for d, _ in rows]
+    vectors = await asyncio.to_thread(
+        lambda: [embed_query(d) for d in [*descriptions, NONSENSE]]
+    )
+    return Benchmark(
+        descriptions,
+        np.array(vectors, dtype=np.float32),
+        [[index.get(s, -1) for s in ids] for _, ids in rows],
+        catalog,
+    )
+
+
+def fits(model: Model, bench: Benchmark) -> tuple[Floats, float]:
+    """Each Description's Fit with each Song, and the nonsense Description's best."""
+    c = bench.catalog
+    all_fit = model.fit(bench.vectors, c.vectors, c.labels)
+    return all_fit[:-1], float(all_fit[-1].max())
+
+
+async def tuned(model: Model, bench: Benchmark) -> tuple[float, float, float]:
+    """The model's (score, cutoff, weight), tuned on the Benchmark."""
+    fit, nonsense_fit = fits(model, bench)
+    return await asyncio.to_thread(
+        tune, fit, bench.catalog.popularity, bench.expected, nonsense_fit
+    )
+
+
+async def evaluate(conn: psycopg.AsyncConnection) -> None:
+    bench = await read(conn)
+    if bench is None:
         log.warning("evaluate: skipped, no Song has a vector yet (build-vectors)")
         return
-    index = {song_id: i for i, song_id in enumerate(song_ids)}
-    descriptions = [d for d, _ in benchmark] + [NONSENSE]
-    queries = await asyncio.to_thread(lambda: [embed_query(d) for d in descriptions])
-    all_fit = np.array(queries, dtype=np.float32) @ vectors.T
-    fit, nonsense_fit = all_fit[:-1], float(all_fit[-1].max())
-    expected = [[index.get(s, -1) for s in ids] for _, ids in benchmark]
-
     cur = await conn.execute(
-        "SELECT cutoff, popularity_weight FROM catalog.model_versions WHERE promoted"
+        "SELECT cutoff, popularity_weight, file FROM catalog.model_versions"
+        " WHERE promoted"
     )
-    model = await cur.fetchone()
-    if model is None:
+    row = await cur.fetchone()
+    if row is None:
         raise ValueError("no promoted model version to evaluate and record on")
-    old_cutoff, old_weight = model
-    before = score(fit, popularity, expected, old_cutoff, old_weight)
+    old_cutoff, old_weight, file = row
+    fit, nonsense_fit = fits(models.load(file), bench)
+    popularity = bench.catalog.popularity
+    before = score(fit, popularity, bench.expected, old_cutoff, old_weight)
     best, cutoff, weight = await asyncio.to_thread(
-        tune, fit, popularity, expected, nonsense_fit
+        tune, fit, popularity, bench.expected, nonsense_fit
     )
     await conn.execute(
         "UPDATE catalog.model_versions"
@@ -157,8 +214,8 @@ async def evaluate(conn: psycopg.AsyncConnection) -> None:
         " the top %d) was %.3f at cutoff %.3f and weight %.3f; tuned %.3f at"
         " cutoff %.3f and weight %.3f (nonsense best Fit %.3f), recorded on the"
         " promoted model version",
-        len(benchmark),
-        len(song_ids),
+        len(bench.descriptions),
+        len(bench.catalog.song_ids),
         TOP,
         before,
         old_cutoff,
