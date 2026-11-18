@@ -4,8 +4,12 @@
 
 **Blocked by:** 07
 
-**Status:** needs-triage
+**Status:** resolved
 
-- [ ] Research first: what Spotify's iFrame API supports for Firefox and Safari (for example, creating the controller inside the click handler so the user activation still counts, or showing the embed's own play button as the fallback). Record the finding under `docs/research/`.
-- [ ] One click on "Prévia" either plays in Firefox and Safari, or the dock clearly asks for the one extra click (pt-BR copy), whichever the research shows is possible.
-- [ ] `e2e/preview.spec.ts` runs in every Playwright project again (remove its `test.fixme`).
+- [x] Research first: what Spotify's iFrame API supports for Firefox and Safari (for example, creating the controller inside the click handler so the user activation still counts, or showing the embed's own play button as the fallback). Record the finding under `docs/research/`.
+- [x] One click on "Prévia" either plays in Firefox and Safari, or the dock clearly asks for the one extra click (pt-BR copy), whichever the research shows is possible.
+- [x] `e2e/preview.spec.ts` runs in every Playwright project again (remove its `test.fixme`).
+
+## Comments
+
+Review (Carl): spec met and no standards breaks; fix the Firefox e2e (accept playing or the prompt, as the research says) and the live region hidden by `empty:hidden`; add `pointer-events-none` to the prompt; the rest are nits.

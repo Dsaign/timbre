@@ -26,7 +26,7 @@ type EmbedController = {
   pause(): void
   togglePlay(): void
   addListener(
-    event: 'playback_started' | 'playback_update',
+    event: 'ready' | 'playback_started' | 'playback_update',
     listener: (e: PlaybackEvent) => void
   ): void
 }
@@ -80,69 +80,109 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
   useEffect(() => setWavePlaying(!playing.paused), [playing.paused])
   const slot = useRef<HTMLDivElement>(null)
   const controller = useRef<Promise<EmbedController>>(null)
-
-  const play = useCallback((trackId: string) => {
-    const uri = `spotify:track:${trackId}`
-    setOpen(true)
-    if (controller.current) {
-      const { uri: current, paused } = playingNow.current
-      controller.current.then((c) => {
-        // The card that is playing pauses; any other card starts its own track.
-        if (current === uri && !paused) return c.togglePlay()
-        c.loadUri(uri)
-        c.play()
-      })
-      return
-    }
-    controller.current = loadIframeApi().then(
-      (api) =>
-        new Promise((resolve) => {
-          // The API replaces this element with its iframe, so React never owns it.
-          const element = document.createElement('div')
-          slot.current?.append(element)
-          api.createController(
-            element,
-            { uri, width: '100%', height: LAYOUT.dock.height },
-            (c) => {
-              c.addListener('playback_started', ({ data }) =>
-                setPlaying((p) => ({ ...p, uri: data.playingURI }))
-              )
-              c.addListener('playback_update', ({ data }) =>
-                setPlaying((p) =>
-                  p.paused === data.isPaused
-                    ? p
-                    : { ...p, paused: data.isPaused ?? true }
-                )
-              )
-              c.play()
-              resolve(c)
-            }
-          )
-        })
-    )
-    controller.current.catch(() => (controller.current = null))
+  // Safari (and maybe Firefox) block the embed's play() after a click on timbre (docs/research/
+  // spotify-embed-autoplay.md): a track still silent 2 s after it is ready asks for the embed's own play.
+  const [askPlay, setAskPlay] = useState(false)
+  const askPlayTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const hideAskPlay = useCallback(() => {
+    clearTimeout(askPlayTimer.current)
+    setAskPlay(false)
   }, [])
+  const armAskPlay = useCallback(() => {
+    clearTimeout(askPlayTimer.current)
+    askPlayTimer.current = setTimeout(() => setAskPlay(true), 2000)
+  }, [])
+  const loadedUri = useRef<string>(undefined)
+
+  const play = useCallback(
+    (trackId: string) => {
+      const uri = `spotify:track:${trackId}`
+      setOpen(true)
+      if (controller.current) {
+        const { uri: current, paused } = playingNow.current
+        controller.current.then((c) => {
+          // The card that is playing pauses; any other card starts its own track.
+          if (current === uri && !paused) return c.togglePlay()
+          hideAskPlay()
+          // Spotify skips reloading the loaded track, so no `ready` comes to arm the prompt.
+          if (loadedUri.current === uri) armAskPlay()
+          loadedUri.current = uri
+          c.loadUri(uri)
+          c.play()
+        })
+        return
+      }
+      loadedUri.current = uri
+      controller.current = loadIframeApi().then(
+        (api) =>
+          new Promise((resolve) => {
+            // The API replaces this element with its iframe, so React never owns it.
+            const element = document.createElement('div')
+            slot.current?.append(element)
+            api.createController(
+              element,
+              { uri, width: '100%', height: LAYOUT.dock.height },
+              (c) => {
+                c.addListener('ready', armAskPlay)
+                c.addListener('playback_started', ({ data }) => {
+                  hideAskPlay()
+                  setPlaying((p) => ({ ...p, uri: data.playingURI }))
+                })
+                c.addListener('playback_update', ({ data }) => {
+                  if (data.isPaused === false) hideAskPlay()
+                  setPlaying((p) =>
+                    p.paused === data.isPaused
+                      ? p
+                      : { ...p, paused: data.isPaused ?? true }
+                  )
+                })
+                c.play()
+                resolve(c)
+              }
+            )
+          })
+      )
+      controller.current.catch(() => (controller.current = null))
+    },
+    [armAskPlay, hideAskPlay]
+  )
 
   // Hidden and paused: no audio keeps playing out of sight.
   const close = useCallback(() => {
     setOpen(false)
+    hideAskPlay()
     controller.current?.then((c) => c.pause())
-  }, [])
+  }, [hideAskPlay])
 
   return (
     <PlayPreview value={{ play, close, open, playing }}>
       {children}
       {/* Exactly the embed (Spotify's smallest, LAYOUT.dock), nothing drawn over it, in its own
           space above the footer. overflow-hidden with the embed's own 12 px radius trims only
-          the empty corners around it (ADR 0001). */}
+          the empty corners around it (ADR 0001). The play prompt floats just above it. */}
       <section
         aria-label="Prévia no Spotify"
         data-dock={open ? 'open' : 'closed'}
         data-playing-uri={playing.uri}
         data-paused={playing.paused}
-        className="mx-auto mt-(--dock-gap) h-(--dock-height) w-[min(100%-2rem,max(36rem,60vw),48rem)] shrink-0 overflow-hidden rounded-xl data-[dock=closed]:hidden [&_iframe]:block [&_iframe]:border-0"
+        className="relative mx-auto mt-(--dock-gap) h-(--dock-height) w-[min(100%-2rem,max(36rem,60vw),48rem)] shrink-0 data-[dock=closed]:hidden [&_iframe]:block [&_iframe]:border-0"
       >
-        <div ref={slot} className="h-(--dock-height)" />
+        {/* The live region stays in the DOM (never display:none) so screen readers announce the
+            pill when it appears; it never takes clicks meant for the cards under it. */}
+        <p
+          role="status"
+          className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-(--dock-gap) -translate-x-1/2 text-xs whitespace-nowrap text-foreground"
+        >
+          {askPlay && (
+            <span className="block rounded-full bg-glass frosted px-3 py-1">
+              Toque em ▶ no player do Spotify para ouvir
+            </span>
+          )}
+        </p>
+        <div
+          ref={slot}
+          className="h-(--dock-height) overflow-hidden rounded-xl"
+        />
       </section>
     </PlayPreview>
   )

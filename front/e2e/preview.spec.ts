@@ -14,13 +14,37 @@ const dockOf = (page: Page) =>
 const cardsOf = (page: Page) =>
   page.getByRole('list', { name: 'Músicas' }).getByRole('listitem')
 
+// One click on Prévia plays in Chromium. Firefox and WebKit block the embed's play(), so the dock asks
+// for the embed's own play button (ticket 17, docs/research/spotify-embed-autoplay.md).
+const PROMPT = 'Toque em ▶ no player do Spotify para ouvir'
+async function expectPlaying(page: Page, browserName: string) {
+  const dock = dockOf(page)
+  if (browserName !== 'chromium') {
+    // Firefox may allow play() after all (see the research), so either outcome is fine.
+    const prompt = dock.getByText(PROMPT)
+    const playing = dock.and(page.locator('[data-paused="false"]'))
+    await expect(prompt.or(playing).first()).toBeVisible({ timeout: 20_000 })
+    if (
+      (await prompt.isVisible()) &&
+      (await dock.getAttribute('data-paused')) === 'true'
+    ) {
+      // Spotify's test id: the button's accessible name is localized ("Play" / "Pause").
+      await page
+        .frameLocator('iframe[src^="https://open.spotify.com/embed/"]')
+        .getByTestId('play-pause-button')
+        .click()
+    }
+  }
+  await expect(dock).toHaveAttribute('data-paused', 'false', {
+    timeout: 20_000,
+  })
+  // Once playing, the prompt is gone (in Chromium it never shows).
+  await expect(dock.getByText(PROMPT)).toBeHidden()
+}
+
 test.describe('playback', () => {
   // Spotify's embed loads slower outside Chromium (Firefox, WebKit); two cards can exceed 30s.
   test.slow()
-  test.fixme(
-    ({ browserName }) => browserName !== 'chromium',
-    'Firefox and WebKit block the embed play(): .scratch/timbre-v1/issues/17-preview-autoplay-firefox-safari.md'
-  )
 
   for (const viewport of [
     { width: 375, height: 667 },
@@ -29,6 +53,7 @@ test.describe('playback', () => {
   ]) {
     test(`at ${viewport.width}px Preview plays the card's track in the one docked player`, async ({
       page,
+      browserName,
     }) => {
       await page.setViewportSize(viewport)
       await page.goto(SEARCH)
@@ -48,14 +73,11 @@ test.describe('playback', () => {
 
         const preview = card.getByRole('button', { name: /^Prévia de/ })
         await preview.click()
+        await expectPlaying(page, browserName)
         await expect(dock).toHaveAttribute(
           'data-playing-uri',
-          `spotify:track:${trackId}`,
-          { timeout: 20_000 }
+          `spotify:track:${trackId}`
         )
-        await expect(dock).toHaveAttribute('data-paused', 'false', {
-          timeout: 20_000,
-        })
         // The card shows that its track is the one playing; its name follows the visible text.
         await expect(
           card.getByRole('button', { name: /^Tocando / })
@@ -67,6 +89,7 @@ test.describe('playback', () => {
 
   test('going home with the logo hides the player and pauses it', async ({
     page,
+    browserName,
   }) => {
     await page.goto(SEARCH)
     const dock = dockOf(page)
@@ -74,9 +97,7 @@ test.describe('playback', () => {
       .first()
       .getByRole('button', { name: /^Prévia de/ })
       .click()
-    await expect(dock).toHaveAttribute('data-paused', 'false', {
-      timeout: 20_000,
-    })
+    await expectPlaying(page, browserName)
 
     await page
       .getByRole('banner')
@@ -91,6 +112,7 @@ test.describe('playback', () => {
 
   test("going back to home with the browser's Back hides the player and pauses it", async ({
     page,
+    browserName,
   }) => {
     await page.goto('/', { waitUntil: 'networkidle' })
     await page
@@ -104,9 +126,7 @@ test.describe('playback', () => {
       .first()
       .getByRole('button', { name: /^Prévia de/ })
       .click()
-    await expect(dock).toHaveAttribute('data-paused', 'false', {
-      timeout: 20_000,
-    })
+    await expectPlaying(page, browserName)
 
     await page.goBack()
     await expect(page).toHaveURL(/\/$/)
