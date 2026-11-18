@@ -131,21 +131,20 @@ jobs:
         working-directory: back
         run: docker compose run --rm tests
       # In the Playwright image, with the host network (the Compose stack, next start on :3000).
-      # The runner's Node 26 and pnpm are mounted read-only at their host paths, so the build runs
-      # on the same Node as before. Same uid as the runner: test-results stay readable for upload.
+      # Node 26 comes from the image (same major as setup-node); the runner's pnpm is mounted read-only
+      # at its host path (a global install would need root). Same uid as the runner: test-results stay
+      # readable for upload. Forwards every env var the front and tests read.
       - name: Playwright
         timeout-minutes: 15
         env:
           BACK_URL: http://127.0.0.1:8000
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }} # e2e/preview.spec.ts skips without it
         run: |
-          node_dir="$(dirname "$(readlink -f "$(command -v node)")")"
           pnpm_dir="$(dirname "$(command -v pnpm)")"
           docker run --rm --init --ipc=host --network host \
             --user "$(id -u):$(id -g)" -e HOME=/tmp \
-            -e CI -e BACK_URL -e SPOTIFY_CLIENT_ID \
-            -e PATH="$pnpm_dir:$node_dir:/usr/local/bin:/usr/bin:/bin" \
-            -v /opt/hostedtoolcache:/opt/hostedtoolcache:ro \
+            -e CI -e BACK_URL -e FRONT_TOKEN -e SPOTIFY_CLIENT_ID \
+            -e PATH="$pnpm_dir:/usr/local/bin:/usr/bin:/bin" \
             -v "$HOME:$HOME:ro" \
             -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
             -w "$GITHUB_WORKSPACE/front" \
