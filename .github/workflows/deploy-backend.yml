@@ -1,0 +1,74 @@
+
+name: Deploy Backend
+
+on:
+  # Only after CI passes on main, so a red build never reaches production.
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: timbre-backend-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Hetzner
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Deploy via SSH
+        env:
+          HETZNER_HOST: ${{ secrets.HETZNER_HOST }}
+          HETZNER_USER: ${{ secrets.HETZNER_USER }}
+          HETZNER_SSH_KEY: ${{ secrets.HETZNER_SSH_KEY }}
+          HETZNER_KNOWN_HOSTS: ${{ secrets.HETZNER_KNOWN_HOSTS }}
+          # The exact commit CI tested; a manual run deploys the tip of main.
+          DEPLOY_REF: ${{ github.event.workflow_run.head_sha || 'origin/main' }}
+
+        run: |
+          set -euo pipefail
+
+          mkdir -p ~/.ssh
+
+          printf '%s\n' "$HETZNER_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          printf '%s\n' "$HETZNER_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+          ssh \
+            -i ~/.ssh/id_ed25519 \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            "$HETZNER_USER@$HETZNER_HOST" "DEPLOY_REF=$DEPLOY_REF bash -s" <<'REMOTE'
+
+            set -euo pipefail
+
+            echo "Updating Timbre repository..."
+
+            cd /root/timbre
+
+            git fetch origin main
+            git reset --hard "$DEPLOY_REF"
+
+            echo "Building and deploying backend..."
+
+            cd /root/timbre/back
+
+            docker compose \
+              -f compose.yaml \
+              -f compose.prod.yaml \
+              up -d --wait --build
+
+            echo "Deployment completed!"
+
+          REMOTE

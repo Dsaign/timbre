@@ -189,31 +189,43 @@ finish() {
 # Non-secret answers (IP, domains) are remembered in scripts/.env.deploy (gitignored);
 # back secrets go straight to the VPS's back/.env and never stay on this machine.
 cd "$(dirname "$0")/.."
+for cmd in ssh dig openssl gh curl git; do
+  command -v "$cmd" >/dev/null 2>&1 || { printf '%s is not installed: install it, then run this again.\n' "$cmd" >&2; exit 1; }
+done
 ENV_FILE="scripts/.env.deploy"
 TICKET=".scratch/timbre-v1/issues/16-production-deploy.md"
 REPO_URL="$(git remote get-url origin)"
-APP_DIR="/opt/timbre"
+APP_DIR="/root/timbre" # where the stack runs on the VPS
 BACK_ENV_TMP=""
 trap 'rm -f "$BACK_ENV_TMP"' EXIT
 
 remote() { ssh -o StrictHostKeyChecking=accept-new "root@$VPS_IP" "$@"; }
-remote_front_token() { remote "grep '^FRONT_TOKEN=' $APP_DIR/back/.env | cut -d= -f2-"; }
+# The front→back token stays on the VPS: these print it only into a pipe, never to the screen.
+remote_front_token() { remote "sed -n 's/^FRONT_TOKEN=//p' $APP_DIR/back/.env" | tr -d '\n'; }
+auth_header() { remote "sed -n 's/^FRONT_TOKEN=/Authorization: Bearer /p' $APP_DIR/back/.env"; }
+to_clipboard() {
+  if command -v wl-copy >/dev/null 2>&1; then wl-copy
+  elif command -v xclip >/dev/null 2>&1; then xclip -selection clipboard
+  elif command -v pbcopy >/dev/null 2>&1; then pbcopy
+  else return 1; fi
+}
 
 TOTAL_STAGES=11
 
 banner "timbre production deploy"
 
 # ── 1 ─────────────────────────────────────────────────────────────────────
-stage "Hetzner: buy the VPS, with Backups and a firewall"
+stage "Hetzner: the VPS, with Backups and a firewall"
+say "Skip the buying part if the server already exists; just enter its IP."
 open_url "https://console.hetzner.com/"
 step "Create a project (e.g. timbre), then Servers → Add Server."
-step "Location: one near your visitors (e.g. Nuremberg or Falkenstein)."
-step "Image: Ubuntu, the newest LTS (24.04 or later)."
-step "Type: Shared vCPU, x86 (Intel/AMD): CX22 (4 GB) or CX32 (8 GB). If those names are gone, take"
-note "  their current successors (CX23/CX33). 8 GB leaves room for the Catalog import and training."
+step "Location: one near your visitors. If the type is sold out there, try another location,"
+note "  or the Shared Regular Performance types."
+step "Image: Ubuntu 24.04 LTS (or a newer LTS)."
+step "Type: Shared vCPU, x86: CX23 (2 vCPU, 4 GB). Enough: e5-small runs via ONNX, plus 2 GB swap (stage 3)."
 step "SSH keys: add your public key (cat ~/.ssh/id_ed25519.pub). No root password then."
 step "Backups: tick it. Daily automatic backups, 7 kept, +20% of the server price."
-step "Firewalls: create one with inbound TCP 22, TCP 80, TCP 443 and UDP 443 only, and attach it."
+step "Firewalls: create one with inbound TCP 22, TCP 80, TCP 443, UDP 443 and ICMP only, and attach it."
 note "  Use Hetzner's firewall, not ufw: Docker's published ports bypass ufw."
 step "Create & Buy, then copy the server's public IPv4."
 ask VPS_IP "Server IPv4:"
@@ -227,13 +239,20 @@ pause
 
 # ── 2 ─────────────────────────────────────────────────────────────────────
 stage "DNS: point the API domain at the VPS"
-say "The back gets its own host name, e.g. api.yourdomain.com. Caddy needs it to resolve"
-say "to the VPS before the first start, to get its TLS certificate."
+say "The back gets its own host name (e.g. timbre-api.duckdns.org or api.yourdomain.com)."
+say "Caddy needs it to resolve to the VPS before the first start, to get its TLS certificate."
 ask API_DOMAIN "API domain (no https://):"
 write_env API_DOMAIN "$API_DOMAIN"
-step "At your DNS provider, add:  A  $API_DOMAIN  →  $VPS_IP"
-step "Optional: an AAAA record to the server's IPv6 (shown in the Hetzner console)."
-pause "Press Enter once the record is saved"
+if [[ "$(dig +short A "$API_DOMAIN" @1.1.1.1 | tail -n1)" != "$VPS_IP" ]]; then
+  if [[ "$API_DOMAIN" == *.duckdns.org ]]; then
+    open_url "https://www.duckdns.org/"
+    step "Sign in, find ${API_DOMAIN%.duckdns.org}, set its current ip to $VPS_IP and click update ip."
+  else
+    step "At your DNS provider, add:  A  $API_DOMAIN  →  $VPS_IP"
+    step "Optional: an AAAA record to the server's IPv6 (shown in the Hetzner console)."
+  fi
+  pause "Press Enter once it is saved"
+fi
 until [[ "$(dig +short A "$API_DOMAIN" @1.1.1.1 | tail -n1)" == "$VPS_IP" ]]; do
   warn "$API_DOMAIN does not resolve to $VPS_IP yet (DNS can take a few minutes)."
   pause "Press Enter to check again"
@@ -242,9 +261,9 @@ say "$API_DOMAIN → $VPS_IP"
 pause
 
 # ── 3 ─────────────────────────────────────────────────────────────────────
-stage "VPS: SSH hardening and updates"
-say "Key-only SSH (no passwords anywhere), root by key only, automatic security updates,"
-say "and the latest packages."
+stage "VPS: SSH hardening, swap and updates"
+say "Key-only SSH (no passwords anywhere), root by key only, a 2 GB swap file,"
+say "automatic security updates and the latest packages. Safe to apply again."
 if confirm "Apply this on $VPS_IP now?"; then
   remote 'bash -s' <<'EOF'
 set -e
@@ -257,6 +276,9 @@ PermitRootLogin prohibit-password
 CONF
 sshd -t
 systemctl reload ssh
+if [ ! -f /swapfile ]; then fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile; fi
+swapon --show=NAME --noheadings | grep -qx /swapfile || swapon /swapfile
+grep -q '^/swapfile ' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
 apt-get update -q
 apt-get -y -q upgrade
 apt-get -y -q install unattended-upgrades
@@ -267,6 +289,7 @@ EOF
   else
     warn "Could not confirm password login is off; check /etc/ssh/sshd_config.d/ by hand."
   fi
+  remote 'swapon --show'
   if remote test -f /var/run/reboot-required && confirm "The update needs a reboot. Reboot now?"; then
     remote reboot || true
     sleep 15
@@ -310,34 +333,43 @@ pause
 # ── 6 ─────────────────────────────────────────────────────────────────────
 stage "VPS: back/.env (secrets, mode 600)"
 if remote test -f "$APP_DIR/back/.env"; then
-  say "$APP_DIR/back/.env already exists: kept as it is."
+  say "$APP_DIR/back/.env already exists: its secrets are kept."
   warn "Never regenerate it on a live server: POSTGRES_PASSWORD only applies to a fresh database."
+  # Without these, `docker compose up` would start the dev stack (API on 127.0.0.1, no Caddy).
+  remote "cd $APP_DIR/back && \
+    { grep -q '^COMPOSE_FILE=' .env || printf '\nCOMPOSE_FILE=compose.yaml:compose.prod.yaml\n' >> .env; } && \
+    { grep -q '^API_DOMAIN=' .env || printf '\nAPI_DOMAIN=%s\n' '$API_DOMAIN' >> .env; } && \
+    grep -E '^(COMPOSE_FILE|API_DOMAIN)=' .env"
 else
   say "Generates the database passwords, the IP-hash salt and the front→back token,"
   say "asks for the rest, and uploads the file. Nothing stays on this machine."
-  BACK_ENV_TMP="$(mktemp)"
-  for k in POSTGRES_PASSWORD ML_WORKER_PASSWORD API_SEARCH_PASSWORD API_PREVIEW_PASSWORD IP_HASH_SALT FRONT_TOKEN; do
-    ENV_FILE="$BACK_ENV_TMP" write_env "$k" "$(openssl rand -hex 32)"
-  done
-  ENV_FILE="$BACK_ENV_TMP" write_env API_DOMAIN "$API_DOMAIN"
-  # Plain `docker compose` on the VPS then always runs the production stack.
-  ENV_FILE="$BACK_ENV_TMP" write_env COMPOSE_FILE "compose.yaml:compose.prod.yaml"
   open_url "https://developer.spotify.com/dashboard"
   step "Open your app → Settings: copy the Client ID, then View client secret and copy it."
   note "  Left empty, every Song shows Preview as \"not available\"."
   ask_secret SPOTIFY_CLIENT_ID "Spotify Client ID:"
   ask_secret SPOTIFY_CLIENT_SECRET "Spotify Client secret:"
-  ENV_FILE="$BACK_ENV_TMP" write_env SPOTIFY_CLIENT_ID "$SPOTIFY_CLIENT_ID"
-  ENV_FILE="$BACK_ENV_TMP" write_env SPOTIFY_CLIENT_SECRET "$SPOTIFY_CLIENT_SECRET"
-  say "For the Catalog import (optional now; README → Catalog import):"
+  say "For the Catalog import (needed for the retraining after go-live; README → Catalog import):"
   ask METABRAINZ_CONTACT "Your contact email or URL for MusicBrainz (Enter to skip):"
   open_url "https://listenbrainz.org/settings/"
   ask_secret LISTENBRAINZ_TOKEN "ListenBrainz user token (Enter to skip):"
-  ENV_FILE="$BACK_ENV_TMP" write_env METABRAINZ_CONTACT "$METABRAINZ_CONTACT"
-  ENV_FILE="$BACK_ENV_TMP" write_env LISTENBRAINZ_TOKEN "$LISTENBRAINZ_TOKEN"
+  BACK_ENV_TMP="$(mktemp)"
+  ( # A subshell: these writes go to the temporary file and stay out of the closing summary.
+    ENV_FILE="$BACK_ENV_TMP"
+    for k in POSTGRES_PASSWORD ML_WORKER_PASSWORD API_SEARCH_PASSWORD API_PREVIEW_PASSWORD IP_HASH_SALT FRONT_TOKEN; do
+      write_env "$k" "$(openssl rand -hex 32)"
+    done
+    write_env API_DOMAIN "$API_DOMAIN"
+    # Plain `docker compose` on the VPS then always runs the production stack.
+    write_env COMPOSE_FILE "compose.yaml:compose.prod.yaml"
+    write_env SPOTIFY_CLIENT_ID "$SPOTIFY_CLIENT_ID"
+    write_env SPOTIFY_CLIENT_SECRET "$SPOTIFY_CLIENT_SECRET"
+    write_env METABRAINZ_CONTACT "$METABRAINZ_CONTACT"
+    write_env LISTENBRAINZ_TOKEN "$LISTENBRAINZ_TOKEN"
+  )
   note "  APP_ENV is not set: compose.prod.yaml forces production (API docs off)."
   remote "umask 077 && cat > $APP_DIR/back/.env" < "$BACK_ENV_TMP"
   rm -f "$BACK_ENV_TMP"
+  say "Uploaded to $VPS_IP:$APP_DIR/back/.env (its values are not listed in the summary)."
 fi
 remote "chmod 600 $APP_DIR/back/.env && ls -l $APP_DIR/back/.env"
 pause
@@ -347,14 +379,14 @@ stage "VPS: start the stack and check it"
 say "Builds the images and starts db, migrations, role passwords, the seed Catalog,"
 say "the worker, the API and Caddy. The first build takes several minutes."
 remote "cd $APP_DIR/back && docker compose up -d --wait --build"
-FRONT_TOKEN="$(remote_front_token)"
 api="https://$API_DOMAIN"
 check() { if [[ "$2" == "$3" ]]; then say "✓ $1 ($2)"; else warn "$1: got $2, expected $3"; fi; }
 check "HTTP redirects to HTTPS" "$(curl -s -o /dev/null -w '%{http_code}' "http://$API_DOMAIN/health")" 308
-check "health with the token" "$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $FRONT_TOKEN" "$api/health")" 200
+# -H @- reads the header from stdin, so the token never shows up in the process list.
+check "health with the token" "$(auth_header | curl -s -o /dev/null -w '%{http_code}' -H @- "$api/health")" 200
 check "API docs are off" "$(curl -s -o /dev/null -w '%{http_code}' "$api/docs")" 404
 check "live OpenAPI spec is off" "$(curl -s -o /dev/null -w '%{http_code}' "$api/openapi.json")" 404
-if curl -sI -H "Authorization: Bearer $FRONT_TOKEN" "$api/health" | grep -qi '^strict-transport-security:'; then
+if auth_header | curl -sI -H @- "$api/health" | grep -qi '^strict-transport-security:'; then
   say "✓ HSTS header present"
 else
   warn "no Strict-Transport-Security header"
@@ -363,6 +395,8 @@ for port in 5432 8000; do
   if timeout 5 bash -c "</dev/tcp/$VPS_IP/$port" 2>/dev/null; then warn "port $port is reachable from outside!"
   else say "✓ port $port closed from outside"; fi
 done
+say "After go-live, retrain on the server: README → Catalog import, then Benchmark, then Own model."
+say "Run their commands on the VPS in $APP_DIR/back (ssh root@$VPS_IP)."
 if confirm "Queue the Catalog import now (1-2 hours; needs METABRAINZ_CONTACT and LISTENBRAINZ_TOKEN)?"; then
   remote "cd $APP_DIR/back && docker compose exec -T worker python -m timbre_back.catalog_import"
 fi
@@ -371,20 +405,24 @@ pause
 
 # ── 8 ─────────────────────────────────────────────────────────────────────
 stage "Vercel: the front project"
-FRONT_TOKEN="$(remote_front_token)"
-ask FRONT_DOMAIN "Front domain (no https://, e.g. yourdomain.com):"
-write_env FRONT_DOMAIN "$FRONT_DOMAIN"
 open_url "https://vercel.com/new"
 step "Import the GitHub repository ${REPO_URL#https://github.com/}."
 step "Root Directory → Edit → choose front. The framework preset is Next.js."
-step "Environment Variables (Production):"
+step "Environment Variables, for both Production and Preview (PR previews fail without them):"
 say "    BACK_URL     = https://$API_DOMAIN"
-say "    FRONT_TOKEN  = $FRONT_TOKEN"
+if remote_front_token | to_clipboard 2>/dev/null; then
+  say "    FRONT_TOKEN  = (copied to your clipboard; paste it, then clear the clipboard)"
+else
+  say "    FRONT_TOKEN  = the value printed by:"
+  say "      ssh root@$VPS_IP \"sed -n 's/^FRONT_TOKEN=//p' $APP_DIR/back/.env\""
+fi
 note "    (mark FRONT_TOKEN Sensitive; it must never get a NEXT_PUBLIC_ prefix)"
 step "Deploy, and wait for it to finish."
-step "Project → Settings → Domains → Add $FRONT_DOMAIN, then create the DNS record Vercel shows."
+step "Settings → Environment Variables: check both show Production and Preview; edit them if not."
+step "Optional, only for your own domain: Settings → Domains → Add, then create the record Vercel shows."
+ask FRONT_DOMAIN "Front domain (the *.vercel.app name, or your own; no https://):"
+write_env FRONT_DOMAIN "$FRONT_DOMAIN"
 pause "Press Enter once https://$FRONT_DOMAIN shows timbre"
-FRONT_TOKEN=""
 
 # ── 9 ─────────────────────────────────────────────────────────────────────
 stage "GitHub: secrets for the real-Spotify e2e test"

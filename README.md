@@ -137,7 +137,7 @@ First run (2026-11-16, 96 Descriptions after excluding 34 near the Benchmark, 10
 
 ## Deploy
 
-Front on Vercel (root directory `front`), back on one VPS: `back/compose.prod.yaml` adds Caddy (TLS for `API_DOMAIN`, HTTP→HTTPS, HSTS) in front of the API, publishes only ports 80 and 443, and forces `APP_ENV=production` (no API docs). `scripts/deploy-wizard.sh` walks through the first setup (VPS, DNS, `back/.env`, Vercel, GitHub secrets, header checks). Update the back with `cd /opt/timbre && git pull && cd back && docker compose up -d --wait --build` on the VPS (its `back/.env` sets `COMPOSE_FILE`).
+Front on Vercel (root directory `front`), back on one VPS: `back/compose.prod.yaml` adds Caddy (TLS for `API_DOMAIN`, HTTP→HTTPS, HSTS) in front of the API, publishes only ports 80 and 443, and forces `APP_ENV=production` (no API docs). `scripts/deploy-wizard.sh` walks through the first setup (VPS, DNS, `back/.env`, Vercel, GitHub secrets, header checks). Update the back with `cd /root/timbre && git pull && cd back && docker compose up -d --wait --build` on the VPS (its `back/.env` sets `COMPOSE_FILE`).
 
 ## Change the API
 
