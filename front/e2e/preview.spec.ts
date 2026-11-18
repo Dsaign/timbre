@@ -7,6 +7,9 @@ test.skip(
   'needs SPOTIFY_CLIENT_ID (and the back started with the Spotify secrets)'
 )
 
+// Real Spotify sometimes answers 5xx (a 504 on its iFrame API script failed a CI run): one retry on CI.
+test.describe.configure({ retries: process.env.CI ? 1 : 0 })
+
 const SEARCH = `/?q=${encodeURIComponent('músicas alegres e dançantes para uma festa')}&n=4`
 // includeHidden: once home the dock is display:none, and it must still be found to be checked as hidden.
 const dockOf = (page: Page) =>

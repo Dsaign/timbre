@@ -79,28 +79,32 @@ for (const scheme of SCHEMES) {
     }
   })
 
-  test(`the ${scheme} theme is accessible with the docked player open`, async ({
-    page,
-  }) => {
-    test.skip(
-      !process.env.SPOTIFY_CLIENT_ID,
-      'Preview needs SPOTIFY_CLIENT_ID (and the back started with the Spotify secrets)'
-    )
-    test.slow() // Spotify's embed loads slower outside Chromium, as in preview.spec.ts
-    await page.emulateMedia({ colorScheme: scheme })
-    await open(page, SEARCH, scheme)
-    await cards(page)
-      .first()
-      .getByRole('button', { name: /^Prévia de/ })
-      .click()
-    await expect(
-      page.getByRole('region', { name: 'Prévia no Spotify' })
-    ).toBeVisible()
-    await page
-      .frameLocator('iframe[src^="https://open.spotify.com/embed/"]')
-      .locator('body')
-      .waitFor({ timeout: 20_000 })
-    await expectAccessible(page, 'docked player')
+  test.describe('with the real Spotify embed', () => {
+    // Real Spotify sometimes answers 5xx (a 504 on its iFrame API script failed a CI run): one retry on CI.
+    test.describe.configure({ retries: process.env.CI ? 1 : 0 })
+    test(`the ${scheme} theme is accessible with the docked player open`, async ({
+      page,
+    }) => {
+      test.skip(
+        !process.env.SPOTIFY_CLIENT_ID,
+        'Preview needs SPOTIFY_CLIENT_ID (and the back started with the Spotify secrets)'
+      )
+      test.slow() // Spotify's embed loads slower outside Chromium, as in preview.spec.ts
+      await page.emulateMedia({ colorScheme: scheme })
+      await open(page, SEARCH, scheme)
+      await cards(page)
+        .first()
+        .getByRole('button', { name: /^Prévia de/ })
+        .click()
+      await expect(
+        page.getByRole('region', { name: 'Prévia no Spotify' })
+      ).toBeVisible()
+      await page
+        .frameLocator('iframe[src^="https://open.spotify.com/embed/"]')
+        .locator('body')
+        .waitFor({ timeout: 20_000 })
+      await expectAccessible(page, 'docked player')
+    })
   })
 
   test(`prefers-reduced-transparency turns the ${scheme} surfaces solid`, async ({
