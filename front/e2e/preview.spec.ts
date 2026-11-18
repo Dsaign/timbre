@@ -22,27 +22,34 @@ const cardsOf = (page: Page) =>
 const PROMPT = 'Toque em ▶ no player do Spotify para ouvir'
 async function expectPlaying(page: Page, browserName: string) {
   const dock = dockOf(page)
-  if (browserName !== 'chromium') {
-    // Firefox may allow play() after all (see the research), so either outcome is fine.
-    const prompt = dock.getByText(PROMPT)
-    const playing = dock.and(page.locator('[data-paused="false"]'))
-    await expect(prompt.or(playing).first()).toBeVisible({ timeout: 20_000 })
-    if (
-      (await prompt.isVisible()) &&
-      (await dock.getAttribute('data-paused')) === 'true'
-    ) {
-      // Spotify's test id: the button's accessible name is localized ("Play" / "Pause").
-      await embedOf(page)
-        .contentFrame()
-        .getByTestId('play-pause-button')
-        .click()
-    }
+  const prompt = dock.getByText(PROMPT)
+  const playing = () =>
+    expect(dock).toHaveAttribute('data-paused', 'false', { timeout: 20_000 })
+  // Spotify's test id: the button's accessible name is localized ("Play" / "Pause").
+  const clickEmbedPlay = () =>
+    embedOf(page).contentFrame().getByTestId('play-pause-button').click()
+  if (browserName === 'webkit') {
+    // WebKit (desktop and iPhone) never plays on one click, and its embed briefly reports
+    // isPaused:false first, so wait for the prompt itself.
+    await expect(prompt).toBeVisible({ timeout: 20_000 })
+    await clickEmbedPlay()
+    await playing()
+  } else if (browserName === 'firefox') {
+    // Firefox may play on the first click (see the research): either outcome, retried past brief states.
+    await expect(async () => {
+      if (
+        (await prompt.isVisible()) &&
+        (await dock.getAttribute('data-paused')) === 'true'
+      )
+        await clickEmbedPlay()
+      await expect(dock).toHaveAttribute('data-paused', 'false')
+      await expect(prompt).toBeHidden()
+    }).toPass({ timeout: 30_000 })
+  } else {
+    await playing()
   }
-  await expect(dock).toHaveAttribute('data-paused', 'false', {
-    timeout: 20_000,
-  })
   // Once playing, the prompt is gone (in Chromium it never shows).
-  await expect(dock.getByText(PROMPT)).toBeHidden()
+  await expect(prompt).toBeHidden()
 }
 
 test.describe('playback', () => {
