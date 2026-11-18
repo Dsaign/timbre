@@ -12,6 +12,7 @@ stands in for the seed Catalog, with those two and one Song MusicBrainz doesn't 
 
 import asyncio
 import json
+import logging
 import time
 from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
@@ -259,6 +260,50 @@ async def test_stops_once_the_catalog_reaches_the_target(
     await run_import(conn, fake)
     assert fake.artists_asked() == ["a1", "a2"]  # 2 Songs, then 1 of the next 2
     assert len(await imported_titles(conn)) == 3
+
+
+def stops(caplog: pytest.LogCaptureFixture) -> list[str]:
+    """The import's "stopped at" log messages, oldest first."""
+    return [
+        r.getMessage()
+        for r in caplog.records
+        if r.name == "timbre.import" and r.getMessage().startswith("import: stopped")
+    ]
+
+
+@pytest.mark.anyio
+async def test_a_catalog_at_its_target_grows_past_its_artists_when_the_target_rises(
+    conn: psycopg.AsyncConnection,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    caplog.set_level(logging.INFO, logger="timbre.import")
+    await set_target(conn, monkeypatch, 2)
+    first = FakeMetaBrainz()
+    await run_import(conn, first)
+    assert first.artists_asked() == ["a1"]
+    (size,) = await one(conn, "SELECT count(*) FROM catalog.songs")
+    assert stops(caplog) == [f"import: stopped at {size} Songs, the target is {size}"]
+
+    caplog.clear()
+    await set_target(conn, monkeypatch, 100)  # like 10,000 -> 50,000
+    grown = FakeMetaBrainz()
+    await run_import(conn, grown)
+    assert grown.artists_asked() == ["a2", "a3"]  # Radiohead's Songs are not refetched
+    assert await imported_titles(conn) == sorted(KEPT)
+    (size,) = await one(conn, "SELECT count(*) FROM catalog.songs")
+    assert stops(caplog) == [
+        f"import: stopped at {size} Songs, under the {catalog_import.TARGET} target:"
+        " no more ListenBrainz top artists (the sitewide stats stop at 1000)"
+    ]
+
+    # Every artist imported and the target met: the log says so, not "under".
+    caplog.clear()
+    await set_target(conn, monkeypatch, 0)
+    again = FakeMetaBrainz()
+    await run_import(conn, again)
+    assert again.artists_asked() == []
+    assert stops(caplog) == [f"import: stopped at {size} Songs, the target is {size}"]
 
 
 @pytest.mark.anyio

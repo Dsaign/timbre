@@ -21,7 +21,8 @@ FIT_SQL = """coalesce(
     cosine
   )"""
 
-# The main artist, accent-free: guests after feat./ft./featuring don't count.
+# The main artist, accent-free: guests after feat./ft./featuring don't count. The
+# songs_main_artist_trgm index has this exact expression; change both together.
 MAIN_ARTIST = (
     r"catalog.unaccented("
     r"regexp_replace(artist, '\s+(feat\.?|ft\.?|featuring)\s.*$', '', 'i'))"
@@ -40,10 +41,7 @@ STRONG_TAGS = "3"  # a tag-only Match needs the tag among its Song's 3 most-vote
 # Names match whole: the main artist (guests after feat./ft. don't count) or a title of
 # two words or more, so one everyday word ("rock", "love") never takes over a search.
 # A tag matches when it is a phrase of the Description (both normalized by
-# catalog.tag_keys); the most-voted tags count most.
-# shortcut: the tag step unnests every Song's tag_keys per search (search took about
-# 50-110 ms in the database before it, 200-350 ms with it, at 10k Songs); once the
-# Catalog grows, use a GIN index on tag_keys or a precomputed tag table.
+# catalog.tag_keys, looked up in catalog.song_tags); the most-voted tags count most.
 MATCHES_SQL = (
     r"""
 WITH description_words AS (
@@ -76,20 +74,23 @@ WITH description_words AS (
     SELECT avg(vector), avg(labels) FROM named HAVING count(vector) > 0
   ) t (vector, labels)
 ), cosine AS (
-  SELECT s.id, s.title, s.artist, s.listens, s.labels,
+  SELECT s.id, s.listens, s.labels,
     1 - (s.vector <=> target.vector) AS cosine, target.labels AS target_labels
   FROM catalog.songs s, target
   WHERE s.vector IS NOT NULL AND s.id NOT IN (SELECT id FROM named)
 ), tagged AS (
-  -- Matching tags, in one pass over the Songs that have any: each weighs 1 / its vote
-  -- rank, and the longest gives the share of the Description they cover.
-  SELECT s.id, sum(1.0 / i) AS tag_score, min(i) AS best_vote_rank,
-    max(cardinality(string_to_array(k, ' ')))::float8 / word_count AS coverage
-  FROM catalog.songs s, description, unnest(s.tag_keys) WITH ORDINALITY t (k, i)
-  WHERE s.tag_keys && phrases AND k = ANY (phrases)
-  GROUP BY s.id, word_count
-), scored AS (
-  SELECT id, title, artist, {fit} AS fit, {popularity} AS popularity,
+  -- Matching tags: each weighs 1 / its vote rank, and the longest gives the share of
+  -- the Description they cover.
+  SELECT song_id AS id, sum(1.0 / vote_rank) AS tag_score,
+    min(vote_rank) AS best_vote_rank,
+    max(cardinality(string_to_array(key, ' ')))::float8 / word_count AS coverage
+  -- song_tags copies tag_keys: redefining catalog.tag_keys() means rebuilding it.
+  FROM catalog.song_tags, description
+  WHERE key = ANY (phrases)
+  GROUP BY song_id, word_count
+), scored AS MATERIALIZED (
+  -- Narrow rows: every Song is ranked, so title and artist join in only for Matches.
+  SELECT id, {fit} AS fit, {popularity} AS popularity,
     tag_score, best_vote_rank, coverage
   FROM cosine LEFT JOIN tagged USING (id)
 ), ranked AS (
@@ -105,7 +106,8 @@ WITH description_words AS (
   UNION ALL
   (SELECT id, title, artist, 1 AS part,
     1.0 / ({k} + by_fit) + coalesce(coverage / ({k} + by_tags), 0) AS rank
-  FROM fused WHERE fit > %(cutoff)s OR best_vote_rank <= {strong}
+  FROM fused JOIN catalog.songs USING (id)
+  WHERE fit > %(cutoff)s OR best_vote_rank <= {strong}
   ORDER BY rank DESC, id
   LIMIT CASE WHEN EXISTS (SELECT FROM named) THEN {cap} END) -- NULL: no limit
 )""".replace("{fit}", FIT_SQL)

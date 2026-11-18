@@ -4,7 +4,7 @@
 
 **Blocked by:** 03, 09
 
-**Status:** ready-for-human
+**Status:** resolved
 
 - [ ] The VPS runs the Compose stack behind Caddy, with automatic TLS, HTTP → HTTPS redirects and HSTS. The database port is not exposed.
 - [ ] The provider's automatic snapshots are switched on.
