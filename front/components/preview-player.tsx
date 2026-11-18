@@ -140,7 +140,7 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
         data-dock={open ? 'open' : 'closed'}
         data-playing-uri={playing.uri}
         data-paused={playing.paused}
-        className="mx-auto mt-(--dock-gap) h-(--dock-height) w-[min(100%_-_2rem,max(36rem,60vw),48rem)] shrink-0 overflow-hidden rounded-xl data-[dock=closed]:hidden [&_iframe]:block [&_iframe]:border-0"
+        className="mx-auto mt-(--dock-gap) h-(--dock-height) w-[min(100%-2rem,max(36rem,60vw),48rem)] shrink-0 overflow-hidden rounded-xl data-[dock=closed]:hidden [&_iframe]:block [&_iframe]:border-0"
       >
         <div ref={slot} className="h-(--dock-height)" />
       </section>
