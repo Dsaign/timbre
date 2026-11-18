@@ -7,20 +7,57 @@ test.skip(
   'needs SPOTIFY_CLIENT_ID (and the back started with the Spotify secrets)'
 )
 
+// Real Spotify sometimes answers 5xx (a 504 on its iFrame API script failed a CI run): one retry on CI.
+test.describe.configure({ retries: process.env.CI ? 1 : 0 })
+
 const SEARCH = `/?q=${encodeURIComponent('músicas alegres e dançantes para uma festa')}&n=4`
-// includeHidden: once home the dock is display:none, and its pause must still be checked.
+// includeHidden: once home the dock is display:none, and it must still be found to be checked as hidden.
 const dockOf = (page: Page) =>
   page.getByRole('region', { name: 'Prévia no Spotify', includeHidden: true })
+// close() unloads the embed: no iframe left means no audio out of sight.
+const embedOf = (page: Page) =>
+  page.locator('iframe[src^="https://open.spotify.com/embed/"]')
 const cardsOf = (page: Page) =>
   page.getByRole('list', { name: 'Músicas' }).getByRole('listitem')
+
+// One click on Prévia plays in Chromium. Firefox and WebKit block the embed's play(), so the dock asks
+// for the embed's own play button (ticket 17, docs/research/spotify-embed-autoplay.md).
+const PROMPT = 'Toque em ▶ no player do Spotify para ouvir'
+async function expectPlaying(page: Page, browserName: string) {
+  const dock = dockOf(page)
+  const prompt = dock.getByText(PROMPT)
+  const playing = () =>
+    expect(dock).toHaveAttribute('data-paused', 'false', { timeout: 20_000 })
+  // Spotify's test id: the button's accessible name is localized ("Play" / "Pause").
+  const clickEmbedPlay = () =>
+    embedOf(page).contentFrame().getByTestId('play-pause-button').click()
+  if (browserName === 'webkit') {
+    // WebKit (desktop and iPhone) never plays on one click, and its embed briefly reports
+    // isPaused:false first, so wait for the prompt itself.
+    await expect(prompt).toBeVisible({ timeout: 20_000 })
+    await clickEmbedPlay()
+    await playing()
+  } else if (browserName === 'firefox') {
+    // Firefox may play on the first click (see the research): either outcome, retried past brief states.
+    await expect(async () => {
+      if (
+        (await prompt.isVisible()) &&
+        (await dock.getAttribute('data-paused')) === 'true'
+      )
+        await clickEmbedPlay()
+      await expect(dock).toHaveAttribute('data-paused', 'false')
+      await expect(prompt).toBeHidden()
+    }).toPass({ timeout: 30_000 })
+  } else {
+    await playing()
+  }
+  // Once playing, the prompt is gone (in Chromium it never shows).
+  await expect(prompt).toBeHidden()
+}
 
 test.describe('playback', () => {
   // Spotify's embed loads slower outside Chromium (Firefox, WebKit); two cards can exceed 30s.
   test.slow()
-  test.fixme(
-    ({ browserName }) => browserName !== 'chromium',
-    'Firefox and WebKit block the embed play(): .scratch/timbre-v1/issues/17-preview-autoplay-firefox-safari.md'
-  )
 
   for (const viewport of [
     { width: 375, height: 667 },
@@ -29,6 +66,7 @@ test.describe('playback', () => {
   ]) {
     test(`at ${viewport.width}px Preview plays the card's track in the one docked player`, async ({
       page,
+      browserName,
     }) => {
       await page.setViewportSize(viewport)
       await page.goto(SEARCH)
@@ -48,25 +86,23 @@ test.describe('playback', () => {
 
         const preview = card.getByRole('button', { name: /^Prévia de/ })
         await preview.click()
+        await expectPlaying(page, browserName)
         await expect(dock).toHaveAttribute(
           'data-playing-uri',
-          `spotify:track:${trackId}`,
-          { timeout: 20_000 }
+          `spotify:track:${trackId}`
         )
-        await expect(dock).toHaveAttribute('data-paused', 'false', {
-          timeout: 20_000,
-        })
         // The card shows that its track is the one playing; its name follows the visible text.
         await expect(
           card.getByRole('button', { name: /^Tocando / })
         ).toHaveText('Tocando')
       }
-      await expect(page.locator('iframe')).toHaveCount(1)
+      await expect(embedOf(page)).toHaveCount(1)
     })
   }
 
-  test('going home with the logo hides the player and pauses it', async ({
+  test('going home with the logo hides and unloads the player, and Prévia rebuilds it', async ({
     page,
+    browserName,
   }) => {
     await page.goto(SEARCH)
     const dock = dockOf(page)
@@ -74,9 +110,7 @@ test.describe('playback', () => {
       .first()
       .getByRole('button', { name: /^Prévia de/ })
       .click()
-    await expect(dock).toHaveAttribute('data-paused', 'false', {
-      timeout: 20_000,
-    })
+    await expectPlaying(page, browserName)
 
     await page
       .getByRole('banner')
@@ -84,13 +118,21 @@ test.describe('playback', () => {
       .click()
     await expect(page).toHaveURL(/\/$/)
     await expect(dock).toBeHidden()
-    await expect(dock).toHaveAttribute('data-paused', 'true', {
-      timeout: 20_000,
-    })
+    await expect(embedOf(page)).toHaveCount(0)
+
+    // Back on the results, Prévia builds a new player that plays.
+    await page.goBack()
+    await cardsOf(page)
+      .first()
+      .getByRole('button', { name: /^Prévia de/ })
+      .click()
+    await expectPlaying(page, browserName)
+    await expect(embedOf(page)).toHaveCount(1)
   })
 
-  test("going back to home with the browser's Back hides the player and pauses it", async ({
+  test("going back to home with the browser's Back hides and unloads the player", async ({
     page,
+    browserName,
   }) => {
     await page.goto('/', { waitUntil: 'networkidle' })
     await page
@@ -104,16 +146,12 @@ test.describe('playback', () => {
       .first()
       .getByRole('button', { name: /^Prévia de/ })
       .click()
-    await expect(dock).toHaveAttribute('data-paused', 'false', {
-      timeout: 20_000,
-    })
+    await expectPlaying(page, browserName)
 
     await page.goBack()
     await expect(page).toHaveURL(/\/$/)
     await expect(dock).toBeHidden()
-    await expect(dock).toHaveAttribute('data-paused', 'true', {
-      timeout: 20_000,
-    })
+    await expect(embedOf(page)).toHaveCount(0)
   })
 })
 

@@ -27,7 +27,12 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   // Reduced motion: no entrance fades, so axe and the contrast check never
   // measure a half-faded element.
-  use: { baseURL: 'http://localhost:3000', reducedMotion: 'reduce' },
+  // Traces of failed tests land in test-results/, which CI uploads.
+  use: {
+    baseURL: 'http://localhost:3000',
+    reducedMotion: 'reduce',
+    trace: 'retain-on-failure',
+  },
   projects: [
     {
       name: 'chromium',

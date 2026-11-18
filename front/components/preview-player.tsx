@@ -25,8 +25,9 @@ type EmbedController = {
   play(): void
   pause(): void
   togglePlay(): void
+  destroy(): void
   addListener(
-    event: 'playback_started' | 'playback_update',
+    event: 'ready' | 'playback_started' | 'playback_update',
     listener: (e: PlaybackEvent) => void
   ): void
 }
@@ -45,12 +46,16 @@ declare global {
 
 let iframeApi: Promise<IFrameAPI> | undefined
 function loadIframeApi() {
-  iframeApi ??= new Promise((resolve) => {
+  iframeApi ??= new Promise((resolve, reject) => {
     window.onSpotifyIframeApiReady = resolve
     const script = document.createElement('script')
     script.src = 'https://open.spotify.com/embed/iframe-api/v1'
     script.async = true
-    script.onerror = () => (iframeApi = undefined) // the next click tries again
+    // Reject so the caller drops its player; clearing the cache lets the next click try again.
+    script.onerror = () => {
+      iframeApi = undefined
+      reject(new Error('Spotify iFrame API failed to load'))
+    }
     document.body.append(script)
   })
   return iframeApi
@@ -80,75 +85,125 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
   useEffect(() => setWavePlaying(!playing.paused), [playing.paused])
   const slot = useRef<HTMLDivElement>(null)
   const controller = useRef<Promise<EmbedController>>(null)
-
-  const play = useCallback((trackId: string) => {
-    const uri = `spotify:track:${trackId}`
-    setOpen(true)
-    if (controller.current) {
-      const { uri: current, paused } = playingNow.current
-      controller.current.then((c) => {
-        // The card that is playing pauses; any other card starts its own track.
-        if (current === uri && !paused) return c.togglePlay()
-        c.loadUri(uri)
-        c.play()
-      })
-      return
-    }
-    controller.current = loadIframeApi().then(
-      (api) =>
-        new Promise((resolve) => {
-          // The API replaces this element with its iframe, so React never owns it.
-          const element = document.createElement('div')
-          slot.current?.append(element)
-          api.createController(
-            element,
-            { uri, width: '100%', height: LAYOUT.dock.height },
-            (c) => {
-              c.addListener('playback_started', ({ data }) =>
-                setPlaying((p) => ({ ...p, uri: data.playingURI }))
-              )
-              c.addListener('playback_update', ({ data }) =>
-                setPlaying((p) =>
-                  p.paused === data.isPaused
-                    ? p
-                    : { ...p, paused: data.isPaused ?? true }
-                )
-              )
-              c.play()
-              resolve(c)
-            }
-          )
-        })
+  // Safari (and maybe Firefox) block the embed's play() after a click on timbre (docs/research/
+  // spotify-embed-autoplay.md): a track still silent 2 s after it is ready asks for the embed's own play.
+  const [askPlay, setAskPlay] = useState(false)
+  const askPlayTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const hideAskPlay = useCallback(() => {
+    clearTimeout(askPlayTimer.current)
+    setAskPlay(false)
+  }, [])
+  const armAskPlay = useCallback(() => {
+    clearTimeout(askPlayTimer.current)
+    // Checked when it fires: a brief isPaused:false must not cancel the prompt for a blocked play().
+    askPlayTimer.current = setTimeout(
+      () => setAskPlay(playingNow.current.paused),
+      2000
     )
-    controller.current.catch(() => (controller.current = null))
   }, [])
 
-  // Hidden and paused: no audio keeps playing out of sight.
+  const play = useCallback(
+    (trackId: string) => {
+      const uri = `spotify:track:${trackId}`
+      setOpen(true)
+      if (controller.current) {
+        const { uri: current, paused } = playingNow.current
+        controller.current.then((c) => {
+          // The card that is playing pauses; any other card starts its own track.
+          if (current === uri && !paused) return c.togglePlay()
+          // loadUri reloads the embed even for the same track, and its `ready` re-arms the prompt.
+          hideAskPlay()
+          // The reload stops the old track; the new embed's events set the real state.
+          setPlaying({ paused: true })
+          c.loadUri(uri)
+          c.play()
+        })
+        return
+      }
+      const created: Promise<EmbedController> = loadIframeApi().then(
+        (api) =>
+          new Promise((resolve) => {
+            // The API replaces this element with its iframe, so React never owns it.
+            const element = document.createElement('div')
+            slot.current?.append(element)
+            api.createController(
+              element,
+              { uri, width: '100%', height: LAYOUT.dock.height },
+              (c) => {
+                c.addListener('ready', armAskPlay)
+                // Not proof of sound: the embed sends it once the track is loaded, even when the browser blocks play().
+                c.addListener('playback_started', ({ data }) =>
+                  setPlaying((p) => ({ ...p, uri: data.playingURI }))
+                )
+                c.addListener('playback_update', ({ data }) => {
+                  if (data.isPaused === false) setAskPlay(false)
+                  setPlaying((p) =>
+                    p.paused === data.isPaused
+                      ? p
+                      : { ...p, paused: data.isPaused ?? true }
+                  )
+                })
+                c.play()
+                resolve(c)
+              }
+            )
+          })
+      )
+      controller.current = created
+      // close() may have dropped it already; never forget a newer player.
+      created.catch(() => {
+        if (controller.current === created) controller.current = null
+      })
+    },
+    [armAskPlay, hideAskPlay]
+  )
+
+  // Hidden and unloaded: no audio keeps playing out of sight, with no pause report to trust
+  // (Firefox CI kept data-paused="false" after pause()). The next Prévia builds a new player.
+  // A player still being created is destroyed as soon as it exists.
   const close = useCallback(() => {
     setOpen(false)
-    controller.current?.then((c) => c.pause())
-  }, [])
+    hideAskPlay()
+    controller.current?.then((c) => c.destroy())
+    controller.current = null
+    setPlaying({ paused: true })
+  }, [hideAskPlay])
 
   return (
     <PlayPreview value={{ play, close, open, playing }}>
       {children}
       {/* Exactly the embed (Spotify's smallest, LAYOUT.dock), nothing drawn over it, in its own
           space above the footer. overflow-hidden with the embed's own 12 px radius trims only
-          the empty corners around it (ADR 0001). */}
+          the empty corners around it (ADR 0001). The play prompt floats just above it. */}
       <section
         aria-label="Prévia no Spotify"
         data-dock={open ? 'open' : 'closed'}
         data-playing-uri={playing.uri}
         data-paused={playing.paused}
-        className="mx-auto mt-(--dock-gap) h-(--dock-height) w-[min(100%-2rem,max(36rem,60vw),48rem)] shrink-0 overflow-hidden rounded-xl data-[dock=closed]:hidden [&_iframe]:block [&_iframe]:border-0"
+        className="relative mx-auto mt-(--dock-gap) h-(--dock-height) w-[min(100%-2rem,max(36rem,60vw),48rem)] shrink-0 data-[dock=closed]:hidden [&_iframe]:block [&_iframe]:border-0"
       >
-        <div ref={slot} className="h-(--dock-height)" />
+        {/* The live region stays in the DOM (never display:none) so screen readers announce the
+            pill when it appears; it never takes clicks meant for the cards under it. */}
+        <p
+          role="status"
+          className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-(--dock-gap) -translate-x-1/2 text-xs whitespace-nowrap text-foreground"
+        >
+          {askPlay && (
+            <span className="block rounded-full bg-glass frosted px-3 py-1">
+              Toque em ▶ no player do Spotify para ouvir
+            </span>
+          )}
+        </p>
+        <div
+          ref={slot}
+          className="h-(--dock-height) overflow-hidden rounded-xl"
+        />
       </section>
     </PlayPreview>
   )
 }
 
-/** A link home that first closes the dock and pauses its playback. */
+/** A link home that first closes the dock and unloads its player. */
 export function HomeLink(props: React.ComponentProps<typeof Link>) {
   const { close } = use(PlayPreview)
   return (
@@ -162,7 +217,7 @@ export function HomeLink(props: React.ComponentProps<typeof Link>) {
   )
 }
 
-/** On the home page the dock closes and pauses, however the visitor got there (logo, Back). */
+/** On the home page the dock closes and unloads, however the visitor got there (logo, Back). */
 export function ClosePreview() {
   const { close } = use(PlayPreview)
   useEffect(close, [close])
