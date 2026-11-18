@@ -68,6 +68,9 @@ jobs:
     env:
       # Every docker compose command below runs the test stack (raised rate limits).
       COMPOSE_FILE: compose.yaml:compose.test.yaml
+      # Playwright's official image: browsers and their system libraries, no apt or browser download in CI.
+      # Its tag must match @playwright/test in front/pnpm-lock.yaml ("Playwright version" checks it).
+      PLAYWRIGHT_IMAGE: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:2f05f8a734509a7b3f26a912639488ee08f58a7b292d14d62271bcff9038768f
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -88,12 +91,14 @@ jobs:
           echo "SPOTIFY_CLIENT_SECRET=$SPOTIFY_CLIENT_SECRET" >> .env
           echo "FRONT_TOKEN=$(grep '^FRONT_TOKEN=' .env | cut -d= -f2)" >> "$GITHUB_ENV"
       # Builds every image (tests too) and boots the stack in the background, overlapping the
-      # front install below; "Wait for the stack" collects its log and exit code.
+      # front install below; "Wait for the stack" collects its log and exit code. The Playwright
+      # image is pulled alongside; `docker run` finishes any pull still in progress.
       - name: Start the stack in the background
         working-directory: back
         run: |
           (set +e; docker compose --profile test build && docker compose up -d --wait
            echo $? > "$RUNNER_TEMP/stack.exit") > "$RUNNER_TEMP/stack.log" 2>&1 &
+          docker pull -q "$PLAYWRIGHT_IMAGE" > "$RUNNER_TEMP/playwright-pull.log" 2>&1 &
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           package_json_file: front/package.json
@@ -103,30 +108,19 @@ jobs:
           cache: pnpm
           cache-dependency-path: front/pnpm-lock.yaml
       - name: Playwright version
-        id: playwright
         run: |
           v="$(sed -n "s/^  '@playwright\/test@\(.*\)':$/\1/p" front/pnpm-lock.yaml | head -1)"
-          test -n "$v" # an empty version would share one cache key across Playwright upgrades
-          echo "version=$v" >> "$GITHUB_OUTPUT"
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
-      # apt and browser downloads can stall; fail fast instead of hanging the run.
-      - name: Install front and browsers
+          test -n "$v"
+          case "$PLAYWRIGHT_IMAGE" in
+            *":v$v-noble@"*) ;;
+            *) echo "::error::PLAYWRIGHT_IMAGE does not match @playwright/test $v"; exit 1 ;;
+          esac
+      # On the host: the image is the same Ubuntu 24.04 x64 (glibc) as the runner, so native
+      # packages (Next's SWC, lightningcss) resolve for both, and pnpm's store cache stays here.
+      - name: Install front
         working-directory: front
-        timeout-minutes: 10
-        env:
-          BROWSERS_CACHED: ${{ steps.playwright-cache.outputs.cache-hit }}
-        run: |
-          pnpm install --frozen-lockfile
-          if [ "$BROWSERS_CACHED" = true ]; then
-            pnpm exec playwright install-deps chromium firefox webkit
-          else
-            pnpm exec playwright install --with-deps chromium firefox webkit
-          fi
+        timeout-minutes: 5
+        run: pnpm install --frozen-lockfile
       - name: Wait for the stack
         timeout-minutes: 10
         run: |
@@ -136,12 +130,26 @@ jobs:
       - name: pytest
         working-directory: back
         run: docker compose run --rm tests
+      # In the Playwright image, with the host network (the Compose stack, next start on :3000).
+      # The runner's Node 26 and pnpm are mounted read-only at their host paths, so the build runs
+      # on the same Node as before. Same uid as the runner: test-results stay readable for upload.
       - name: Playwright
-        working-directory: front
+        timeout-minutes: 15
         env:
           BACK_URL: http://127.0.0.1:8000
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }} # e2e/preview.spec.ts skips without it
-        run: pnpm test:e2e
+        run: |
+          node_dir="$(dirname "$(readlink -f "$(command -v node)")")"
+          pnpm_dir="$(dirname "$(command -v pnpm)")"
+          docker run --rm --init --ipc=host --network host \
+            --user "$(id -u):$(id -g)" -e HOME=/tmp \
+            -e CI -e BACK_URL -e SPOTIFY_CLIENT_ID \
+            -e PATH="$pnpm_dir:$node_dir:/usr/local/bin:/usr/bin:/bin" \
+            -v /opt/hostedtoolcache:/opt/hostedtoolcache:ro \
+            -v "$HOME:$HOME:ro" \
+            -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
+            -w "$GITHUB_WORKSPACE/front" \
+            "$PLAYWRIGHT_IMAGE" pnpm test:e2e
       - name: Playwright traces
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
