@@ -8,9 +8,12 @@ test.skip(
 )
 
 const SEARCH = `/?q=${encodeURIComponent('músicas alegres e dançantes para uma festa')}&n=4`
-// includeHidden: once home the dock is display:none, and its pause must still be checked.
+// includeHidden: once home the dock is display:none, and it must still be found to be checked as hidden.
 const dockOf = (page: Page) =>
   page.getByRole('region', { name: 'Prévia no Spotify', includeHidden: true })
+// close() unloads the embed: no iframe left means no audio out of sight.
+const embedOf = (page: Page) =>
+  page.locator('iframe[src^="https://open.spotify.com/embed/"]')
 const cardsOf = (page: Page) =>
   page.getByRole('list', { name: 'Músicas' }).getByRole('listitem')
 
@@ -29,8 +32,8 @@ async function expectPlaying(page: Page, browserName: string) {
       (await dock.getAttribute('data-paused')) === 'true'
     ) {
       // Spotify's test id: the button's accessible name is localized ("Play" / "Pause").
-      await page
-        .frameLocator('iframe[src^="https://open.spotify.com/embed/"]')
+      await embedOf(page)
+        .contentFrame()
         .getByTestId('play-pause-button')
         .click()
     }
@@ -83,11 +86,11 @@ test.describe('playback', () => {
           card.getByRole('button', { name: /^Tocando / })
         ).toHaveText('Tocando')
       }
-      await expect(page.locator('iframe')).toHaveCount(1)
+      await expect(embedOf(page)).toHaveCount(1)
     })
   }
 
-  test('going home with the logo hides the player and pauses it', async ({
+  test('going home with the logo hides and unloads the player, and Prévia rebuilds it', async ({
     page,
     browserName,
   }) => {
@@ -105,12 +108,19 @@ test.describe('playback', () => {
       .click()
     await expect(page).toHaveURL(/\/$/)
     await expect(dock).toBeHidden()
-    await expect(dock).toHaveAttribute('data-paused', 'true', {
-      timeout: 20_000,
-    })
+    await expect(embedOf(page)).toHaveCount(0)
+
+    // Back on the results, Prévia builds a new player that plays.
+    await page.goBack()
+    await cardsOf(page)
+      .first()
+      .getByRole('button', { name: /^Prévia de/ })
+      .click()
+    await expectPlaying(page, browserName)
+    await expect(embedOf(page)).toHaveCount(1)
   })
 
-  test("going back to home with the browser's Back hides the player and pauses it", async ({
+  test("going back to home with the browser's Back hides and unloads the player", async ({
     page,
     browserName,
   }) => {
@@ -131,9 +141,7 @@ test.describe('playback', () => {
     await page.goBack()
     await expect(page).toHaveURL(/\/$/)
     await expect(dock).toBeHidden()
-    await expect(dock).toHaveAttribute('data-paused', 'true', {
-      timeout: 20_000,
-    })
+    await expect(embedOf(page)).toHaveCount(0)
   })
 })
 

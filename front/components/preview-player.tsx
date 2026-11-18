@@ -25,6 +25,7 @@ type EmbedController = {
   play(): void
   pause(): void
   togglePlay(): void
+  destroy(): void
   addListener(
     event: 'ready' | 'playback_started' | 'playback_update',
     listener: (e: PlaybackEvent) => void
@@ -45,12 +46,16 @@ declare global {
 
 let iframeApi: Promise<IFrameAPI> | undefined
 function loadIframeApi() {
-  iframeApi ??= new Promise((resolve) => {
+  iframeApi ??= new Promise((resolve, reject) => {
     window.onSpotifyIframeApiReady = resolve
     const script = document.createElement('script')
     script.src = 'https://open.spotify.com/embed/iframe-api/v1'
     script.async = true
-    script.onerror = () => (iframeApi = undefined) // the next click tries again
+    // Reject so the caller drops its player; clearing the cache lets the next click try again.
+    script.onerror = () => {
+      iframeApi = undefined
+      reject(new Error('Spotify iFrame API failed to load'))
+    }
     document.body.append(script)
   })
   return iframeApi
@@ -90,9 +95,12 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
   }, [])
   const armAskPlay = useCallback(() => {
     clearTimeout(askPlayTimer.current)
-    askPlayTimer.current = setTimeout(() => setAskPlay(true), 2000)
+    // Checked when it fires: a brief isPaused:false must not cancel the prompt for a blocked play().
+    askPlayTimer.current = setTimeout(
+      () => setAskPlay(playingNow.current.paused),
+      2000
+    )
   }, [])
-  const loadedUri = useRef<string>(undefined)
 
   const play = useCallback(
     (trackId: string) => {
@@ -103,17 +111,14 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
         controller.current.then((c) => {
           // The card that is playing pauses; any other card starts its own track.
           if (current === uri && !paused) return c.togglePlay()
+          // loadUri reloads the embed even for the same track, and its `ready` re-arms the prompt.
           hideAskPlay()
-          // Spotify skips reloading the loaded track, so no `ready` comes to arm the prompt.
-          if (loadedUri.current === uri) armAskPlay()
-          loadedUri.current = uri
           c.loadUri(uri)
           c.play()
         })
         return
       }
-      loadedUri.current = uri
-      controller.current = loadIframeApi().then(
+      const created: Promise<EmbedController> = loadIframeApi().then(
         (api) =>
           new Promise((resolve) => {
             // The API replaces this element with its iframe, so React never owns it.
@@ -124,12 +129,12 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
               { uri, width: '100%', height: LAYOUT.dock.height },
               (c) => {
                 c.addListener('ready', armAskPlay)
-                c.addListener('playback_started', ({ data }) => {
-                  hideAskPlay()
+                // Not proof of sound: the embed sends it once the track is loaded, even when the browser blocks play().
+                c.addListener('playback_started', ({ data }) =>
                   setPlaying((p) => ({ ...p, uri: data.playingURI }))
-                })
+                )
                 c.addListener('playback_update', ({ data }) => {
-                  if (data.isPaused === false) hideAskPlay()
+                  if (data.isPaused === false) setAskPlay(false)
                   setPlaying((p) =>
                     p.paused === data.isPaused
                       ? p
@@ -142,16 +147,24 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
             )
           })
       )
-      controller.current.catch(() => (controller.current = null))
+      controller.current = created
+      // close() may have dropped it already; never forget a newer player.
+      created.catch(() => {
+        if (controller.current === created) controller.current = null
+      })
     },
     [armAskPlay, hideAskPlay]
   )
 
-  // Hidden and paused: no audio keeps playing out of sight.
+  // Hidden and unloaded: no audio keeps playing out of sight, with no pause report to trust
+  // (Firefox CI kept data-paused="false" after pause()). The next Prévia builds a new player.
+  // A player still being created is destroyed as soon as it exists.
   const close = useCallback(() => {
     setOpen(false)
     hideAskPlay()
-    controller.current?.then((c) => c.pause())
+    controller.current?.then((c) => c.destroy())
+    controller.current = null
+    setPlaying({ paused: true })
   }, [hideAskPlay])
 
   return (
@@ -188,7 +201,7 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
   )
 }
 
-/** A link home that first closes the dock and pauses its playback. */
+/** A link home that first closes the dock and unloads its player. */
 export function HomeLink(props: React.ComponentProps<typeof Link>) {
   const { close } = use(PlayPreview)
   return (
@@ -202,7 +215,7 @@ export function HomeLink(props: React.ComponentProps<typeof Link>) {
   )
 }
 
-/** On the home page the dock closes and pauses, however the visitor got there (logo, Back). */
+/** On the home page the dock closes and unloads, however the visitor got there (logo, Back). */
 export function ClosePreview() {
   const { close } = use(PlayPreview)
   useEffect(close, [close])
