@@ -4,6 +4,7 @@ import time
 from uuid import uuid4
 
 import psycopg
+import pytest
 from psycopg.types.json import Jsonb
 
 from timbre_back.db import conninfo
@@ -22,19 +23,24 @@ def wait_for_job(conn: psycopg.Connection, job_id: int, timeout: float = 60) -> 
     raise TimeoutError(f"job {job_id} still queued after {timeout}s")
 
 
-def test_build_vectors_fills_profile_and_vector_for_new_songs() -> None:
+# A stale vector: retag changed the Song's tags and cleared its profile.
+@pytest.mark.parametrize("vector", [None, "[" + ",".join(["0.05"] * 384) + "]"])
+def test_build_vectors_fills_profile_and_vector_for_new_songs(
+    vector: str | None,
+) -> None:
     song_id = uuid4()
     with psycopg.connect(conninfo("ml_worker"), autocommit=True) as conn:
         try:
             conn.execute(
                 "INSERT INTO catalog.songs"
-                " (id, title, artist, acousticbrainz, instruments, tags)"
-                " VALUES (%s, 'new', 'new', %s, %s, %s)",
+                " (id, title, artist, acousticbrainz, instruments, tags, vector)"
+                " VALUES (%s, 'new', 'new', %s, %s, %s, %s::vector)",
                 (
                     song_id,
                     Jsonb({"mood_relaxed": {"relaxed": 0.9, "not_relaxed": 0.1}}),
                     ["piano"],
                     ["jazz", "bossa nova"],
+                    vector,
                 ),
             )
             job = conn.execute(

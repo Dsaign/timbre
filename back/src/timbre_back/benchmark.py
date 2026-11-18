@@ -3,7 +3,8 @@
 Loads the committed Benchmark files into catalog and queues evaluate. The job tunes the
 promoted model version's cutoff and Popularity weight on the model's own Fit ranking
 (fast, in numpy), scores the result through the real search (search.MATCHES_SQL:
-name step, tags and model), and records the three on it. The train job uses it only
+name step, tags and model), and records the three on it, with recall@24 and
+precision@16 per Benchmark file. The train job uses it only
 to evaluate and to keep Benchmark Descriptions out of training (train.may_train_on).
 """
 
@@ -15,20 +16,24 @@ from typing import NamedTuple
 
 import numpy as np
 import psycopg
+from psycopg.types.json import Jsonb
 
 from timbre_back import model as models
 from timbre_back.db import conninfo
 from timbre_back.embed import embed_query
 from timbre_back.feedback import normalize
 from timbre_back.model import DIMS, LABELS, Floats, Model
-from timbre_back.search import MATCHES_SQL
+from timbre_back.search import FILLER_WORDS, MATCHES_SQL
 
 log = logging.getLogger("timbre.benchmark")
 FILES = [
     Path(__file__).with_name("benchmark_hand_written.json"),  # the owner's (ticket 14)
     Path(__file__).with_name("benchmark_drafted.json"),
+    # Generated from the Catalog by scripts/generate_benchmark.py (ticket 20).
+    Path(__file__).with_name("benchmark_generated.json"),
 ]
 TOP = 24  # the first screen of Matches (SearchParams.n)
+PRECISION_TOP = 16  # the first screen on a phone
 MIN_SONGS = 3
 CUTOFFS = np.round(np.arange(0.5, 1.0, 0.005), 3)
 # Small, so Popularity never overrides Fit: top Matches differ in Fit by hundredths.
@@ -46,9 +51,12 @@ async def load(conn: psycopg.AsyncConnection) -> None:
     await conn.execute("DELETE FROM catalog.benchmark_descriptions")
     async with conn.cursor() as cur:
         await cur.executemany(
-            "INSERT INTO catalog.benchmark_descriptions (description, source, reviewed)"
-            " VALUES (%s, %s, %s)",
-            [(e["description"], e["source"], e["reviewed"]) for e in entries],
+            "INSERT INTO catalog.benchmark_descriptions"
+            " (description, source, reviewed, accept_tags) VALUES (%s, %s, %s, %s)",
+            [
+                (e["description"], e["source"], e["reviewed"], e.get("accept_tags", []))
+                for e in entries
+            ],
         )
         await cur.executemany(
             "INSERT INTO catalog.benchmark_songs (description_id, song_id)"
@@ -141,6 +149,8 @@ class Benchmark(NamedTuple):
     vectors: Floats  # e5 vectors of the Descriptions, then of NONSENSE
     expected: list[list[int]]  # per Description, its Songs' Catalog indexes
     catalog: Catalog
+    sources: list[str]  # per Description, its file's source ("hand-written", ...)
+    accept_tags: list[list[str]]  # per Description, the tag keys of a relevant Match
 
     @property
     def description_vectors(self) -> Floats:
@@ -151,7 +161,7 @@ class Benchmark(NamedTuple):
 async def read(conn: psycopg.AsyncConnection) -> Benchmark | None:
     """The Benchmark against the Catalog, or None when no Song has a vector yet."""
     cur = await conn.execute(
-        "SELECT d.description, array_agg(s.song_id::text)"
+        "SELECT d.description, array_agg(s.song_id::text), d.source, d.accept_tags"
         " FROM catalog.benchmark_descriptions d"
         " JOIN catalog.benchmark_songs s ON s.description_id = d.id"
         " GROUP BY d.id ORDER BY d.id"
@@ -163,15 +173,17 @@ async def read(conn: psycopg.AsyncConnection) -> Benchmark | None:
     if not catalog.song_ids:
         return None
     index = {song_id: i for i, song_id in enumerate(catalog.song_ids)}
-    descriptions = [d for d, _ in rows]
+    descriptions = [d for d, *_ in rows]
     vectors = await asyncio.to_thread(
         lambda: [embed_query(d) for d in [*descriptions, NONSENSE]]
     )
     return Benchmark(
         descriptions,
         np.array(vectors, dtype=np.float32),
-        [[index.get(s, -1) for s in ids] for _, ids in rows],
+        [[index.get(s, -1) for s in ids] for _, ids, *_ in rows],
         catalog,
+        [source for _, _, source, _ in rows],
+        [accept for *_, accept in rows],
     )
 
 
@@ -183,8 +195,29 @@ def fits(model: Model, bench: Benchmark) -> tuple[Floats, float]:
 
 
 TOP_MATCHES_SQL = """{matches}
-SELECT id::text FROM matches ORDER BY part, rank DESC, id LIMIT %(top)s
+SELECT m.id::text, s.tag_keys FROM matches m JOIN catalog.songs s USING (id)
+ORDER BY m.part, m.rank DESC, m.id LIMIT %(top)s
 """.replace("{matches}", MATCHES_SQL)
+
+
+class Scores(NamedTuple):
+    """`recall` is the promotion score: the share of expected Songs among the top
+    Matches, averaged over all Descriptions. Per file (source): the same recall, and
+    precision@16: how many of the first PRECISION_TOP Matches have one of the
+    Description's accept_tags, out of PRECISION_TOP (a shorter list counts its missing
+    Matches as misses), averaged over the Descriptions that have accept_tags."""
+
+    recall: float
+    recall_by_file: dict[str, float]
+    precision_by_file: dict[str, float]
+
+
+def by_file(values: list[tuple[str, float]]) -> dict[str, float]:
+    """The mean value per source."""
+    grouped: dict[str, list[float]] = {}
+    for source, value in values:
+        grouped.setdefault(source, []).append(value)
+    return {source: float(np.mean(v)) for source, v in sorted(grouped.items())}
 
 
 async def search_score(
@@ -193,34 +226,48 @@ async def search_score(
     bench: Benchmark,
     cutoff: float,
     weight: float,
-) -> float:
-    """Share of expected Songs among the top Matches of the real search (the API's
-    ranking), averaged over Descriptions."""
+) -> Scores:
+    """Recall and precision of the real search (the API's ranking)."""
     index = {song_id: i for i, song_id in enumerate(bench.catalog.song_ids)}
-    shares = []
-    for description, vector, songs in zip(
-        bench.descriptions, bench.description_vectors, bench.expected, strict=True
+    recalls: list[tuple[str, float]] = []
+    precisions: list[tuple[str, float]] = []
+    for description, vector, songs, source, accept in zip(
+        bench.descriptions,
+        bench.description_vectors,
+        bench.expected,
+        bench.sources,
+        bench.accept_tags,
+        strict=True,
     ):
         cur = await conn.execute(
             TOP_MATCHES_SQL,
             {
                 **model.search_params(vector.tolist()),
                 "description": normalize(description),
+                "fillers": FILLER_WORDS,
                 "cutoff": cutoff,
                 "weight": weight,
                 "top": TOP,
             },
         )
+        rows = await cur.fetchall()
         # A name match can be a Song without a vector: never an expected one.
-        found = {index[i] for (i,) in await cur.fetchall() if i in index}
-        shares.append(sum(i in found for i in songs) / len(songs))
-    return float(np.mean(shares))
+        found = {index[i] for i, _ in rows if i in index}
+        recalls.append((source, sum(i in found for i in songs) / len(songs)))
+        if accept:
+            hits = sum(
+                bool(set(keys or []) & set(accept)) for _, keys in rows[:PRECISION_TOP]
+            )
+            precisions.append((source, hits / PRECISION_TOP))
+    return Scores(
+        float(np.mean([r for _, r in recalls])), by_file(recalls), by_file(precisions)
+    )
 
 
 async def tuned(
     conn: psycopg.AsyncConnection, model: Model, bench: Benchmark
-) -> tuple[float, float, float]:
-    """The model's (search score, cutoff, weight), tuned on the Benchmark."""
+) -> tuple[Scores, float, float]:
+    """The model's (search scores, cutoff, weight), tuned on the Benchmark."""
     fit, nonsense_fit = fits(model, bench)
     _, cutoff, weight = await asyncio.to_thread(
         tune, fit, bench.catalog.popularity, bench.expected, nonsense_fit
@@ -245,23 +292,45 @@ async def evaluate(conn: psycopg.AsyncConnection) -> None:
     before = await search_score(conn, model, bench, old_cutoff, old_weight)
     best, cutoff, weight = await tuned(conn, model, bench)
     await conn.execute(
-        "UPDATE catalog.model_versions"
-        " SET benchmark_score = %s, cutoff = %s, popularity_weight = %s WHERE promoted",
-        (best, cutoff, weight),
+        "UPDATE catalog.model_versions SET benchmark_score = %s, cutoff = %s,"
+        " popularity_weight = %s, recall_at_24 = %s, precision_at_16 = %s"
+        " WHERE promoted",
+        (
+            best.recall,
+            cutoff,
+            weight,
+            Jsonb(best.recall_by_file),
+            Jsonb(best.precision_by_file),
+        ),
     )
     log.info(
         "evaluate: %d Benchmark Descriptions, %d Songs. Search score (expected Songs"
         " in the top %d) was %.3f at cutoff %.3f and weight %.3f; tuned %.3f at"
-        " cutoff %.3f and weight %.3f, recorded on the promoted model version",
+        " cutoff %.3f and weight %.3f, recorded on the promoted model version."
+        " %s",
         len(bench.descriptions),
         len(bench.catalog.song_ids),
         TOP,
-        before,
+        before.recall,
         old_cutoff,
         old_weight,
-        best,
+        best.recall,
         cutoff,
         weight,
+        report(best),
+    )
+
+
+def report(scores: Scores) -> str:
+    """recall@24 and precision@16 per file, for the logs."""
+    return "; ".join(
+        f"{source}: recall@{TOP} {recall:.3f}, precision@{PRECISION_TOP} "
+        + (
+            f"{scores.precision_by_file[source]:.3f}"
+            if source in scores.precision_by_file
+            else "-"
+        )
+        for source, recall in scores.recall_by_file.items()
     )
 
 

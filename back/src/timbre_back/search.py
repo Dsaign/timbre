@@ -4,13 +4,13 @@ Matches, in order: the Songs the Description names (by artist or title), then th
 ranked by Reciprocal Rank Fusion (the usual k = 60) of two rankings: the model's (Fit
 plus a small Popularity weight) and a direct match of the Description's phrases with
 each Song's tags. The tag ranking is weighted by the share of the Description its tag
-covers, so "rock" goes by tags while a long Description keeps to its meaning. After a
-name match, Fit is measured against the Description averaged with the named Songs, so
-the Description's own meaning always counts. A Match has Fit above the cutoff, or a
-matching tag among its Song's 3 most-voted.
+covers (filler words left out), so "rock" goes by tags while a long Description keeps
+to its meaning. After a name match, Fit is measured against the Description averaged
+with the named Songs, so the Description's own meaning always counts. A Match has Fit
+above the cutoff, or a matching tag among its Song's 3 most-voted.
 
 Parameters: description (normalized), vector and labels (model.search_params),
-head_weight, cutoff and weight (the model version's).
+head_weight, cutoff and weight (the model version's), fillers (FILLER_WORDS).
 """
 
 # Fit from a row's cosine, labels and target_labels, as model.Model.fit: the head
@@ -36,6 +36,16 @@ RRF_K = "60"  # the usual Reciprocal Rank Fusion constant
 # the related Songs are capped.
 RELATED_CAP = "60"
 STRONG_TAGS = "3"  # a tag-only Match needs the tag among its Song's 3 most-voted
+# Articles, prepositions and conjunctions (pt-BR and English, as catalog.tag_keys has
+# them: lowercase, no accents). They don't count as words of the Description when a
+# tag's share of it is measured, so "emo" covers 1/4 of "Emo para chorar e cantar
+# gritando". Tags themselves keep every word.
+FILLER_WORDS = (
+    "a o as os um uma uns umas de do da dos das em no na nos nas num numa ao aos"
+    " para pra pro pras pros por pelo pela pelos pelas com sem ate entre sobre"
+    " e ou mas que se"
+    " an the of to for with without in on at by from into and or but as"
+).split()
 
 # The CTEs up to `matches` (id, title, artist, part, rank); order: part, rank DESC, id.
 # Names match whole: the main artist (guests after feat./ft. don't count) or a title of
@@ -54,7 +64,10 @@ WITH description_words AS (
       FROM description_words, generate_subscripts(words, 1) i, generate_series(1, 4) n
       WHERE i + n - 1 <= cardinality(words)
     ) AS phrases,
-    cardinality(words) AS word_count
+    -- At least 1: a Description of filler words alone still divides safely.
+    greatest(
+      (SELECT count(*) FROM unnest(words) w WHERE w <> ALL (%(fillers)s::text[])), 1
+    ) AS word_count
   FROM description_words
 ), named AS (
   SELECT id, title, artist, listens, vector, labels
@@ -83,7 +96,9 @@ WITH description_words AS (
   -- the Description they cover.
   SELECT song_id AS id, sum(1.0 / vote_rank) AS tag_score,
     min(vote_rank) AS best_vote_rank,
-    max(cardinality(string_to_array(key, ' ')))::float8 / word_count AS coverage
+    -- At most 1: a tag's own filler words ("rock and roll") still count.
+    least(max(cardinality(string_to_array(key, ' ')))::float8 / word_count, 1)
+      AS coverage
   -- song_tags copies tag_keys: redefining catalog.tag_keys() means rebuilding it.
   FROM catalog.song_tags, description
   WHERE key = ANY (phrases)

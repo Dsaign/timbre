@@ -91,6 +91,17 @@ docker compose logs -f worker                                     # progress, on
 
 An interrupted import resumes after the last finished artist (or seed tag batch): a restarted worker picks the job up again, and when an API stays down (429, 5xx or no connection after four tries) the job stays queued and runs again a minute later, while other jobs run meanwhile. It retries without limit; to cancel it, set its `status` to `'failed'`. An artist ListenBrainz answers 404 for is logged and skipped. Any other error (for example a 401 from an expired `LISTENBRAINZ_TOKEN`) marks it failed (`jobs.queue.status = 'failed'`, the reason in `error`); fix the cause and queue it again with the same command. build-vectors runs when the import ends, for every new or changed Song. A Catalog imported under a lower target grows the same way: queue the job again and it skips every artist in `catalog.import_artists` and goes on with the next ones.
 
+### Retag
+
+A Song keeps up to 5 MusicBrainz tags: its recording's own first, then its release group's, then its artist's, most-voted first within each. Songs imported before ticket 20 kept only the most specific level that had any tag (Slayer's "Bloodline" had only `00s`). The `retag` job fetches the tags again for every Song with fewer than 5, 50 Songs per ListenBrainz call (about 4 minutes for 11k Songs). Each Song changes in place: it keeps its vector, so it stays searchable, and build-vectors (queued at the end) redoes the ones whose tags changed. Then, each once the previous job is done: `retag` → `build-vectors` → `evaluate` → `train`.
+
+```bash
+docker compose exec worker python -m timbre_back.catalog_import retag   # queues the job
+docker compose logs -f worker | grep tags:                              # progress
+```
+
+An API that stays down defers it like the import. A rerun asks again for every Song that still has fewer than 5 tags.
+
 After an import, in this order, each once the previous job is done (`SELECT kind, status FROM jobs.queue WHERE status = 'queued'` returns nothing): build-vectors (queued by the import itself), then evaluate (see Benchmark) so the cutoff and Popularity weight fit the new Catalog, then train (see Own model). Then re-check the cutoff (below).
 
 ### Re-check the cutoff
@@ -107,10 +118,11 @@ Without `compose.test.yaml` the tests service runs on the dev stack, so these 7 
 
 ## Benchmark
 
-The Benchmark scores the model: Descriptions, each with at least 3 Songs that should be Matches. It lives in two committed files in `back/src/timbre_back/`, each a JSON list of `{"description", "source", "reviewed", "songs": [{"id", "title", "artist"}]}` where `id` is the Song's MusicBrainz recording ID in the Catalog (`title` and `artist` are only for reading):
+The Benchmark scores the model: Descriptions, each with at least 3 Songs that should be Matches. It lives in three committed files in `back/src/timbre_back/`, each a JSON list of `{"description", "source", "reviewed", "accept_tags", "songs": [{"id", "title", "artist"}]}` where `id` is the Song's MusicBrainz recording ID in the Catalog (`title` and `artist` are only for reading) and the optional `accept_tags` are the tag keys (lowercase, no accents, words joined by one space) that make a Match relevant to the Description:
 
 - `benchmark_drafted.json`: 60 Descriptions drafted by Bob (`"source": "drafted"`), reviewed by the owner.
-- `benchmark_hand_written.json`: the owner's 40 (`"source": "hand-written"`), in pt-BR and English.
+- `benchmark_hand_written.json`: the owner's 41 (`"source": "hand-written"`), in pt-BR and English.
+- `benchmark_generated.json`: 1,173 Descriptions generated from the Catalog by `back/scripts/generate_benchmark.py` (`"source": "generated"`, not reviewed), half pt-BR, half English: a frequent genre tag crossed with an AcousticBrainz mood or voice label ("rock pra treinar", "sad mechanical noisy beats"). Over half name no accept tag word for word (paraphrases and Portuguese names). Its expected Songs carry the genre among their 3 most-voted tags and the label, most listened first. A candidate within e5 cosine 0.92 of a `training_drafted.json` Description is dropped, so the file keeps no drafted training Description out of training. Regenerate it with the command in the script's docstring (deterministic for a given Catalog).
 
 Load the files into `catalog` and score the model, from `back/` with the stack up. The worker image holds a copy of the files, so rebuild it after editing them:
 
@@ -120,7 +132,7 @@ docker compose exec worker python -m timbre_back.benchmark   # loads the files, 
 docker compose logs worker | grep evaluate                   # the report
 ```
 
-The score is the share of expected Songs in the top 24 Matches, averaged over Descriptions. The job also tunes the cutoff (0.005 grid, only cutoffs at least 0.005 above the best Fit of the nonsense string `xkqzv wplmr tjhgf`, so it keeps 0 Matches; ties to the highest) and the Popularity weight (0 to 0.05 in 0.005 steps, ties to the lowest), and records the score, cutoff and weight on the promoted model version. With no Song vectorized yet it logs that it skipped and changes nothing. The new cutoff and weight are live at once. A Song ID missing from the Catalog, or a Description with fewer than 3 Songs, stops the load with an error. Training never learns from it (see Own model).
+The score is the share of expected Songs in the top 24 Matches (recall@24), averaged over Descriptions; promotion uses it. The log also gives, per file, recall@24 and precision@16: how many of the first 16 Matches carry one of the Description's `accept_tags`, out of 16 (a shorter list counts its missing Matches as misses), averaged over the Descriptions that have them. Both are recorded per file on the model version (`recall_at_24`, `precision_at_16`, JSON by `source`). The job also tunes the cutoff (0.005 grid, only cutoffs at least 0.005 above the best Fit of the nonsense string `xkqzv wplmr tjhgf`, so it keeps 0 Matches; ties to the highest) and the Popularity weight (0 to 0.05 in 0.005 steps, ties to the lowest), and records the score, cutoff and weight on the promoted model version. With no Song vectorized yet it logs that it skipped and changes nothing. The new cutoff and weight are live at once. A Song ID missing from the Catalog, or a Description with fewer than 3 Songs, stops the load with an error. Training never learns from it (see Own model).
 
 Baseline (multilingual-e5-small) on the full Benchmark of 100, on the 10,000-Song Catalog (2026-11-16): score 0.112, cutoff 0.830, Popularity weight 0.050. A grown Catalog (up to 50k Songs, see Catalog import) keeps every Benchmark Song, since an import never deletes Songs; run evaluate after its build-vectors, before train.
 

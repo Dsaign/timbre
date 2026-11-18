@@ -27,6 +27,7 @@ from timbre_back import benchmark, main, worker
 from timbre_back.db import conninfo, vector_literal
 from timbre_back.model import BASELINE, DIMS, LABELS, Model
 from timbre_back.profile import WORDS
+from timbre_back.search import FILLER_WORDS
 
 AXES = {"A": 0, "B": 1, "C": 2, benchmark.NONSENSE: 3}
 # name: (axes, Fit with their sum, listens)
@@ -67,7 +68,11 @@ def song_vector(n: int, axes: tuple[int, ...], fit: float) -> list[float]:
     return vector
 
 
-def write_benchmark(path: Path, expected: dict[str, list[str]]) -> None:
+def write_benchmark(
+    path: Path,
+    expected: dict[str, list[str]],
+    accept_tags: dict[str, list[str]] | None = None,
+) -> None:
     path.write_text(
         json.dumps(
             [
@@ -75,6 +80,7 @@ def write_benchmark(path: Path, expected: dict[str, list[str]]) -> None:
                     "description": description,
                     "source": "drafted",
                     "reviewed": False,
+                    "accept_tags": (accept_tags or {}).get(description, []),
                     "songs": [{"id": song_id(s)} for s in songs],
                 }
                 for description, songs in expected.items()
@@ -158,6 +164,36 @@ async def test_evaluate_scores_tunes_and_records_on_the_baseline(
     assert score == pytest.approx(2 / 9, abs=1e-6)
     assert cutoff == pytest.approx(0.800, abs=1e-6)
     assert weight == pytest.approx(0.020, abs=1e-6)
+    recall, precision = await one(
+        conn,
+        "SELECT recall_at_24, precision_at_16 FROM catalog.model_versions"
+        " WHERE promoted",
+    )
+    assert recall == {"drafted": pytest.approx(2 / 9, abs=1e-6)}
+    assert precision == {}  # no Description has accept_tags
+
+
+@pytest.mark.anyio
+async def test_precision_counts_the_first_16_matches_with_an_accept_tag(
+    conn: psycopg.AsyncConnection, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """At cutoff 0, A has 7 Matches and B 6, fewer than the 16 of the first screen.
+    Only Y (a Match of A) has an accept tag of its Description, so A scores 1/16, not
+    1/7: missing Matches count as misses. C has no accept_tags, so it is left out."""
+    monkeypatch.setattr(benchmark, "TOP", benchmark.PRECISION_TOP)
+    write_benchmark(
+        benchmark.FILES[0], EXPECTED, {"A": ["zylo fonk"], "B": ["zylo fonk"]}
+    )
+    await conn.execute(
+        "UPDATE catalog.songs SET tags = %s WHERE id = %s",
+        (["Zylo-Fonk"], song_id("Y")),
+    )
+    await benchmark.load(conn)
+    bench = await benchmark.read(conn)
+    assert bench is not None
+    scores = await benchmark.search_score(conn, BASELINE, bench, 0.0, 0.0)
+    assert scores.precision_by_file == {"drafted": (1 / 16 + 0) / 2}
+    assert scores.recall_by_file == {"drafted": scores.recall}
 
 
 @pytest.mark.anyio
@@ -179,9 +215,12 @@ async def test_a_name_match_without_a_vector_scores_as_not_found(
         np.array([unit(0), unit(3)], dtype=np.float32),
         [[bench.catalog.song_ids.index(song_id("X"))]],
         bench.catalog,
+        ["drafted"],
+        [[]],
     )
     # TOP is 1: the named Song fills it, so X is not found.
-    assert await benchmark.search_score(conn, BASELINE, named, 0.0, 0.0) == 0.0
+    scores = await benchmark.search_score(conn, BASELINE, named, 0.0, 0.0)
+    assert scores.recall == 0.0
 
 
 @pytest.mark.anyio
@@ -282,6 +321,7 @@ async def search_sql(
             "n": n,
             "offset": 0,
             "description": "parity",
+            "fillers": FILLER_WORDS,
             "visitor": "parity",
         },
     )

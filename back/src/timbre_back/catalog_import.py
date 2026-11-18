@@ -1,9 +1,14 @@
-"""The import-catalog job (ADR 0002). Queue it: python -m timbre_back.catalog_import"""
+"""The import-catalog job (ADR 0002). Queue it: python -m timbre_back.catalog_import
+
+And the retag job, which fills Songs that have fewer than TAGS_PER_SONG tags. Queue it:
+python -m timbre_back.catalog_import retag"""
 
 import asyncio
 import json
 import logging
 import os
+import sys
+from collections.abc import Awaitable, Callable
 from itertools import count
 
 import httpx
@@ -15,6 +20,7 @@ from timbre_back.metabrainz import (
     LISTENBRAINZ_API,
     METADATA_BATCH,
     STATS_PAGE,
+    TAGS_PER_SONG,
     Song,
     client,
     fetch_high_level,
@@ -133,30 +139,55 @@ async def import_top_artists(
             log.info("import: %s, %d Songs kept", artist["artist_name"], kept)
 
 
+async def tag_songs(
+    conn: psycopg.AsyncConnection, http: httpx.AsyncClient, song_ids: list[str]
+) -> None:
+    """(Re-)fetch the Songs' tags ([] when MusicBrainz has none), a batch per commit.
+    A Song whose tags change keeps its vector, so it stays searchable, and loses its
+    profile, so build-vectors redoes it."""
+    for i in range(0, len(song_ids), METADATA_BATCH):
+        batch = song_ids[i : i + METADATA_BATCH]
+        recordings = await recordings_metadata(http, batch)
+        async with conn.transaction(), conn.cursor() as update:
+            await update.executemany(
+                "UPDATE catalog.songs SET tags = %(tags)s, profile = NULL"
+                " WHERE id = %(id)s AND tags IS DISTINCT FROM %(tags)s",
+                [
+                    {
+                        "tags": top_tags(recordings.get(mbid, {}).get("tag", {})),
+                        "id": mbid,
+                    }
+                    for mbid in batch
+                ],
+            )
+        log.info("tags: fetched for %d of %d Songs", i + len(batch), len(song_ids))
+
+
 async def tag_seed_songs(
     conn: psycopg.AsyncConnection, http: httpx.AsyncClient
 ) -> None:
-    """Tag untagged seed Songs ([] when MusicBrainz has none), a batch per commit."""
+    """Tag the untagged seed Songs; an interrupted run resumes where it stopped."""
     seed_ids = [song["id"] for song in json.loads(SEED.read_text())]
     cur = await conn.execute(
         "SELECT id::text FROM catalog.songs"
         " WHERE tags IS NULL AND id = ANY(%s::uuid[]) ORDER BY id",
         (seed_ids,),
     )
-    untagged = [mbid for (mbid,) in await cur.fetchall()]
-    for i in range(0, len(untagged), METADATA_BATCH):
-        batch = untagged[i : i + METADATA_BATCH]
-        recordings = await recordings_metadata(http, batch)
-        async with conn.transaction(), conn.cursor() as update:
-            await update.executemany(
-                "UPDATE catalog.songs SET tags = %s, profile = NULL, vector = NULL"
-                " WHERE id = %s",
-                [
-                    (top_tags(recordings.get(mbid, {}).get("tag", {})), mbid)
-                    for mbid in batch
-                ],
-            )
-        log.info("import: tagged %d seed Songs", i + len(batch))
+    await tag_songs(conn, http, [mbid for (mbid,) in await cur.fetchall()])
+
+
+async def retag(conn: psycopg.AsyncConnection, http: httpx.AsyncClient) -> None:
+    """Re-fetch the tags of every Song with fewer than TAGS_PER_SONG, then queue
+    build-vectors. `conn` must be autocommit."""
+    # shortcut: a rerun asks again for every short Song, done or not; record progress
+    # if the run (minutes at 50 Songs per call) ever gets long.
+    cur = await conn.execute(
+        "SELECT id::text FROM catalog.songs"
+        " WHERE coalesce(cardinality(tags), 0) < %s ORDER BY id",
+        (TAGS_PER_SONG,),
+    )
+    await tag_songs(conn, http, [mbid for (mbid,) in await cur.fetchall()])
+    await queue_build_vectors(conn)
 
 
 async def import_catalog(
@@ -171,9 +202,12 @@ async def import_catalog(
     await queue_build_vectors(conn)
 
 
-async def run(job_conn: psycopg.AsyncConnection) -> None:
+async def run_on_own_connection(
+    job_conn: psycopg.AsyncConnection,
+    job: Callable[[psycopg.AsyncConnection, httpx.AsyncClient], Awaitable[None]],
+) -> None:
     """Commits on its own connection, so a failed run keeps every finished step."""
-    # The job's transaction only holds the claim, idle for the hours the import takes.
+    # The job's transaction only holds the claim, idle for the hours the job takes.
     await job_conn.execute("SET LOCAL idle_in_transaction_session_timeout = 0")
     async with (
         await psycopg.AsyncConnection.connect(
@@ -181,17 +215,27 @@ async def run(job_conn: psycopg.AsyncConnection) -> None:
         ) as conn,
         client() as http,
     ):
-        await import_catalog(conn, http)
+        await job(conn, http)
 
 
-async def main() -> None:
+async def run(job_conn: psycopg.AsyncConnection) -> None:
+    await run_on_own_connection(job_conn, import_catalog)
+
+
+async def run_retag(job_conn: psycopg.AsyncConnection) -> None:
+    await run_on_own_connection(job_conn, retag)
+
+
+async def main(kind: str) -> None:
     async with await psycopg.AsyncConnection.connect(conninfo("ml_worker")) as conn:
         await conn.execute(
-            "INSERT INTO jobs.queue (kind) SELECT 'import-catalog'"
+            "INSERT INTO jobs.queue (kind) SELECT %(kind)s"
             " WHERE NOT EXISTS (SELECT FROM jobs.queue"
-            "   WHERE kind = 'import-catalog' AND status = 'queued')"
+            "   WHERE kind = %(kind)s AND status = 'queued')",
+            {"kind": kind},
         )
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    # `python -m timbre_back.catalog_import retag` queues the retag job instead.
+    asyncio.run(main("retag" if sys.argv[1:] == ["retag"] else "import-catalog"))

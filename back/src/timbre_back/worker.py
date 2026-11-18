@@ -8,6 +8,7 @@ import psycopg
 
 from timbre_back.benchmark import evaluate
 from timbre_back.catalog_import import run as run_catalog_import
+from timbre_back.catalog_import import run_retag
 from timbre_back.db import conninfo, vector_literal
 from timbre_back.embed import embed_passages
 from timbre_back.jobs import JobDeferred
@@ -20,10 +21,11 @@ RETRY_AFTER = 60  # seconds before a job that found an API down is due again
 
 
 async def build_vectors(conn: psycopg.AsyncConnection) -> None:
-    """Write the profile text and passage vector of every Song that has no vector."""
+    """Write the profile text and passage vector of every Song that has no vector, or
+    no profile: its tags changed (catalog_import.tag_songs) and its vector is stale."""
     cur = await conn.execute(
         "SELECT id, acousticbrainz, instruments, tags FROM catalog.songs"
-        " WHERE vector IS NULL"
+        " WHERE vector IS NULL OR profile IS NULL"
     )
     rows = await cur.fetchall()
     for i in range(0, len(rows), BATCH):
@@ -50,6 +52,7 @@ async def build_vectors(conn: psycopg.AsyncConnection) -> None:
 JOBS: dict[str, Callable[[psycopg.AsyncConnection], Awaitable[None]]] = {
     "build-vectors": build_vectors,
     "import-catalog": run_catalog_import,
+    "retag": run_retag,
     "evaluate": evaluate,
     "train": train,
 }
