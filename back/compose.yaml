@@ -28,7 +28,7 @@ services:
 
   migrate:
     <<: *hardened
-    image: ghcr.io/amacneil/dbmate:2.37.0
+    image: ghcr.io/amacneil/dbmate:2.38.1
     command: ["up"]
     environment:
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/timbre?sslmode=disable
