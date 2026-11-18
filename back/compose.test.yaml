@@ -1,7 +1,26 @@
 # The test stack: `docker compose -f compose.yaml -f compose.test.yaml ...`. Every browser test is
 # one visitor, so the rate limits are raised here. Without this file the API keeps 30/60.
+# Its own database, fresh (migrated and seeded, no tags) whenever db is recreated, and its own
+# models volume: tests never see or change the dev Catalog, and run as in CI. Switching between
+# the dev and test stacks recreates db; the dev data stays in the db-data volume.
+# `restart db` or stop/start wipes the in-memory db without re-running migrate and seed:
+# recreate the stack instead (`... up -d --wait --force-recreate`).
 services:
+  db:
+    volumes: !reset []
+    tmpfs: [/var/lib/postgresql]
   api:
     environment:
       SEARCH_LIMIT_PER_MIN: ${SEARCH_LIMIT_PER_MIN:-100000}
       VOTE_LIMIT_PER_HOUR: ${VOTE_LIMIT_PER_HOUR:-100000}
+    volumes: !override
+      - models-test:/models/own:ro
+  worker:
+    volumes: !override
+      - models-test:/models/own
+  tests:
+    volumes: !override
+      - models-test:/models/own
+
+volumes:
+  models-test:

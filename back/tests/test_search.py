@@ -382,6 +382,56 @@ def test_a_one_word_tag_does_not_take_over_a_longer_description() -> None:
     assert ids["piano"] in found  # still a Match, by its tag
 
 
+def song_tags(conn: psycopg.Connection, song: UUID) -> list[tuple[int, str]]:
+    return conn.execute(
+        "SELECT vote_rank, key FROM catalog.song_tags WHERE song_id = %s"
+        " ORDER BY vote_rank",
+        (song,),
+    ).fetchall()
+
+
+def test_the_tag_table_follows_each_songs_tags() -> None:
+    """Search looks tags up in catalog.song_tags; a trigger keeps it from songs.tags."""
+    with tagged("zylofonk", {"song": ["Zylo-Fonk", "pop"]}) as ids:
+        song = ids["song"]
+        with psycopg.connect(conninfo("ml_worker"), autocommit=True) as conn:
+            assert song_tags(conn, song) == [(1, "zylo fonk"), (2, "pop")]
+            assert search(q="zylo fonk").json()["matches"][0]["id"] == str(song)
+
+            conn.execute(
+                "UPDATE catalog.songs SET tags = %s WHERE id = %s", (["vorpal"], song)
+            )
+            assert song_tags(conn, song) == [(1, "vorpal")]
+            found = {m["id"] for m in search(q="zylo fonk", n=60).json()["matches"]}
+            assert str(song) not in found
+
+            conn.execute("UPDATE catalog.songs SET tags = NULL WHERE id = %s", (song,))
+            assert song_tags(conn, song) == []
+            conn.execute(
+                "UPDATE catalog.songs SET tags = %s WHERE id = %s", (["pop"], song)
+            )
+    with psycopg.connect(conninfo("ml_worker")) as conn:
+        assert song_tags(conn, song) == []  # deleted with its Song
+
+
+PLAN_SQL = "EXPLAIN {matches} SELECT * FROM matches".replace("{matches}", MATCHES_SQL)
+
+
+def test_search_reads_tags_and_main_artists_through_indexes() -> None:
+    """At 50k Songs a scan per search is too slow (ticket 18): the plan uses both."""
+    with psycopg.connect(conninfo("api_search")) as conn:
+        conn.execute("SET enable_seqscan = off")  # the seed Catalog is small
+        params = {
+            **promoted_model().search_params(embed_query("q$q rocky")),
+            "description": normalize("q$q rocky"),
+            "cutoff": 0.9,
+            "weight": 0.05,
+        }
+        plan = "\n".join(line for (line,) in conn.execute(PLAN_SQL, params).fetchall())
+    assert "song_tags_key" in plan
+    assert "songs_main_artist_trgm" in plan
+
+
 def test_love_returns_its_tagged_songs() -> None:
     songs = {"love": ["love", "pop"], "romantic love": ["pop", "romantic", "love"]}
     with tagged("love", songs) as ids:

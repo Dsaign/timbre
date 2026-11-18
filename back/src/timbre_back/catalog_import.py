@@ -25,7 +25,7 @@ from timbre_back.metabrainz import (
 )
 
 log = logging.getLogger("timbre.import")
-TARGET = 10_000
+TARGET = 50_000
 PER_ARTIST = 50  # candidate Songs per artist, most listened first
 
 
@@ -108,10 +108,14 @@ async def import_top_artists(
             },
         )
         if not page["payload"]["artists"]:
+            size = await catalog_size(conn)
+            if size >= TARGET:  # a resume whose artists were all imported already
+                log.info("import: stopped at %d Songs, the target is %d", size, TARGET)
+                return
             log.warning(
                 "import: stopped at %d Songs, under the %d target: no more"
                 " ListenBrainz top artists (the sitewide stats stop at %d)",
-                await catalog_size(conn),
+                size,
                 TARGET,
                 offset,
             )

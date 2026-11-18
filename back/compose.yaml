@@ -2,7 +2,7 @@
 # `docker compose up -d --wait` starts db, migrates it, sets role passwords, loads the seed
 # Catalog, then starts the API and the job worker (which builds the Song vectors).
 # `docker compose -f compose.yaml -f compose.test.yaml run --rm tests` runs pytest inside the
-# network, on the test stack (raised rate limits).
+# network, on the test stack (raised rate limits, its own fresh in-memory db and models volume).
 # Hardening for every service except db (the postgres entrypoint needs root capabilities).
 x-hardened: &hardened
   cap_drop: [ALL]
