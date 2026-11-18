@@ -113,6 +113,8 @@ export function PreviewPlayer({ children }: { children: React.ReactNode }) {
           if (current === uri && !paused) return c.togglePlay()
           // loadUri reloads the embed even for the same track, and its `ready` re-arms the prompt.
           hideAskPlay()
+          // The reload stops the old track; the new embed's events set the real state.
+          setPlaying({ paused: true })
           c.loadUri(uri)
           c.play()
         })
