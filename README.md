@@ -158,4 +158,4 @@ Migrations novas vão em `back/migrations/` como `YYYYMMDDHHMMSS_descricao.sql`,
 - O Spotify serve só para ouvir as músicas. Ele nunca decide quais músicas combinam com a busca ([ADR 0001](docs/adr/0001-spotify-only-for-preview.md)).
 - Fontes: Bricolage Grotesque e Inter, ambas sob a SIL Open Font License.
 
-<small>made in Brasil 🇧🇷</small>
+<small>Made in Brasil 🇧🇷</small>
