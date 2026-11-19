@@ -398,5 +398,16 @@
       {"id": "73b01cea-2dad-4fc2-9e61-02a31477c1b1", "title": "The Great Gig in the Sky", "artist": "Pink Floyd"},
       {"id": "3e963c34-06d2-4a32-93d8-bd03e98d5e81", "title": "Clocks", "artist": "Coldplay"}
     ]
+  },
+  {
+    "description": "Emo para chorar e cantar gritando",
+    "source": "hand-written",
+    "reviewed": true,
+    "accept_tags": ["emo", "emo pop", "emo rap", "screamo", "post hardcore", "pop punk", "punk pop", "midwest emo"],
+    "songs": [
+      {"id": "c9bc8da1-94ee-4a08-a7cb-ae3000fc721a", "title": "Helena", "artist": "My Chemical Romance"},
+      {"id": "26bc1124-b228-401e-8f38-5cea1625d8c2", "title": "Misery Business", "artist": "Paramore"},
+      {"id": "d87bfaae-99ba-42f5-8b77-7856e0e54148", "title": "Hum Hallelujah", "artist": "Fall Out Boy"}
+    ]
   }
 ]

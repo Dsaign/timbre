@@ -134,9 +134,11 @@ def instruments(recording: Mapping[str, Any]) -> list[str]:
 
 
 def top_tags(tags_by_level: Mapping[str, list[dict[str, Any]]]) -> list[str]:
-    """The most-voted tags of the most specific level that has any."""
+    """Up to TAGS_PER_SONG tags, most specific level first (recording, release group,
+    artist), most-voted first within a level, without duplicates."""
+    tags: list[str] = []
     for level in ("recording", "release_group", "artist"):
-        if tags_by_level.get(level):
-            ranked = sorted(tags_by_level[level], key=lambda tag: -tag["count"])
-            return [tag["tag"] for tag in ranked[:TAGS_PER_SONG]]
-    return []
+        for tag in sorted(tags_by_level.get(level) or [], key=lambda t: -t["count"]):
+            if tag["tag"] not in tags:
+                tags.append(tag["tag"])
+    return tags[:TAGS_PER_SONG]

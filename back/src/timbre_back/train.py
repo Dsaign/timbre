@@ -17,6 +17,7 @@ from typing import NamedTuple
 
 import numpy as np
 import psycopg
+from psycopg.types.json import Jsonb
 
 from timbre_back import benchmark
 from timbre_back import model as models
@@ -243,8 +244,8 @@ async def train(conn: psycopg.AsyncConnection) -> None:
     if promoted is None:
         raise ValueError("no promoted model version to compare with")
     current, *_ = await benchmark.tuned(conn, models.load(promoted[1]), bench)
-    score, cutoff, weight = await benchmark.tuned(conn, candidate, bench)
-    promote = score >= current
+    scores, cutoff, weight = await benchmark.tuned(conn, candidate, bench)
+    promote = scores.recall >= current.recall
 
     # A sequence: two runs never share an id, so never a file either.
     cur = await conn.execute(
@@ -258,25 +259,37 @@ async def train(conn: psycopg.AsyncConnection) -> None:
             "UPDATE catalog.model_versions SET promoted = false WHERE promoted"
         )
     await conn.execute(
-        "INSERT INTO catalog.model_versions"
-        " (id, name, benchmark_score, cutoff, popularity_weight, promoted, file)"
-        " VALUES (%s, %s, %s, %s, %s, %s, %s)",
-        (version, f"own v{version}", score, cutoff, weight, promote, file),
+        "INSERT INTO catalog.model_versions (id, name, benchmark_score, cutoff,"
+        " popularity_weight, promoted, file, recall_at_24, precision_at_16)"
+        " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        (
+            version,
+            f"own v{version}",
+            scores.recall,
+            cutoff,
+            weight,
+            promote,
+            file,
+            Jsonb(scores.recall_by_file),
+            Jsonb(scores.precision_by_file),
+        ),
     )
     log.info(
         "train: %d Descriptions (%d excluded as Benchmark or near it), %d with labels."
         " Version %d scores %.3f at cutoff %.3f and weight %.3f; the promoted"
-        " version %d scores %.3f now. %s",
+        " version %d scores %.3f now. %s Version %d: %s",
         trained,
         usable.count(False),
         labelled,
         version,
-        score,
+        scores.recall,
         cutoff,
         weight,
         promoted[0],
-        current,
+        current.recall,
         "Promoted." if promote else "Not promoted: worse.",
+        version,
+        benchmark.report(scores),
     )
 
 

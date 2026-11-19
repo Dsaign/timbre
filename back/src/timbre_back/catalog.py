@@ -47,7 +47,8 @@ async def queue_build_vectors(conn: psycopg.AsyncConnection) -> None:
     # SKIP LOCKED leaves out a running job: it may have read the Songs before these.
     await conn.execute(
         "INSERT INTO jobs.queue (kind) SELECT 'build-vectors'"
-        " WHERE EXISTS (SELECT FROM catalog.songs WHERE vector IS NULL)"
+        " WHERE EXISTS (SELECT FROM catalog.songs"
+        "   WHERE vector IS NULL OR profile IS NULL)"
         " AND NOT EXISTS (SELECT FROM jobs.queue"
         "   WHERE kind = 'build-vectors' AND status = 'queued'"
         "   FOR UPDATE SKIP LOCKED)"

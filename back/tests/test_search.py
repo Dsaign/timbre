@@ -23,7 +23,7 @@ from timbre_back.db import conninfo, vector_literal
 from timbre_back.embed import embed_query
 from timbre_back.feedback import normalize
 from timbre_back.model import Model
-from timbre_back.search import FIT_SQL, MATCHES_SQL, POPULARITY
+from timbre_back.search import FILLER_WORDS, FIT_SQL, MATCHES_SQL, POPULARITY
 
 API_URL = os.environ.get("API_URL", "http://api:8000")
 AUTH = {
@@ -180,7 +180,14 @@ ARTIST_SEARCHES = {"linkin park"}  # Benchmark Descriptions that name an artist
 
 
 def benchmark_descriptions() -> list[str]:
-    entries = [e for f in benchmark.FILES for e in json.loads(f.read_text())]
+    # The generated file is left out: its script drops any Description that names a
+    # Song of the full Catalog, and its 1,000+ searches would slow the suite down.
+    entries = [
+        e
+        for f in benchmark.FILES
+        if "generated" not in f.name
+        for e in json.loads(f.read_text())
+    ]
     return [
         e["description"]
         for e in entries
@@ -275,7 +282,13 @@ def named(q: str) -> list[UUID]:
     with psycopg.connect(conninfo("ml_worker")) as conn:
         rows = conn.execute(
             NAMED_SQL,
-            {**params, "description": normalize(q), "cutoff": 1, "weight": 0},
+            {
+                **params,
+                "description": normalize(q),
+                "fillers": FILLER_WORDS,
+                "cutoff": 1,
+                "weight": 0,
+            },
         ).fetchall()
     return [row[0] for row in rows]
 
@@ -382,6 +395,37 @@ def test_a_one_word_tag_does_not_take_over_a_longer_description() -> None:
     assert ids["piano"] in found  # still a Match, by its tag
 
 
+WORD_COUNT_SQL = "{matches} SELECT word_count FROM description".replace(
+    "{matches}", MATCHES_SQL
+)
+
+
+@pytest.mark.parametrize(
+    ("q", "words"),
+    [
+        ("Emo para chorar e cantar gritando", 4),  # emo chorar cantar gritando
+        ("emo dos anos 2000 com guitarra e gritos", 5),
+        ("rock pra treinar", 2),
+        ("sad songs for a rainy day with the windows open", 6),
+        ("e o a", 1),  # filler words alone: still a safe divisor
+    ],
+)
+def test_filler_words_do_not_count_toward_a_tags_share(q: str, words: int) -> None:
+    params = promoted_model().search_params(embed_query(q))
+    with psycopg.connect(conninfo("ml_worker")) as conn:
+        row = conn.execute(
+            WORD_COUNT_SQL,
+            {
+                **params,
+                "description": normalize(q),
+                "fillers": FILLER_WORDS,
+                "cutoff": 1,
+                "weight": 0,
+            },
+        ).fetchone()
+    assert row == (words,)
+
+
 def song_tags(conn: psycopg.Connection, song: UUID) -> list[tuple[int, str]]:
     return conn.execute(
         "SELECT vote_rank, key FROM catalog.song_tags WHERE song_id = %s"
@@ -424,6 +468,7 @@ def test_search_reads_tags_and_main_artists_through_indexes() -> None:
         params = {
             **promoted_model().search_params(embed_query("q$q rocky")),
             "description": normalize("q$q rocky"),
+            "fillers": FILLER_WORDS,
             "cutoff": 0.9,
             "weight": 0.05,
         }

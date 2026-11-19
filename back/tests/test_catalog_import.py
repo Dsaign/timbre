@@ -41,6 +41,7 @@ RADIOHEAD = {"Karma Police", "Paranoid Android"}
 LINKIN_PARK_FIRST_RECORDING = "00000000-0000-0000-0012-000000000005"
 SEED = RECORDED / "seed.json"
 LUCKY = "00000000-0000-0000-0012-000000000004"
+RECKONER = "00000000-0000-0000-0012-000000000003"  # one release group tag, no own
 
 pytestmark = pytest.mark.usefixtures("seed_vectors_built")
 
@@ -191,7 +192,8 @@ async def test_keeps_only_songs_with_an_isrc_and_acousticbrainz_data(
         TEST_IDS,
     )
     assert (artist, isrc, listens) == ("Radiohead", "GBAYE9701368", 3890683)
-    assert tags == ["alternative rock", "rock", "alternative and punk"]
+    # Its own 3 tags, then the release group's "art rock".
+    assert tags == ["alternative rock", "rock", "alternative and punk", "art rock"]
     assert "glockenspiel" in instruments
     assert mood_sad == {"sad": 0.539, "not_sad": 0.461}
     # AcousticBrainz is asked in batches: Radiohead's 4 recordings take 3 + 1.
@@ -316,7 +318,7 @@ async def test_seed_songs_get_tags_and_an_interrupted_tagging_resumes(
     killed = FakeMetaBrainz(die_on=f"recording_mbids={LUCKY}")
     with pytest.raises(RuntimeError, match="worker killed"):
         await run_import(conn, killed)
-    assert await tags_of(conn, "00000000-0000-0000-0012-000000000003") == ["rock"]
+    assert await tags_of(conn, RECKONER) == ["rock", "alternative rock", "art rock"]
     assert await tags_of(conn, LUCKY) is None
 
     resumed = FakeMetaBrainz()
@@ -389,3 +391,73 @@ async def test_an_import_that_finds_the_apis_down_is_deferred_without_blocking(
     assert await one(conn, "SELECT status FROM jobs.queue WHERE id = %s", later) == (
         "done",
     )
+
+
+def test_top_tags_fill_up_from_the_release_group_then_the_artist() -> None:
+    """A recording with one tag of its own keeps it first and fills up from the less
+    specific levels, most-voted first, without duplicates."""
+    tags = metabrainz.top_tags(
+        {
+            "recording": [{"tag": "00s", "count": 1}],
+            "release_group": [
+                {"tag": "00s", "count": 4},
+                {"tag": "thrash metal", "count": 3},
+            ],
+            "artist": [
+                {"tag": "speed metal", "count": 5},
+                {"tag": "thrash metal", "count": 9},
+                {"tag": "metal", "count": 8},
+                {"tag": "heavy metal", "count": 4},
+                {"tag": "hardcore", "count": 1},
+            ],
+        }
+    )
+    assert tags == ["00s", "thrash metal", "metal", "speed metal", "heavy metal"]
+
+
+@pytest.mark.anyio
+async def test_retag_fills_short_songs_in_place_and_queues_build_vectors(
+    conn: psycopg.AsyncConnection,
+) -> None:
+    await load_test_seed(conn)
+    full = ["a", "b", "c", "d", "e"]
+    await conn.execute(
+        "UPDATE catalog.songs SET tags = %s, profile = 'old', vector = %s::vector"
+        " WHERE id = %s",
+        (["rock"], "[" + ",".join(["0.05"] * 384) + "]", RECKONER),
+    )
+    await conn.execute(
+        "UPDATE catalog.songs SET tags = %s WHERE id = %s", (full, LUCKY)
+    )
+    await conn.execute(
+        "UPDATE jobs.queue SET status = 'done'"
+        " WHERE kind = 'build-vectors' AND status = 'queued'"
+    )
+
+    fake = FakeMetaBrainz()
+    async with metabrainz.client(httpx.MockTransport(fake)) as http:
+        await catalog_import.retag(conn, http)
+
+    asked = {
+        mbid
+        for r in fake.requests
+        for mbid in r.url.params["recording_mbids"].split(",")
+    }
+    assert RECKONER in asked
+    assert LUCKY not in asked  # it has TAGS_PER_SONG tags already
+    tags, profile, has_vector = await one(
+        conn,
+        "SELECT tags, profile, vector IS NOT NULL FROM catalog.songs WHERE id = %s",
+        RECKONER,
+    )
+    # Still searchable (its vector stays) until build-vectors redoes it (no profile).
+    assert (tags, profile, has_vector) == (
+        ["rock", "alternative rock", "art rock"],
+        None,
+        True,
+    )
+    assert await one(
+        conn,
+        "SELECT count(*) FROM jobs.queue"
+        " WHERE kind = 'build-vectors' AND status = 'queued'",
+    ) == (1,)

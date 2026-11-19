@@ -21,7 +21,7 @@ How closely a Song suits a Description, as judged by timbre's model. After a nam
 _Avoid_: Similarity, score, relevance
 
 **Match**:
-A Song returned for a Description, for one of three reasons: a name match, a Fit that passes the cutoff, or a tag that matches the Description and is among the Song's 3 most-voted tags. Name matches come first. The rest are ordered by fusing two rankings, by Fit and by tag, with the tag ranking counting more the more of the Description its tag covers. After name matches, only the first 60 related Songs are Matches. The number of Matches is the count shown for a search.
+A Song returned for a Description, for one of three reasons: a name match, a Fit that passes the cutoff, or a tag that matches the Description and is among the Song's 3 most-voted tags. Name matches come first. The rest are ordered by fusing two rankings, by Fit and by tag, with the tag ranking counting more the more of the Description its tag covers (filler words such as "pra", "com" or "the" aside). After name matches, only the first 60 related Songs are Matches. The number of Matches is the count shown for a search.
 _Avoid_: Result, recommendation, hit
 
 **Name match**:
@@ -41,7 +41,7 @@ A visitor's vote that one Match does or does not fit the Description it was retu
 _Avoid_: Rating, review, like
 
 **Benchmark**:
-The fixed set of 105 Descriptions, each with the Songs that should be Matches, used to score the model through the same search visitors get (name matches, tags and Fit). It is never used for training.
+Descriptions, each with the Songs that should be Matches, used to score the model through the same search visitors get (name matches, tags and Fit). Three files: the owner's hand-written ones, Bob's drafted ones (both reviewed by the owner) and ones generated from the Catalog (not reviewed). Its score is the share of each Description's Songs among its first 24 Matches. A Description may also list accept tags, the tags that make any Match count as on target for it; precision is then how many of its first 16 Matches carry one, out of 16. It is never used for training, and no Description close to one of its Descriptions is either.
 _Avoid_: Test set, eval set, golden set
 
 **Preview**:

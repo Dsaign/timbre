@@ -42,7 +42,7 @@ from timbre_back.model import BASELINE, Model
 from timbre_back.model import load as load_model
 from timbre_back.preview import Spotify, delete_expired_daily, lookup
 from timbre_back.ratelimit import forget_old_hits_daily, over_limit
-from timbre_back.search import MATCHES_SQL
+from timbre_back.search import FILLER_WORDS, MATCHES_SQL
 
 # An unset token matches nothing, so a misconfigured API refuses every caller.
 FRONT_TOKEN = os.environ.get("FRONT_TOKEN", "").encode()
@@ -257,6 +257,7 @@ async def search(
                 "n": params.n,
                 "offset": params.offset,
                 "description": normalize(params.q),
+                "fillers": FILLER_WORDS,
                 "visitor": visitor,
             },
         )
