@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="timbre">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c6d2ff"/><stop offset="1" stop-color="#e7e4e7"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56.3" fill="url(#g)"/>
+  <g fill="#18181b" transform="translate(79.7 178.2) scale(0.15872 -0.15872)">
+    <path transform="translate(0.0 0)" d="M268 -13Q175 -13 131.0 36.5Q87 86 87 195V402H12L15 527H69Q101 528 117.5 537.0Q134 546 138 571L151 645H242V528H369V397H242V202Q242 168 258.5 152.0Q275 136 309 136Q328 136 345.0 140.0Q362 144 373 151V2Q341 -8 314.5 -10.5Q288 -13 268 -13Z"/><path transform="translate(366.0 0)" d="M125 -13Q73 -13 47.5 9.0Q22 31 22 77Q22 124 47.5 146.0Q73 168 125 168Q178 168 204.0 146.0Q230 124 230 77Q230 -13 125 -13Z"/>
+  </g>
+</svg>
